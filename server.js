@@ -44,6 +44,11 @@ app.get('/dashboard/:token', (req, res) => {
   res.sendFile(__dirname + '/public/dashboard.html');
 });
 
+// Report route – serves report.html for /dashboard/:token/report
+app.get('/dashboard/:token/report', (req, res) => {
+  res.sendFile(__dirname + '/public/report.html');
+});
+
 // Health check
 app.get('/', (req, res) => {
   res.json({ status: 'ok', service: 'ai-granskning', version: '1.0.0' });

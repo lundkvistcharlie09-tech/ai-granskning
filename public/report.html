@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Granskningsrapport</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #FAFAFA;
+      --card: #ffffff;
+      --border: #F0F0F0;
+      --text: #111111;
+      --muted: #888888;
+      --label: #CCCCCC;
+      --radius: 14px;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding-bottom: 80px;
+    }
+
+    .topbar {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo { font-size: 15px; font-weight: 700; }
+    .report-date { font-size: 12px; color: var(--muted); }
+
+    .container { max-width: 780px; margin: 0 auto; padding: 48px 24px; }
+
+    .report-header { margin-bottom: 48px; }
+    .company-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--label);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .company-title {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -1px;
+      margin-bottom: 6px;
+    }
+    .report-meta {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .section { margin-bottom: 40px; }
+    .section-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--label);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* STAT ROW */
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    @media(max-width:600px){ .stat-grid { grid-template-columns: 1fr 1fr; } }
+    .stat-cell {
+      background: var(--card);
+      padding: 24px;
+    }
+    .stat-name { font-size: 11px; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
+    .stat-value { font-size: 26px; font-weight: 700; letter-spacing: -1px; }
+    .stat-unit { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+    /* DATA TABLE */
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table th {
+      text-align: left;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--label);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      padding: 0 0 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .data-table td {
+      padding: 12px 0;
+      font-size: 13px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table td:last-child { text-align: right; font-weight: 700; }
+
+    /* TIME TABLE */
+    .time-table { width: 100%; }
+    .time-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+    .time-row:last-child { border-bottom: none; font-weight: 700; font-size: 14px; }
+    .time-row-label { color: var(--text); }
+    .time-row-val { font-weight: 600; }
+
+    /* FUNNEL */
+    .funnel-row { margin-bottom: 16px; }
+    .funnel-top { display: flex; justify-content: space-between; margin-bottom: 6px; }
+    .funnel-step { font-size: 13px; font-weight: 500; }
+    .funnel-nums { font-size: 13px; font-weight: 700; color: var(--muted); }
+    .funnel-bar-bg { background: var(--border); border-radius: 4px; height: 6px; }
+    .funnel-bar-fill { background: var(--text); border-radius: 4px; height: 6px; }
+    .funnel-drop { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+    /* SCORE */
+    .score-row {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 24px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+    .score-big { font-size: 48px; font-weight: 700; letter-spacing: -2px; }
+    .score-label { font-size: 13px; color: var(--muted); margin-top: 4px; }
+    .score-bar-wrap { flex: 1; }
+    .score-bar-bg { background: var(--border); border-radius: 4px; height: 8px; margin-top: 8px; }
+    .score-bar-fill { background: var(--text); border-radius: 4px; height: 8px; transition: width 0.8s; }
+
+    /* FOOTER */
+    .footer {
+      margin-top: 60px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="logo">AI-Granskning</span>
+  <span class="report-date" id="report-date">–</span>
+</div>
+
+<div class="container">
+
+  <div class="report-header">
+    <div class="company-label">Granskningsrapport · 7 dagar</div>
+    <div class="company-title" id="company-title">–</div>
+    <div class="report-meta" id="report-meta">–</div>
+  </div>
+
+  <!-- NYCKELTAL -->
+  <div class="section">
+    <div class="section-label">Nyckeltal</div>
+    <div class="stat-grid" id="stat-grid">
+      <div class="stat-cell"><div class="stat-name">Besökare</div><div class="stat-value" id="s-visitors">–</div><div class="stat-unit">unika sessioner</div></div>
+      <div class="stat-cell"><div class="stat-name">Konvertering</div><div class="stat-value" id="s-conversion">–</div><div class="stat-unit">besök → bokning</div></div>
+      <div class="stat-cell"><div class="stat-name">No-show rate</div><div class="stat-value" id="s-noshow">–</div><div class="stat-unit">av bokningar</div></div>
+      <div class="stat-cell"><div class="stat-name">Totala mejl</div><div class="stat-value" id="s-emails">–</div><div class="stat-unit">under veckan</div></div>
+      <div class="stat-cell"><div class="stat-name">Svarstid</div><div class="stat-value" id="s-response">–</div><div class="stat-unit">timmar i snitt</div></div>
+      <div class="stat-cell"><div class="stat-name">Manuell tid</div><div class="stat-value" id="s-manual">–</div><div class="stat-unit">timmar/vecka</div></div>
+    </div>
+  </div>
+
+  <!-- MEJL PER KATEGORI -->
+  <div class="section">
+    <div class="section-label">Mejl per kategori</div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Kategori</th>
+          <th>Antal</th>
+          <th style="text-align:right">Tid (min/st)</th>
+        </tr>
+      </thead>
+      <tbody id="email-table-body">
+        <tr><td colspan="3" style="color:#ccc;padding:16px 0">Inga mejl importerade</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- TIDSTJUVAR -->
+  <div class="section">
+    <div class="section-label">Manuell tid per vecka</div>
+    <div class="time-table" id="time-table">
+      <div style="color:#ccc;font-size:13px">Beräknas från data</div>
+    </div>
+  </div>
+
+  <!-- KONVERTERINGSTRATT -->
+  <div class="section">
+    <div class="section-label">Konverteringstratt</div>
+    <div id="funnel-section">
+      <div style="color:#ccc;font-size:13px">Ingen hemsidedata</div>
+    </div>
+  </div>
+
+  <!-- AI-HÄLSOPOÄNG -->
+  <div class="section">
+    <div class="section-label">AI-hälsopoäng</div>
+    <div class="score-row">
+      <div>
+        <div class="score-big" id="score-val">–</div>
+        <div class="score-label">av 100 möjliga</div>
+      </div>
+      <div class="score-bar-wrap">
+        <div style="font-size:12px;color:var(--muted)">Baseras på konvertering, svarstider, no-show och manuell tid</div>
+        <div class="score-bar-bg">
+          <div class="score-bar-fill" id="score-bar" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Rapporten genererades av AI-Granskning · Data insamlad under 7 dagar
+  </div>
+
+</div>
+
+<script>
+  const API = 'https://ai-granskning.vercel.app';
+
+  function getToken() {
+    const parts = window.location.pathname.split('/');
+    // /dashboard/TOKEN/report
+    const idx = parts.indexOf('dashboard');
+    return idx !== -1 ? parts[idx + 1] : new URLSearchParams(window.location.search).get('token');
+  }
+
+  async function loadReport() {
+    const token = getToken();
+    if (!token) { document.body.innerHTML = '<p style="padding:40px;color:#888">Ogiltig länk.</p>'; return; }
+
+    try {
+      const [dashRes, reportRes] = await Promise.all([
+        fetch(`${API}/api/dashboard`, { headers: { 'x-audit-token': token } }),
+        fetch(`${API}/api/report`, { headers: { 'x-audit-token': token } })
+      ]);
+
+      const dash = await dashRes.json();
+      const report = reportRes.ok ? await reportRes.json() : null;
+
+      render(dash, report);
+    } catch (err) {
+      document.body.innerHTML = '<p style="padding:40px;color:#888">Kunde inte ladda rapport.</p>';
+    }
+  }
+
+  function render(dash, report) {
+    const { audit, kpis, funnel, emailCategories, manualTime, healthScore } = dash;
+
+    // Header
+    const start = new Date(audit.startDate).toLocaleDateString('sv-SE');
+    const end = new Date(audit.endDate).toLocaleDateString('sv-SE');
+    document.getElementById('company-title').textContent = audit.companyName;
+    document.getElementById('report-meta').textContent = `${audit.industry} · ${start} – ${end}`;
+    document.getElementById('report-date').textContent = new Date().toLocaleDateString('sv-SE');
+    document.title = `Granskningsrapport – ${audit.companyName}`;
+
+    // Stats
+    document.getElementById('s-visitors').textContent = kpis.visitors ?? '–';
+    document.getElementById('s-conversion').textContent = (kpis.conversionRate ?? '–') + '%';
+    document.getElementById('s-noshow').textContent = (kpis.noShowRate ?? '–') + '%';
+    document.getElementById('s-emails').textContent = report?.total_emails ?? '–';
+    document.getElementById('s-response').textContent = report?.avg_response_time ?? '–';
+    document.getElementById('s-manual').textContent = manualTime?.total ?? '–';
+
+    // Email table
+    if (emailCategories?.length) {
+      const rows = emailCategories.map(c => `
+        <tr>
+          <td>${c.name}</td>
+          <td>${c.count}</td>
+          <td>${c.totalMinutes ? Math.round(c.totalMinutes / c.count) : '–'}</td>
+        </tr>
+      `).join('');
+      document.getElementById('email-table-body').innerHTML = rows;
+    }
+
+    // Manual time
+    if (manualTime?.items?.length) {
+      const rows = manualTime.items.map(i => `
+        <div class="time-row">
+          <span class="time-row-label">${i.label}</span>
+          <span class="time-row-val">${i.hours}h</span>
+        </div>
+      `).join('');
+      const total = `
+        <div class="time-row">
+          <span class="time-row-label">Totalt per vecka</span>
+          <span class="time-row-val">${manualTime.total}h</span>
+        </div>
+      `;
+      document.getElementById('time-table').innerHTML = rows + total;
+    }
+
+    // Funnel
+    if (funnel?.length) {
+      const html = funnel.map((f, i) => `
+        <div class="funnel-row">
+          <div class="funnel-top">
+            <span class="funnel-step">${f.step}</span>
+            <span class="funnel-nums">${f.count} besökare · ${f.percentage}%</span>
+          </div>
+          <div class="funnel-bar-bg">
+            <div class="funnel-bar-fill" style="width:${f.percentage}%"></div>
+          </div>
+          ${i > 0 && f.dropoff > 0 ? `<div class="funnel-drop">↓ ${f.dropoff} lämnade här</div>` : ''}
+        </div>
+      `).join('');
+      document.getElementById('funnel-section').innerHTML = html;
+    }
+
+    // Health score
+    const score = healthScore ?? report?.health_score ?? 0;
+    document.getElementById('score-val').textContent = score;
+    document.getElementById('score-bar').style.width = score + '%';
+  }
+
+  loadReport();
+</script>
+</body>
+</html>
