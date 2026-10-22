@@ -36,6 +36,14 @@ app.use('/api/report', require('./routes/report'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/track', require('./routes/tracking'));
 
+// Serve dashboard HTML
+app.use(express.static('public'));
+
+// Dashboard route – serves dashboard.html for /dashboard/:token
+app.get('/dashboard/:token', (req, res) => {
+  res.sendFile(__dirname + '/public/dashboard.html');
+});
+
 // Health check
 app.get('/', (req, res) => {
   res.json({ status: 'ok', service: 'ai-granskning', version: '1.0.0' });

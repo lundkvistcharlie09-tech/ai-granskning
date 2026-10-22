@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI-Granskning – Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #FAFAFA;
+      --card: #ffffff;
+      --border: #F0F0F0;
+      --text: #111111;
+      --muted: #888888;
+      --label: #CCCCCC;
+      --accent: #111111;
+      --radius: 14px;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding-bottom: 60px;
+    }
+
+    /* TOP BAR */
+    .topbar {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 16px; }
+    .logo { font-size: 15px; font-weight: 700; letter-spacing: -0.3px; }
+    .company-name { font-size: 14px; color: var(--muted); font-weight: 500; }
+    .live-badge {
+      background: #111;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+      letter-spacing: 0.3px;
+    }
+    .live-dot {
+      display: inline-block;
+      width: 6px; height: 6px;
+      background: #4ade80;
+      border-radius: 50%;
+      margin-right: 5px;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+    /* LAYOUT */
+    .container { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
+
+    .section-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--label);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    /* KPI GRID */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    @media(max-width:800px){ .kpi-grid { grid-template-columns: repeat(2,1fr); } }
+    @media(max-width:500px){ .kpi-grid { grid-template-columns: 1fr; } }
+
+    .kpi-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+    }
+    .kpi-label { font-size: 11px; font-weight: 600; color: var(--muted); margin-bottom: 8px; }
+    .kpi-value {
+      font-size: 30px;
+      font-weight: 700;
+      letter-spacing: -1.5px;
+      line-height: 1;
+    }
+    .kpi-sub { font-size: 12px; color: var(--muted); margin-top: 6px; }
+
+    /* GRID 2-COL */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    @media(max-width:700px){ .grid-2 { grid-template-columns: 1fr; } }
+
+    /* CARD */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+    }
+    .card-title {
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+
+    /* BAR CHART */
+    .bar-chart { display: flex; align-items: flex-end; gap: 8px; height: 100px; }
+    .bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .bar {
+      width: 100%;
+      background: var(--accent);
+      border-radius: 4px 4px 0 0;
+      min-height: 4px;
+      transition: height 0.4s;
+    }
+    .bar.future { background: transparent; border: 1.5px dashed #DDD; border-bottom: none; }
+    .bar-day { font-size: 10px; color: var(--muted); font-weight: 600; }
+    .bar-count { font-size: 10px; font-weight: 700; }
+
+    /* FUNNEL */
+    .funnel-row { margin-bottom: 14px; }
+    .funnel-top { display: flex; justify-content: space-between; margin-bottom: 5px; }
+    .funnel-step { font-size: 12px; font-weight: 600; }
+    .funnel-pct { font-size: 12px; font-weight: 700; }
+    .funnel-bar-bg { background: var(--bg); border-radius: 4px; height: 6px; }
+    .funnel-bar-fill { background: var(--accent); border-radius: 4px; height: 6px; transition: width 0.6s; }
+
+    /* EMAIL CATEGORIES */
+    .email-list { display: flex; flex-direction: column; gap: 10px; }
+    .email-item { display: flex; align-items: center; justify-content: space-between; }
+    .email-tag {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+    }
+    .email-count { font-size: 13px; font-weight: 700; }
+    .email-bar-bg { flex: 1; margin: 0 12px; background: var(--bg); border-radius: 3px; height: 4px; }
+    .email-bar-fill { background: #111; border-radius: 3px; height: 4px; }
+
+    /* TIDSTJUVAR */
+    .time-list { display: flex; flex-direction: column; gap: 0; }
+    .time-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+    .time-item:last-child { border-bottom: none; }
+    .time-item.total { font-weight: 700; }
+    .time-item.total .time-hours { font-size: 15px; }
+    .time-label { font-weight: 500; }
+    .time-hours { font-weight: 700; }
+
+    /* HEALTH SCORE */
+    .health-score-wrap { display: flex; align-items: center; gap: 24px; }
+    .score-circle {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      background: var(--bg);
+      border: 3px solid var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .score-num { font-size: 24px; font-weight: 700; letter-spacing: -1px; }
+    .score-max { font-size: 11px; color: var(--muted); }
+    .week-progress { flex: 1; }
+    .week-days { display: flex; gap: 6px; margin-top: 10px; }
+    .day-dot {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 700; color: var(--muted);
+    }
+    .day-dot.done { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .day-dot.today { border-color: var(--accent); color: var(--accent); }
+
+    /* INSIGHTS */
+    .insights-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media(max-width:600px){ .insights-grid { grid-template-columns: 1fr; } }
+    .insight-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: 10px;
+      padding: 16px;
+    }
+    .insight-title { font-size: 12px; font-weight: 700; margin-bottom: 6px; }
+    .insight-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+    .insight-tag {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--muted);
+      margin-top: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    /* REPORT BUTTON */
+    .report-btn {
+      display: block;
+      width: 100%;
+      padding: 16px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 24px;
+      font-family: 'Inter', sans-serif;
+      letter-spacing: -0.2px;
+      transition: opacity 0.2s;
+    }
+    .report-btn:hover { opacity: 0.85; }
+    .report-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* LOADING */
+    .skeleton {
+      background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 6px;
+    }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+    .mb-16 { margin-bottom: 16px; }
+    .mb-32 { margin-bottom: 32px; }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="logo">AI-Granskning</span>
+    <span class="company-name" id="company-name">Laddar...</span>
+  </div>
+  <span class="live-badge" id="day-badge"><span class="live-dot"></span>Dag – av 7</span>
+</div>
+
+<div class="container">
+
+  <!-- KPI -->
+  <div class="section-label">Nyckeltal</div>
+  <div class="kpi-grid mb-32">
+    <div class="kpi-card">
+      <div class="kpi-label">Besökare</div>
+      <div class="kpi-value" id="kpi-visitors">–</div>
+      <div class="kpi-sub">denna vecka</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Konverteringsgrad</div>
+      <div class="kpi-value" id="kpi-conversion">–</div>
+      <div class="kpi-sub">besök → bokning</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">No-show rate</div>
+      <div class="kpi-value" id="kpi-noshow">–</div>
+      <div class="kpi-sub">uteblivna bokningar</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Mejl utan svar</div>
+      <div class="kpi-value" id="kpi-emails">–</div>
+      <div class="kpi-sub">väntar på respons</div>
+    </div>
+  </div>
+
+  <!-- BOKNINGAR + FUNNEL -->
+  <div class="grid-2 mb-16">
+    <div class="card">
+      <div class="card-title">Bokningar per dag</div>
+      <div class="bar-chart" id="bar-chart">
+        <div style="color:#ccc;font-size:12px">Laddar...</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Hemsidans konverteringstratt</div>
+      <div id="funnel-list">
+        <div style="color:#ccc;font-size:12px">Laddar...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EMAIL + TIDSTJUVAR -->
+  <div class="grid-2 mb-16">
+    <div class="card">
+      <div class="card-title">Mejl per kategori</div>
+      <div class="email-list" id="email-list">
+        <div style="color:#ccc;font-size:12px">Laddar...</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Tidstjuvar per vecka</div>
+      <div class="time-list" id="time-list">
+        <div style="color:#ccc;font-size:12px">Laddar...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HEALTH + INSIGHTS -->
+  <div class="grid-2 mb-16">
+    <div class="card">
+      <div class="card-title">AI-hälsopoäng</div>
+      <div class="health-score-wrap">
+        <div class="score-circle">
+          <div>
+            <div class="score-num" id="health-score">–</div>
+            <div class="score-max">/100</div>
+          </div>
+        </div>
+        <div class="week-progress">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:4px">Granskningsvecka</div>
+          <div class="week-days" id="week-days"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">AI insikter</div>
+      <div class="insights-grid" id="insights-grid">
+        <div style="color:#ccc;font-size:12px">Genereras när data finns...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REPORT BUTTON -->
+  <button class="report-btn" id="report-btn" disabled>
+    Slutrapport genereras dag 7
+  </button>
+
+</div>
+
+<script>
+  const API = 'https://ai-granskning.vercel.app';
+
+  // Get token from URL: /dashboard/TOKEN
+  function getToken() {
+    const parts = window.location.pathname.split('/');
+    return parts[parts.length - 1] || new URLSearchParams(window.location.search).get('token');
+  }
+
+  async function loadDashboard() {
+    const token = getToken();
+    if (!token || token === 'dashboard') {
+      showError('Ogiltig dashboard-länk.');
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API}/api/dashboard`, {
+        headers: { 'x-audit-token': token }
+      });
+
+      if (!res.ok) throw new Error('Kunde inte ladda data');
+      const data = await res.json();
+      render(data);
+
+      // Refresh every 60 seconds
+      setTimeout(loadDashboard, 60000);
+    } catch (err) {
+      showError('Kunde inte ansluta till servern. Försök igen om en stund.');
+    }
+  }
+
+  function render(data) {
+    const { audit, kpis, funnel, bookingsPerDay, emailCategories, manualTime, healthScore, insights, reportReady } = data;
+
+    // Top bar
+    document.getElementById('company-name').textContent = audit.companyName;
+    document.getElementById('day-badge').innerHTML = `<span class="live-dot"></span>Dag ${audit.dayNumber} av 7`;
+    document.title = `${audit.companyName} – AI-Granskning`;
+
+    // KPIs
+    document.getElementById('kpi-visitors').textContent = kpis.visitors || '0';
+    document.getElementById('kpi-conversion').textContent = (kpis.conversionRate || 0) + '%';
+    document.getElementById('kpi-noshow').textContent = (kpis.noShowRate || 0) + '%';
+    document.getElementById('kpi-emails').textContent = kpis.unansweredEmails || '0';
+
+    // Bar chart
+    renderBarChart(bookingsPerDay || []);
+
+    // Funnel
+    renderFunnel(funnel || []);
+
+    // Email categories
+    renderEmailCategories(emailCategories || []);
+
+    // Manual time
+    renderManualTime(manualTime || { items: [], total: 0 });
+
+    // Health score
+    document.getElementById('health-score').textContent = healthScore || '–';
+    renderWeekDots(audit.dayNumber);
+
+    // Insights
+    renderInsights(insights || []);
+
+    // Report button
+    const btn = document.getElementById('report-btn');
+    if (reportReady) {
+      btn.textContent = '📄 Visa slutrapport';
+      btn.disabled = false;
+      btn.onclick = () => window.location.href = `${window.location.pathname}/report`;
+    } else if (audit.dayNumber >= 7) {
+      btn.textContent = 'Generera slutrapport';
+      btn.disabled = false;
+      btn.onclick = generateReport;
+    } else {
+      btn.textContent = `Slutrapport genereras dag 7 (${audit.daysLeft} dagar kvar)`;
+      btn.disabled = true;
+    }
+  }
+
+  function renderBarChart(days) {
+    const max = Math.max(...days.map(d => d.count), 1);
+    const html = days.map(d => `
+      <div class="bar-wrap">
+        <div class="bar-count">${d.count || ''}</div>
+        <div class="bar ${d.isFuture ? 'future' : ''}" style="height:${Math.max(4, (d.count/max)*80)}px"></div>
+        <div class="bar-day">${d.day}</div>
+      </div>
+    `).join('');
+    document.getElementById('bar-chart').innerHTML = html || '<div style="color:#ccc;font-size:12px">Ingen data ännu</div>';
+  }
+
+  function renderFunnel(funnel) {
+    if (!funnel.length) {
+      document.getElementById('funnel-list').innerHTML = '<div style="color:#ccc;font-size:12px">Ingen data ännu</div>';
+      return;
+    }
+    const html = funnel.map(f => `
+      <div class="funnel-row">
+        <div class="funnel-top">
+          <span class="funnel-step">${f.step}</span>
+          <span class="funnel-pct">${f.percentage}%</span>
+        </div>
+        <div class="funnel-bar-bg">
+          <div class="funnel-bar-fill" style="width:${f.percentage}%"></div>
+        </div>
+      </div>
+    `).join('');
+    document.getElementById('funnel-list').innerHTML = html;
+  }
+
+  function renderEmailCategories(categories) {
+    if (!categories.length) {
+      document.getElementById('email-list').innerHTML = '<div style="color:#ccc;font-size:12px">Inga mejl importerade ännu</div>';
+      return;
+    }
+    const max = Math.max(...categories.map(c => c.count), 1);
+    const html = categories.slice(0, 5).map(c => `
+      <div class="email-item">
+        <span class="email-tag">${c.name}</span>
+        <div class="email-bar-bg">
+          <div class="email-bar-fill" style="width:${(c.count/max)*100}%"></div>
+        </div>
+        <span class="email-count">${c.count}</span>
+      </div>
+    `).join('');
+    document.getElementById('email-list').innerHTML = html;
+  }
+
+  function renderManualTime(manualTime) {
+    if (!manualTime.items.length) {
+      document.getElementById('time-list').innerHTML = '<div style="color:#ccc;font-size:12px">Beräknas när data finns</div>';
+      return;
+    }
+    const rows = manualTime.items.map(item => `
+      <div class="time-item">
+        <span class="time-label">${item.label}</span>
+        <span class="time-hours">${item.hours}h</span>
+      </div>
+    `).join('');
+    const total = `
+      <div class="time-item total">
+        <span class="time-label">Totalt per vecka</span>
+        <span class="time-hours">${manualTime.total}h</span>
+      </div>
+    `;
+    document.getElementById('time-list').innerHTML = rows + total;
+  }
+
+  function renderWeekDots(dayNumber) {
+    const days = ['M','T','O','T','F','L','S'];
+    const html = days.map((d, i) => {
+      const n = i + 1;
+      const cls = n < dayNumber ? 'done' : n === dayNumber ? 'today' : '';
+      return `<div class="day-dot ${cls}">${d}</div>`;
+    }).join('');
+    document.getElementById('week-days').innerHTML = html;
+  }
+
+  function renderInsights(insights) {
+    if (!insights.length) {
+      document.getElementById('insights-grid').innerHTML = '<div style="color:#ccc;font-size:12px">AI-insikter genereras när tillräcklig data finns</div>';
+      return;
+    }
+    const html = insights.slice(0, 4).map(i => `
+      <div class="insight-card">
+        <div class="insight-title">${i.title}</div>
+        <div class="insight-desc">${i.description}</div>
+        <span class="insight-tag">${i.category || 'tid'} · ${i.impact || 'medium'}</span>
+      </div>
+    `).join('');
+    document.getElementById('insights-grid').innerHTML = html;
+  }
+
+  async function generateReport() {
+    const token = getToken();
+    const btn = document.getElementById('report-btn');
+    btn.textContent = 'Genererar rapport...';
+    btn.disabled = true;
+    try {
+      const res = await fetch(`${API}/api/report/generate`, {
+        method: 'POST',
+        headers: { 'x-audit-token': token }
+      });
+      if (res.ok) {
+        btn.textContent = '✓ Rapport genererad – laddar om...';
+        setTimeout(() => loadDashboard(), 1500);
+      } else {
+        btn.textContent = 'Fel – försök igen';
+        btn.disabled = false;
+      }
+    } catch {
+      btn.textContent = 'Fel – försök igen';
+      btn.disabled = false;
+    }
+  }
+
+  function showError(msg) {
+    document.getElementById('company-name').textContent = msg;
+  }
+
+  loadDashboard();
+</script>
+</body>
+</html>
