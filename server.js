@@ -9,7 +9,7 @@ const app = express();
 app.use(cors({
   origin: process.env.FRONTEND_URL || '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'x-audit-token']
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-audit-token', 'x-admin-password']
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
