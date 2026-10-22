@@ -1,1 +1,5 @@
-node_modules/\n.env\n.vercel/
+node_modules/
+.env
+.env.local
+.vercel/
+*.log
