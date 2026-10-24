@@ -38,6 +38,7 @@ router.get('/', auditAuth, async (req, res) => {
       audit: {
         id: req.audit.id,
         companyName: req.audit.company_name,
+        industry: req.audit.industry || '',
         dayNumber,
         daysLeft: Math.max(0, 7 - dayNumber + 1),
         startDate: req.audit.start_date,

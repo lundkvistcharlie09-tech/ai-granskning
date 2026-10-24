@@ -19,7 +19,7 @@ async function auditAuth(req, res, next) {
 
   const { data, error } = await supabase
     .from('audits')
-    .select('id, company_name, status, start_date, end_date')
+    .select('id, company_name, industry, status, start_date, end_date, report_url')
     .eq('access_token', token)
     .single();
 

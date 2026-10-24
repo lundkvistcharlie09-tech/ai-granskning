@@ -259,22 +259,33 @@
     if (!token) { document.body.innerHTML = '<p style="padding:40px;color:#888">Ogiltig länk.</p>'; return; }
 
     try {
-      const [dashRes, reportRes] = await Promise.all([
-        fetch(`${API}/api/dashboard`, { headers: { 'x-audit-token': token } }),
-        fetch(`${API}/api/report`, { headers: { 'x-audit-token': token } })
-      ]);
-
+      const dashRes = await fetch(`${API}/api/dashboard`, { headers: { 'x-audit-token': token } });
+      if (!dashRes.ok) {
+        const txt = await dashRes.text();
+        throw new Error(`Dashboard ${dashRes.status}: ${txt}`);
+      }
       const dash = await dashRes.json();
-      const report = reportRes.ok ? await reportRes.json() : null;
+
+      let report = null;
+      try {
+        const reportRes = await fetch(`${API}/api/report`, { headers: { 'x-audit-token': token } });
+        if (reportRes.ok) report = await reportRes.json();
+      } catch(e) { console.warn('Report endpoint failed:', e); }
 
       render(dash, report);
     } catch (err) {
-      document.body.innerHTML = '<p style="padding:40px;color:#888">Kunde inte ladda rapport.</p>';
+      console.error('loadReport failed:', err);
+      document.body.innerHTML = `<p style="padding:40px;color:#888;font-family:monospace">Fel: ${err.message}</p>`;
     }
   }
 
   function render(dash, report) {
-    const { audit, kpis, funnel, emailCategories, manualTime, healthScore } = dash;
+    const audit = dash.audit || {};
+    const kpis = dash.kpis || {};
+    const funnel = dash.funnel || [];
+    const emailCategories = dash.emailCategories || [];
+    const manualTime = dash.manualTime || {};
+    const healthScore = dash.healthScore;
 
     // Header
     const start = new Date(audit.startDate).toLocaleDateString('sv-SE');
