@@ -74,10 +74,23 @@ app.get('/api/debug', async (req, res) => {
     else { dbStatus = 'ok'; latestAudits = data; }
   } catch(e) { dbStatus = 'exception'; dbError = e.message; }
 
+  // Test looking up the latest token directly
+  let tokenLookup = null;
+  if (latestAudits.length > 0) {
+    const testToken = latestAudits[0].access_token;
+    const { data: td, error: te } = await supabase
+      .from('audits')
+      .select('id, company_name, access_token, industry, status, start_date, end_date, report_url')
+      .eq('access_token', testToken)
+      .single();
+    tokenLookup = { testToken, found: !!td, error: te?.message, data: td };
+  }
+
   res.json({
     env: { hasSupabaseUrl, hasServiceKey, hasAdminPw },
     supabaseUrl: process.env.SUPABASE_URL?.substring(0, 30) + '...',
-    db: { status: dbStatus, error: dbError, latestAudits }
+    db: { status: dbStatus, error: dbError, latestAudits },
+    tokenLookup
   });
 });
 
