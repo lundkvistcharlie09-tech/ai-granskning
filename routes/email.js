@@ -20,11 +20,12 @@ router.post('/import', auditAuth, async (req, res) => {
     categorized.forEach(c => { categoryMap[c.id] = c; });
 
     // Store in DB
-    const rows = emails.map(e => {
-      const cat = categoryMap[e.id] || {};
+    const rows = emails.map((e, idx) => {
+      const emailId = e.id || `manual-${Date.now()}-${idx}`;
+      const cat = categoryMap[e.id] || categorized[idx] || {};
       return {
         audit_id: req.audit.id,
-        email_id: e.id,
+        email_id: emailId,
         subject: e.subject ? e.subject.substr(0, 300) : null,
         snippet: e.snippet ? e.snippet.substr(0, 500) : null,
         from_address: e.from ? e.from.substr(0, 200) : null,
@@ -39,10 +40,7 @@ router.post('/import', auditAuth, async (req, res) => {
       };
     });
 
-    const { error } = await supabase.from('email_events').upsert(rows, {
-      onConflict: 'audit_id,email_id',
-      ignoreDuplicates: false
-    });
+    const { error } = await supabase.from('email_events').insert(rows);
 
     if (error) {
       console.error('Email import error:', error);
