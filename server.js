@@ -54,6 +54,31 @@ app.get('/', (req, res) => {
   res.json({ status: 'ok', service: 'ai-granskning', version: '1.0.0' });
 });
 
+// Debug endpoint – check env vars and Supabase connection
+app.get('/api/debug', async (req, res) => {
+  const supabase = require('./lib/supabase');
+  const hasSupabaseUrl = !!process.env.SUPABASE_URL;
+  const hasServiceKey = !!process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const hasAdminPw = !!process.env.ADMIN_PASSWORD;
+
+  let dbStatus = 'untested';
+  let dbError = null;
+  let auditCount = 0;
+  try {
+    const { data, error, count } = await supabase
+      .from('audits')
+      .select('id', { count: 'exact' });
+    if (error) { dbStatus = 'error'; dbError = error.message; }
+    else { dbStatus = 'ok'; auditCount = count; }
+  } catch(e) { dbStatus = 'exception'; dbError = e.message; }
+
+  res.json({
+    env: { hasSupabaseUrl, hasServiceKey, hasAdminPw },
+    supabaseUrl: process.env.SUPABASE_URL?.substring(0, 30) + '...',
+    db: { status: dbStatus, error: dbError, auditCount }
+  });
+});
+
 // Error handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
