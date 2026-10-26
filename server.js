@@ -63,19 +63,21 @@ app.get('/api/debug', async (req, res) => {
 
   let dbStatus = 'untested';
   let dbError = null;
-  let auditCount = 0;
+  let latestAudits = [];
   try {
-    const { data, error, count } = await supabase
+    const { data, error } = await supabase
       .from('audits')
-      .select('id', { count: 'exact' });
+      .select('id, company_name, access_token, created_at')
+      .order('created_at', { ascending: false })
+      .limit(3);
     if (error) { dbStatus = 'error'; dbError = error.message; }
-    else { dbStatus = 'ok'; auditCount = count; }
+    else { dbStatus = 'ok'; latestAudits = data; }
   } catch(e) { dbStatus = 'exception'; dbError = e.message; }
 
   res.json({
     env: { hasSupabaseUrl, hasServiceKey, hasAdminPw },
     supabaseUrl: process.env.SUPABASE_URL?.substring(0, 30) + '...',
-    db: { status: dbStatus, error: dbError, auditCount }
+    db: { status: dbStatus, error: dbError, latestAudits }
   });
 });
 
