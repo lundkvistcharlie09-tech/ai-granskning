@@ -179,6 +179,96 @@
     .pdf-btn:disabled { opacity: 0.5; cursor: not-allowed; }
     .topbar-actions { display: flex; align-items: center; gap: 12px; }
 
+    /* COMPANY SWITCHER */
+    .switcher-wrap { position: relative; }
+    .switcher-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--card);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 9px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .switcher-btn:hover { border-color: #ccc; background: #f5f5f5; }
+    .switcher-btn .arrow { transition: transform 0.2s; }
+    .switcher-btn.open .arrow { transform: rotate(180deg); }
+    .switcher-dropdown {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      min-width: 220px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+      overflow: hidden;
+      z-index: 999;
+    }
+    .switcher-dropdown.open { display: block; }
+    .switcher-header {
+      padding: 10px 14px 8px;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--label);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--border);
+    }
+    .switcher-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 11px 14px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: background 0.1s;
+      border-bottom: 1px solid var(--border);
+    }
+    .switcher-item:last-child { border-bottom: none; }
+    .switcher-item:hover { background: var(--bg); }
+    .switcher-item.active { font-weight: 700; }
+    .switcher-item .company-name { flex: 1; }
+    .switcher-item .status-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: #ccc; margin-left: 10px; flex-shrink: 0;
+    }
+    .switcher-item .status-dot.active-dot { background: #22c55e; }
+    .switcher-lock {
+      padding: 14px;
+      display: flex;
+      gap: 8px;
+    }
+    .switcher-lock input {
+      flex: 1;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 8px 10px;
+      font-size: 13px;
+      font-family: 'Inter', sans-serif;
+      outline: none;
+    }
+    .switcher-lock input:focus { border-color: #111; }
+    .switcher-lock button {
+      background: #111;
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+    }
+    .switcher-loading { padding: 14px; font-size: 13px; color: var(--muted); text-align: center; }
+
     /* PDF DOCUMENT (hidden until print) */
     #pdf-document { display: none; }
 
@@ -201,6 +291,19 @@
   <span class="logo">AI-Granskning</span>
   <div class="topbar-actions">
     <span class="report-date" id="report-date">–</span>
+
+    <!-- COMPANY SWITCHER -->
+    <div class="switcher-wrap" id="switcher-wrap">
+      <button class="switcher-btn" id="switcher-btn" onclick="toggleSwitcher()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Byt företag
+        <svg class="arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="switcher-dropdown" id="switcher-dropdown">
+        <div id="switcher-content"><!-- filled by JS --></div>
+      </div>
+    </div>
+
     <button class="pdf-btn" id="pdf-btn" onclick="generatePDF()" disabled>
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
       Gör som PDF
@@ -299,6 +402,93 @@
     const idx = parts.indexOf('dashboard');
     return idx !== -1 ? parts[idx + 1] : new URLSearchParams(window.location.search).get('token');
   }
+
+  // ─── COMPANY SWITCHER ────────────────────────────────────────────
+  let _switcherOpen = false;
+  let _companiesLoaded = false;
+
+  function toggleSwitcher() {
+    _switcherOpen = !_switcherOpen;
+    document.getElementById('switcher-btn').classList.toggle('open', _switcherOpen);
+    document.getElementById('switcher-dropdown').classList.toggle('open', _switcherOpen);
+    if (_switcherOpen && !_companiesLoaded) {
+      showSwitcherContent();
+    }
+  }
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', function(e) {
+    if (!document.getElementById('switcher-wrap').contains(e.target)) {
+      _switcherOpen = false;
+      document.getElementById('switcher-btn').classList.remove('open');
+      document.getElementById('switcher-dropdown').classList.remove('open');
+    }
+  });
+
+  function showSwitcherContent() {
+    const savedPw = localStorage.getItem('ag_admin_pw');
+    if (savedPw) {
+      loadCompanies(savedPw);
+    } else {
+      renderPasswordPrompt();
+    }
+  }
+
+  function renderPasswordPrompt() {
+    document.getElementById('switcher-content').innerHTML = `
+      <div class="switcher-header">Admin-åtkomst krävs</div>
+      <div class="switcher-lock">
+        <input type="password" id="sw-pw-input" placeholder="Admin-lösenord" onkeydown="if(event.key==='Enter')submitSwPw()">
+        <button onclick="submitSwPw()">Logga in</button>
+      </div>
+    `;
+    setTimeout(() => document.getElementById('sw-pw-input')?.focus(), 50);
+  }
+
+  async function submitSwPw() {
+    const pw = document.getElementById('sw-pw-input')?.value?.trim();
+    if (!pw) return;
+    document.getElementById('switcher-content').innerHTML = '<div class="switcher-loading">Verifierar…</div>';
+    await loadCompanies(pw);
+  }
+
+  async function loadCompanies(pw) {
+    try {
+      const res = await fetch(`${API}/api/audits`, { headers: { 'x-admin-password': pw } });
+      if (!res.ok) {
+        localStorage.removeItem('ag_admin_pw');
+        _companiesLoaded = false;
+        renderPasswordPrompt();
+        document.getElementById('sw-pw-input').placeholder = 'Fel lösenord – försök igen';
+        return;
+      }
+      localStorage.setItem('ag_admin_pw', pw);
+      _companiesLoaded = true;
+      const audits = await res.json();
+      renderCompanyList(audits);
+    } catch(e) {
+      document.getElementById('switcher-content').innerHTML = '<div class="switcher-loading">Kunde inte nå servern.</div>';
+    }
+  }
+
+  function renderCompanyList(audits) {
+    const currentToken = getToken();
+    const header = `<div class="switcher-header">Välj företag (${audits.length})</div>`;
+    const items = audits.map(a => {
+      const isActive = a.access_token === currentToken;
+      return `
+        <div class="switcher-item${isActive ? ' active' : ''}" onclick="switchCompany('${a.access_token}')">
+          <span class="company-name">${a.company_name || 'Okänt företag'}</span>
+          <span class="status-dot${isActive ? ' active-dot' : ''}"></span>
+        </div>`;
+    }).join('');
+    document.getElementById('switcher-content').innerHTML = header + items;
+  }
+
+  function switchCompany(token) {
+    window.location.href = `/dashboard/${token}/report`;
+  }
+  // ────────────────────────────────────────────────────────────────
 
   async function loadReport() {
     const token = getToken();

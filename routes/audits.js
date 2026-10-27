@@ -110,7 +110,7 @@ router.get('/:id', adminAuth, async (req, res) => {
 router.get('/', adminAuth, async (req, res) => {
   const { data, error } = await supabase
     .from('audits')
-    .select('id, company_name, status, start_date, end_date, created_at')
+    .select('id, company_name, status, start_date, end_date, created_at, access_token')
     .order('created_at', { ascending: false });
 
   if (error) return res.status(500).json({ error: error.message });
