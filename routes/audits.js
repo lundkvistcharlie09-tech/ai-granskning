@@ -19,7 +19,7 @@ async function auditAuth(req, res, next) {
 
   const { data, error } = await supabase
     .from('audits')
-    .select('id, company_name, industry, status, start_date, end_date, report_url')
+    .select('id, company_name, industry, status, start_date, end_date, report_url, ai_modules, ai_summary, setup_complete')
     .eq('access_token', token)
     .single();
 
@@ -110,7 +110,7 @@ router.get('/:id', adminAuth, async (req, res) => {
 router.get('/', adminAuth, async (req, res) => {
   const { data, error } = await supabase
     .from('audits')
-    .select('id, company_name, status, start_date, end_date, created_at, access_token')
+    .select('id, company_name, industry, status, start_date, end_date, created_at, access_token, ai_modules, ai_integrations, ai_summary, setup_complete')
     .order('created_at', { ascending: false });
 
   if (error) return res.status(500).json({ error: error.message });

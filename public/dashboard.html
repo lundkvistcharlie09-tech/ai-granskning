@@ -3,560 +3,561 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI-Granskning – Dashboard</title>
+  <title>AI-Granskning Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --bg: #FAFAFA;
-      --card: #ffffff;
-      --border: #F0F0F0;
-      --text: #111111;
-      --muted: #888888;
-      --label: #CCCCCC;
-      --accent: #111111;
-      --radius: 14px;
+      --bg: #FAFAFA; --card: #fff; --border: #F0F0F0;
+      --text: #111; --muted: #888; --label: #CCC;
+      --green: #22c55e; --red: #ef4444; --amber: #f59e0b;
+      --blue: #3b82f6; --radius: 12px;
     }
 
     body {
       font-family: 'Inter', sans-serif;
-      background: var(--bg);
-      color: var(--text);
+      background: var(--bg); color: var(--text);
       min-height: 100vh;
-      padding-bottom: 60px;
     }
 
     /* TOP BAR */
     .topbar {
-      background: var(--card);
-      border-bottom: 1px solid var(--border);
-      padding: 0 32px;
-      height: 60px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky;
-      top: 0;
-      z-index: 100;
+      background: var(--card); border-bottom: 1px solid var(--border);
+      padding: 0 28px; height: 56px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 50;
     }
-    .topbar-left { display: flex; align-items: center; gap: 16px; }
-    .logo { font-size: 15px; font-weight: 700; letter-spacing: -0.3px; }
-    .company-name { font-size: 14px; color: var(--muted); font-weight: 500; }
-    .live-badge {
-      background: #111;
-      color: #fff;
-      font-size: 11px;
-      font-weight: 700;
-      padding: 4px 10px;
-      border-radius: 20px;
-      letter-spacing: 0.3px;
+    .logo { font-size: 15px; font-weight: 700; }
+    .company-name { font-size: 14px; color: var(--muted); }
+    .day-badge {
+      font-size: 11px; font-weight: 700; color: var(--muted);
+      background: var(--bg); border: 1px solid var(--border);
+      padding: 4px 12px; border-radius: 20px;
     }
-    .live-dot {
-      display: inline-block;
-      width: 6px; height: 6px;
-      background: #4ade80;
-      border-radius: 50%;
-      margin-right: 5px;
-      animation: pulse 2s infinite;
-    }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
 
     /* LAYOUT */
-    .container { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
+    .container { max-width: 1100px; margin: 0 auto; padding: 32px 28px; }
 
+    /* SECTION HEADER */
     .section-label {
-      font-size: 10px;
-      font-weight: 700;
-      color: var(--label);
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      margin-bottom: 12px;
+      font-size: 10px; font-weight: 700; color: var(--label);
+      letter-spacing: 0.7px; text-transform: uppercase;
+      margin-bottom: 14px; margin-top: 32px;
     }
-
-    /* KPI GRID */
-    .kpi-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-      margin-bottom: 32px;
-    }
-    @media(max-width:800px){ .kpi-grid { grid-template-columns: repeat(2,1fr); } }
-    @media(max-width:500px){ .kpi-grid { grid-template-columns: 1fr; } }
-
-    .kpi-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 24px;
-    }
-    .kpi-label { font-size: 11px; font-weight: 600; color: var(--muted); margin-bottom: 8px; }
-    .kpi-value {
-      font-size: 30px;
-      font-weight: 700;
-      letter-spacing: -1.5px;
-      line-height: 1;
-    }
-    .kpi-sub { font-size: 12px; color: var(--muted); margin-top: 6px; }
-
-    /* GRID 2-COL */
-    .grid-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-bottom: 16px;
-    }
-    @media(max-width:700px){ .grid-2 { grid-template-columns: 1fr; } }
+    .section-label:first-child { margin-top: 0; }
 
     /* CARD */
     .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 24px;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 24px;
     }
+    .card-sm { padding: 18px; }
     .card-title {
-      font-size: 13px;
-      font-weight: 700;
-      margin-bottom: 20px;
+      font-size: 12px; font-weight: 700; color: var(--label);
+      letter-spacing: 0.4px; text-transform: uppercase;
+      margin-bottom: 14px;
     }
+
+    /* KPI GRID */
+    .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    @media(max-width:700px) { .kpi-grid { grid-template-columns: 1fr 1fr; } }
+
+    .kpi-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px;
+    }
+    .kpi-label {
+      font-size: 11px; font-weight: 600; color: var(--muted);
+      margin-bottom: 8px; display: flex; align-items: center; gap: 5px;
+    }
+    .kpi-value { font-size: 28px; font-weight: 700; letter-spacing: -1px; line-height: 1; }
+    .kpi-unit { font-size: 14px; font-weight: 400; color: var(--muted); }
+    .kpi-sub { font-size: 11px; color: var(--muted); margin-top: 6px; }
+    .kpi-trend-up { color: var(--green); }
+    .kpi-trend-down { color: var(--red); }
+
+    /* MODULES GRID */
+    .modules-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media(max-width:700px) { .modules-grid { grid-template-columns: 1fr; } }
+    .modules-grid .full { grid-column: 1 / -1; }
 
     /* BAR CHART */
-    .bar-chart { display: flex; align-items: flex-end; gap: 8px; height: 100px; }
-    .bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .bar-chart { display: flex; align-items: flex-end; gap: 6px; height: 80px; margin-top: 8px; }
+    .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
     .bar {
-      width: 100%;
-      background: var(--accent);
-      border-radius: 4px 4px 0 0;
-      min-height: 4px;
-      transition: height 0.4s;
+      width: 100%; background: #f0f0f0; border-radius: 4px 4px 0 0;
+      transition: height 0.3s ease; min-height: 4px;
     }
-    .bar.future { background: transparent; border: 1.5px dashed #DDD; border-bottom: none; }
-    .bar-day { font-size: 10px; color: var(--muted); font-weight: 600; }
-    .bar-count { font-size: 10px; font-weight: 700; }
+    .bar.filled { background: var(--text); }
+    .bar.today { background: var(--blue); }
+    .bar-day { font-size: 10px; color: var(--muted); }
+    .bar-num { font-size: 10px; font-weight: 700; color: var(--muted); }
 
     /* FUNNEL */
-    .funnel-row { margin-bottom: 14px; }
-    .funnel-top { display: flex; justify-content: space-between; margin-bottom: 5px; }
-    .funnel-step { font-size: 12px; font-weight: 600; }
-    .funnel-pct { font-size: 12px; font-weight: 700; }
-    .funnel-bar-bg { background: var(--bg); border-radius: 4px; height: 6px; }
-    .funnel-bar-fill { background: var(--accent); border-radius: 4px; height: 6px; transition: width 0.6s; }
+    .funnel { display: flex; flex-direction: column; gap: 6px; }
+    .funnel-row { display: flex; align-items: center; gap: 10px; }
+    .funnel-label { font-size: 12px; color: var(--muted); width: 110px; flex-shrink: 0; }
+    .funnel-bar-wrap { flex: 1; background: #f0f0f0; border-radius: 4px; height: 8px; }
+    .funnel-bar { height: 100%; border-radius: 4px; background: var(--text); transition: width 0.4s; }
+    .funnel-count { font-size: 12px; font-weight: 700; width: 30px; text-align: right; }
+    .funnel-drop { font-size: 10px; color: var(--red); font-weight: 700; white-space: nowrap; }
 
     /* EMAIL CATEGORIES */
-    .email-list { display: flex; flex-direction: column; gap: 10px; }
-    .email-item { display: flex; align-items: center; justify-content: space-between; }
-    .email-tag {
-      font-size: 11px;
-      font-weight: 700;
-      padding: 3px 8px;
-      border-radius: 6px;
-      background: var(--bg);
-      border: 1px solid var(--border);
-    }
-    .email-count { font-size: 13px; font-weight: 700; }
-    .email-bar-bg { flex: 1; margin: 0 12px; background: var(--bg); border-radius: 3px; height: 4px; }
-    .email-bar-fill { background: #111; border-radius: 3px; height: 4px; }
+    .email-cats { display: flex; flex-direction: column; gap: 8px; }
+    .email-row { display: flex; align-items: center; gap: 10px; }
+    .email-name { font-size: 12px; color: var(--muted); flex: 1; }
+    .email-bar-wrap { flex: 2; background: #f0f0f0; border-radius: 4px; height: 6px; }
+    .email-bar { height: 100%; border-radius: 4px; background: var(--text); }
+    .email-count { font-size: 12px; font-weight: 700; width: 24px; text-align: right; }
 
-    /* TIDSTJUVAR */
-    .time-list { display: flex; flex-direction: column; gap: 0; }
-    .time-item {
-      display: flex;
-      justify-content: space-between;
-      padding: 10px 0;
-      border-bottom: 1px solid var(--border);
-      font-size: 13px;
-    }
-    .time-item:last-child { border-bottom: none; }
-    .time-item.total { font-weight: 700; }
-    .time-item.total .time-hours { font-size: 15px; }
-    .time-label { font-weight: 500; }
-    .time-hours { font-weight: 700; }
+    /* TIME BREAKDOWN */
+    .time-rows { display: flex; flex-direction: column; gap: 10px; }
+    .time-row { display: flex; justify-content: space-between; align-items: center; }
+    .time-name { font-size: 13px; color: var(--muted); }
+    .time-val { font-size: 14px; font-weight: 700; }
 
     /* HEALTH SCORE */
-    .health-score-wrap { display: flex; align-items: center; gap: 24px; }
-    .score-circle {
-      width: 80px; height: 80px;
-      border-radius: 50%;
-      background: var(--bg);
-      border: 3px solid var(--accent);
+    .health-ring-wrap {
       display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
+      flex-direction: column; gap: 8px; padding: 8px 0;
     }
-    .score-num { font-size: 24px; font-weight: 700; letter-spacing: -1px; }
-    .score-max { font-size: 11px; color: var(--muted); }
-    .week-progress { flex: 1; }
-    .week-days { display: flex; gap: 6px; margin-top: 10px; }
-    .day-dot {
-      width: 28px; height: 28px;
-      border-radius: 50%;
-      background: var(--bg);
-      border: 1.5px solid var(--border);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 10px; font-weight: 700; color: var(--muted);
+    .health-ring { position: relative; width: 100px; height: 100px; }
+    .health-ring svg { transform: rotate(-90deg); }
+    .health-ring circle { fill: none; stroke-width: 8; }
+    .health-ring .track { stroke: #f0f0f0; }
+    .health-ring .fill { stroke-dasharray: 283; stroke-linecap: round; transition: stroke-dashoffset 0.6s; }
+    .health-score-num {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      font-size: 24px; font-weight: 700;
     }
-    .day-dot.done { background: var(--accent); border-color: var(--accent); color: #fff; }
-    .day-dot.today { border-color: var(--accent); color: var(--accent); }
+    .health-label { font-size: 13px; font-weight: 600; }
 
-    /* INSIGHTS */
-    .insights-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    @media(max-width:600px){ .insights-grid { grid-template-columns: 1fr; } }
-    .insight-card {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-left: 3px solid var(--accent);
-      border-radius: 10px;
-      padding: 16px;
+    /* AI INSIGHTS */
+    .insight-list { display: flex; flex-direction: column; gap: 10px; }
+    .insight-item {
+      padding: 12px 14px; border-radius: 8px;
+      border: 1px solid var(--border); font-size: 13px;
+      line-height: 1.5;
     }
-    .insight-title { font-size: 12px; font-weight: 700; margin-bottom: 6px; }
-    .insight-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
-    .insight-tag {
-      display: inline-block;
-      font-size: 10px;
-      font-weight: 700;
-      color: var(--muted);
-      margin-top: 8px;
-      text-transform: uppercase;
-      letter-spacing: 0.3px;
-    }
+    .insight-item.high { border-left: 3px solid var(--red); }
+    .insight-item.medium { border-left: 3px solid var(--amber); }
+    .insight-item.low { border-left: 3px solid var(--green); }
+    .insight-title { font-weight: 700; margin-bottom: 3px; font-size: 12px; }
+    .insight-desc { font-size: 12px; color: var(--muted); }
 
-    /* REPORT BUTTON */
+    /* NOSHOW */
+    .noshow-big {
+      font-size: 42px; font-weight: 700; letter-spacing: -2px;
+      color: var(--red); margin-bottom: 4px;
+    }
+    .noshow-sub { font-size: 12px; color: var(--muted); }
+    .noshow-cost {
+      margin-top: 14px; font-size: 13px; color: var(--muted);
+      padding-top: 14px; border-top: 1px solid var(--border);
+    }
+    .noshow-cost strong { color: var(--text); font-size: 16px; }
+
+    /* INVOICING */
+    .invoice-stat { text-align: center; }
+    .invoice-num { font-size: 32px; font-weight: 700; letter-spacing: -1px; }
+    .invoice-lbl { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+    /* SOCIAL */
+    .social-rows { display: flex; flex-direction: column; gap: 12px; }
+    .social-row { display: flex; justify-content: space-between; align-items: center; }
+    .social-name { font-size: 13px; display: flex; align-items: center; gap: 6px; }
+    .social-val { font-size: 14px; font-weight: 700; }
+
+    /* INVENTORY */
+    .inventory-rows { display: flex; flex-direction: column; gap: 8px; }
+    .inv-row { display: flex; align-items: center; gap: 10px; }
+    .inv-name { font-size: 12px; flex: 1; }
+    .inv-bar-wrap { flex: 2; background: #f0f0f0; border-radius: 4px; height: 8px; }
+    .inv-bar { height: 100%; border-radius: 4px; }
+    .inv-bar.ok { background: var(--green); }
+    .inv-bar.low { background: var(--amber); }
+    .inv-bar.critical { background: var(--red); }
+    .inv-pct { font-size: 11px; font-weight: 700; width: 32px; text-align: right; }
+
+    /* REPORT BTN */
     .report-btn {
-      display: block;
-      width: 100%;
-      padding: 16px;
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      border-radius: var(--radius);
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      margin-top: 24px;
-      font-family: 'Inter', sans-serif;
-      letter-spacing: -0.2px;
-      transition: opacity 0.2s;
+      display: inline-flex; align-items: center; gap: 7px;
+      background: #111; color: #fff; border: none;
+      border-radius: 8px; padding: 11px 20px; font-size: 13px; font-weight: 600;
+      font-family: 'Inter', sans-serif; cursor: pointer; text-decoration: none;
     }
-    .report-btn:hover { opacity: 0.85; }
-    .report-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .report-btn:hover { opacity: 0.8; }
+
+    /* SETUP PENDING STATE */
+    .setup-pending {
+      max-width: 480px; margin: 80px auto; text-align: center; padding: 0 20px;
+    }
+    .setup-icon { font-size: 48px; margin-bottom: 20px; }
+    .setup-title { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+    .setup-sub { font-size: 14px; color: var(--muted); line-height: 1.6; }
 
     /* LOADING */
-    .skeleton {
-      background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.5s infinite;
-      border-radius: 6px;
+    .loading {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 60vh; flex-direction: column; gap: 12px; color: var(--muted);
     }
-    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+    .spinner {
+      width: 28px; height: 28px; border: 2.5px solid var(--border);
+      border-top-color: var(--text); border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-    .mb-16 { margin-bottom: 16px; }
-    .mb-32 { margin-bottom: 32px; }
+    /* EMPTY STATE */
+    .empty-state {
+      padding: 32px; text-align: center;
+      font-size: 13px; color: var(--muted);
+    }
+
+    /* SEPARATOR */
+    .sep { height: 1px; background: var(--border); margin: 8px 0; }
   </style>
 </head>
 <body>
 
 <div class="topbar">
-  <div class="topbar-left">
-    <span class="logo">AI-Granskning</span>
-    <span class="company-name" id="company-name">Laddar...</span>
+  <span class="logo">AI-Granskning</span>
+  <span class="company-name" id="company-name">Laddar…</span>
+  <div class="topbar-right">
+    <span class="day-badge" id="day-badge">Dag –</span>
   </div>
-  <span class="live-badge" id="day-badge"><span class="live-dot"></span>Dag – av 7</span>
 </div>
 
-<div class="container">
-
-  <!-- KPI -->
-  <div class="section-label">Nyckeltal</div>
-  <div class="kpi-grid mb-32">
-    <div class="kpi-card">
-      <div class="kpi-label">Besökare</div>
-      <div class="kpi-value" id="kpi-visitors">–</div>
-      <div class="kpi-sub">denna vecka</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Konverteringsgrad</div>
-      <div class="kpi-value" id="kpi-conversion">–</div>
-      <div class="kpi-sub">besök → bokning</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">No-show rate</div>
-      <div class="kpi-value" id="kpi-noshow">–</div>
-      <div class="kpi-sub">uteblivna bokningar</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Mejl utan svar</div>
-      <div class="kpi-value" id="kpi-emails">–</div>
-      <div class="kpi-sub">väntar på respons</div>
-    </div>
+<div id="root">
+  <div class="loading">
+    <div class="spinner"></div>
+    <span>Laddar dashboard…</span>
   </div>
-
-  <!-- BOKNINGAR + FUNNEL -->
-  <div class="grid-2 mb-16">
-    <div class="card">
-      <div class="card-title">Bokningar per dag</div>
-      <div class="bar-chart" id="bar-chart">
-        <div style="color:#ccc;font-size:12px">Laddar...</div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-title">Hemsidans konverteringstratt</div>
-      <div id="funnel-list">
-        <div style="color:#ccc;font-size:12px">Laddar...</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- EMAIL + TIDSTJUVAR -->
-  <div class="grid-2 mb-16">
-    <div class="card">
-      <div class="card-title">Mejl per kategori</div>
-      <div class="email-list" id="email-list">
-        <div style="color:#ccc;font-size:12px">Laddar...</div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-title">Tidstjuvar per vecka</div>
-      <div class="time-list" id="time-list">
-        <div style="color:#ccc;font-size:12px">Laddar...</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- HEALTH + INSIGHTS -->
-  <div class="grid-2 mb-16">
-    <div class="card">
-      <div class="card-title">AI-hälsopoäng</div>
-      <div class="health-score-wrap">
-        <div class="score-circle">
-          <div>
-            <div class="score-num" id="health-score">–</div>
-            <div class="score-max">/100</div>
-          </div>
-        </div>
-        <div class="week-progress">
-          <div style="font-size:12px;color:var(--muted);margin-bottom:4px">Granskningsvecka</div>
-          <div class="week-days" id="week-days"></div>
-        </div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-title">AI insikter</div>
-      <div class="insights-grid" id="insights-grid">
-        <div style="color:#ccc;font-size:12px">Genereras när data finns...</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- REPORT BUTTON -->
-  <button class="report-btn" id="report-btn" disabled>
-    Slutrapport genereras dag 7
-  </button>
-
 </div>
 
 <script>
-  const API = 'https://ai-granskning.vercel.app';
+const token = location.pathname.split('/dashboard/')[1]?.split('/')[0];
+if (!token) { document.getElementById('root').innerHTML = '<div class="loading"><span>Ogiltig länk</span></div>'; }
 
-  // Get token from URL: /dashboard/TOKEN
-  function getToken() {
-    const parts = window.location.pathname.split('/');
-    return parts[parts.length - 1] || new URLSearchParams(window.location.search).get('token');
+let _data = null;
+
+async function loadData() {
+  try {
+    const res = await fetch('/api/dashboard', { headers: { 'x-audit-token': token } });
+    if (!res.ok) throw new Error(res.status);
+    _data = await res.json();
+    render();
+  } catch(e) {
+    document.getElementById('root').innerHTML = `<div class="loading"><span>Kunde inte ladda data (${e.message})</span></div>`;
   }
+}
 
-  async function loadDashboard() {
-    const token = getToken();
-    if (!token || token === 'dashboard') {
-      showError('Ogiltig dashboard-länk.');
-      return;
-    }
+function render() {
+  const d = _data;
+  const audit = d.audit;
+  const modules = audit.aiModules || [];
 
-    try {
-      const res = await fetch(`${API}/api/dashboard`, {
-        headers: { 'x-audit-token': token }
-      });
+  // Topbar
+  document.getElementById('company-name').textContent = audit.companyName || '';
+  document.getElementById('day-badge').textContent = `Dag ${audit.dayNumber} / 7`;
+  document.title = `${audit.companyName} – AI-Granskning`;
 
-      if (!res.ok) throw new Error('Kunde inte ladda data');
-      const data = await res.json();
-      render(data);
-
-      // Refresh every 60 seconds
-      setTimeout(loadDashboard, 60000);
-    } catch (err) {
-      showError('Kunde inte ansluta till servern. Försök igen om en stund.');
-    }
-  }
-
-  function render(data) {
-    const { audit, kpis, funnel, bookingsPerDay, emailCategories, manualTime, healthScore, insights, reportReady } = data;
-
-    // Top bar
-    document.getElementById('company-name').textContent = audit.companyName;
-    document.getElementById('day-badge').innerHTML = `<span class="live-dot"></span>Dag ${audit.dayNumber} av 7`;
-    document.title = `${audit.companyName} – AI-Granskning`;
-
-    // KPIs
-    document.getElementById('kpi-visitors').textContent = kpis.visitors || '0';
-    document.getElementById('kpi-conversion').textContent = (kpis.conversionRate || 0) + '%';
-    document.getElementById('kpi-noshow').textContent = (kpis.noShowRate || 0) + '%';
-    document.getElementById('kpi-emails').textContent = kpis.unansweredEmails || '0';
-
-    // Bar chart
-    renderBarChart(bookingsPerDay || []);
-
-    // Funnel
-    renderFunnel(funnel || []);
-
-    // Email categories
-    renderEmailCategories(emailCategories || []);
-
-    // Manual time
-    renderManualTime(manualTime || { items: [], total: 0 });
-
-    // Health score
-    document.getElementById('health-score').textContent = healthScore || '–';
-    renderWeekDots(audit.dayNumber);
-
-    // Insights
-    renderInsights(insights || []);
-
-    // Report button
-    const btn = document.getElementById('report-btn');
-    if (reportReady) {
-      btn.textContent = '📄 Visa slutrapport';
-      btn.disabled = false;
-      btn.onclick = () => window.location.href = `${window.location.pathname}/report`;
-    } else if (audit.dayNumber >= 7) {
-      btn.textContent = 'Generera slutrapport';
-      btn.disabled = false;
-      btn.onclick = generateReport;
-    } else {
-      btn.textContent = `Slutrapport genereras dag 7 (${audit.daysLeft} dagar kvar)`;
-      btn.disabled = true;
-    }
-  }
-
-  function renderBarChart(days) {
-    const max = Math.max(...days.map(d => d.count), 1);
-    const html = days.map(d => `
-      <div class="bar-wrap">
-        <div class="bar-count">${d.count || ''}</div>
-        <div class="bar ${d.isFuture ? 'future' : ''}" style="height:${Math.max(4, (d.count/max)*80)}px"></div>
-        <div class="bar-day">${d.day}</div>
-      </div>
-    `).join('');
-    document.getElementById('bar-chart').innerHTML = html || '<div style="color:#ccc;font-size:12px">Ingen data ännu</div>';
-  }
-
-  function renderFunnel(funnel) {
-    if (!funnel.length) {
-      document.getElementById('funnel-list').innerHTML = '<div style="color:#ccc;font-size:12px">Ingen data ännu</div>';
-      return;
-    }
-    const html = funnel.map(f => `
-      <div class="funnel-row">
-        <div class="funnel-top">
-          <span class="funnel-step">${f.step}</span>
-          <span class="funnel-pct">${f.percentage}%</span>
+  // If no modules set yet → show setup-pending state
+  if (!audit.setupComplete || !modules.length) {
+    document.getElementById('root').innerHTML = `
+      <div class="setup-pending">
+        <div class="setup-icon">⚙️</div>
+        <div class="setup-title">Dashboard konfigureras</div>
+        <div class="setup-sub">
+          Din personliga AI-dashboard håller på att byggas upp.<br>
+          Den är klar när din konsult har slutfört analyssteget.
         </div>
-        <div class="funnel-bar-bg">
-          <div class="funnel-bar-fill" style="width:${f.percentage}%"></div>
+      </div>`;
+    return;
+  }
+
+  let html = '<div class="container">';
+
+  // ── KPI TOPP-RAD ───────────────────────────────────────
+  html += renderKpiRow(d, modules);
+
+  // ── MODULER ────────────────────────────────────────────
+  html += '<div class="section-label">Detaljerad analys</div>';
+  html += '<div class="modules-grid">';
+
+  if (modules.includes('bookings')) html += renderBookings(d);
+  if (modules.includes('email')) html += renderEmail(d);
+  if (modules.includes('noshow')) html += renderNoShow(d);
+  if (modules.includes('funnel')) html += renderFunnel(d);
+  if (modules.includes('manual_time')) html += renderManualTime(d);
+  if (modules.includes('invoicing')) html += renderInvoicing(d);
+  if (modules.includes('social')) html += renderSocial(d);
+  if (modules.includes('inventory')) html += renderInventory(d);
+  if (modules.includes('visitors')) html += renderVisitors(d);
+
+  // Health score + AI insights always shown
+  html += renderHealthScore(d);
+  html += renderInsights(d);
+
+  html += '</div>'; // modules-grid
+
+  // ── RAPPORT-KNAPP ───────────────────────────────────────
+  html += `
+    <div class="section-label">Slutrapport</div>
+    <div class="card" style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+      <div>
+        <div style="font-weight:700;margin-bottom:4px">AI-genererad analysrapport</div>
+        <div style="font-size:13px;color:var(--muted)">
+          ${audit.daysLeft > 0 ? `Rapporten genereras om ${audit.daysLeft} dag${audit.daysLeft !== 1 ? 'ar' : ''} – dag 7 av granskningen.` : 'Granskningen är klar. Se din rapport nedan.'}
         </div>
       </div>
-    `).join('');
-    document.getElementById('funnel-list').innerHTML = html;
+      <a href="/dashboard/${token}/report" class="report-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        ${audit.daysLeft > 0 ? 'Förhandsgranska' : 'Öppna rapport'}
+      </a>
+    </div>
+  `;
+
+  html += '</div>'; // container
+  document.getElementById('root').innerHTML = html;
+}
+
+// ══════════════════════════════════════════════════════════
+// KPI ROW – visas alltid baserat på tillgängliga moduler
+// ══════════════════════════════════════════════════════════
+function renderKpiRow(d, modules) {
+  const kpis = [];
+  if (modules.includes('visitors') || modules.includes('funnel')) {
+    kpis.push(`<div class="kpi-card">
+      <div class="kpi-label">👥 Besökare</div>
+      <div class="kpi-value">${d.kpis.visitors || 0}</div>
+      <div class="kpi-sub">senaste 7 dagarna</div>
+    </div>`);
+  }
+  if (modules.includes('bookings') || modules.includes('noshow')) {
+    kpis.push(`<div class="kpi-card">
+      <div class="kpi-label">📅 No-show-rate</div>
+      <div class="kpi-value ${d.kpis.noShowRate > 10 ? 'kpi-trend-down' : ''}">${d.kpis.noShowRate || 0}<span class="kpi-unit">%</span></div>
+      <div class="kpi-sub">${d.kpis.noShowRate > 10 ? '⚠️ Hög andel' : 'OK nivå'}</div>
+    </div>`);
+  }
+  if (modules.includes('email')) {
+    kpis.push(`<div class="kpi-card">
+      <div class="kpi-label">📧 Obesvarade mejl</div>
+      <div class="kpi-value ${d.kpis.unansweredEmails > 5 ? 'kpi-trend-down' : ''}">${d.kpis.unansweredEmails || 0}</div>
+      <div class="kpi-sub">kräver svar</div>
+    </div>`);
+  }
+  if (modules.includes('funnel')) {
+    kpis.push(`<div class="kpi-card">
+      <div class="kpi-label">🔄 Konvertering</div>
+      <div class="kpi-value">${d.kpis.conversionRate || 0}<span class="kpi-unit">%</span></div>
+      <div class="kpi-sub">besök → bokning</div>
+    </div>`);
+  }
+  if (modules.includes('manual_time')) {
+    kpis.push(`<div class="kpi-card">
+      <div class="kpi-label">⏱️ Manuell tid</div>
+      <div class="kpi-value">${d.manualTime?.total || 0}<span class="kpi-unit">h/v</span></div>
+      <div class="kpi-sub">kan automatiseras</div>
+    </div>`);
+  }
+  // Fallback om inga KPI-moduler valts
+  if (!kpis.length) {
+    kpis.push(`<div class="kpi-card"><div class="kpi-label">Hälsostatus</div><div class="kpi-value">${d.healthScore?.score || '–'}</div><div class="kpi-sub">av 100</div></div>`);
   }
 
-  function renderEmailCategories(categories) {
-    if (!categories.length) {
-      document.getElementById('email-list').innerHTML = '<div style="color:#ccc;font-size:12px">Inga mejl importerade ännu</div>';
-      return;
-    }
-    const max = Math.max(...categories.map(c => c.count), 1);
-    const html = categories.slice(0, 5).map(c => `
-      <div class="email-item">
-        <span class="email-tag">${c.name}</span>
-        <div class="email-bar-bg">
-          <div class="email-bar-fill" style="width:${(c.count/max)*100}%"></div>
-        </div>
+  return `<div class="section-label">Nyckeltal</div>
+    <div class="kpi-grid">${kpis.slice(0,4).join('')}</div>`;
+}
+
+// ══════════════════════════════════════════════════════════
+// MODULES
+// ══════════════════════════════════════════════════════════
+
+function renderBookings(d) {
+  const perDay = d.bookingsPerDay || [];
+  const max = Math.max(...perDay.map(b => b.count), 1);
+  const today = new Date().toISOString().split('T')[0];
+  return `<div class="card card-sm">
+    <div class="card-title">📅 Bokningar per dag</div>
+    <div class="bar-chart">
+      ${perDay.map(b => {
+        const h = Math.round((b.count / max) * 70);
+        const cls = b.date === today ? 'today' : b.count > 0 ? 'filled' : '';
+        return `<div class="bar-col">
+          <span class="bar-num">${b.count || ''}</span>
+          <div class="bar ${cls}" style="height:${h || 4}px"></div>
+          <span class="bar-day">${b.day}</span>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`;
+}
+
+function renderEmail(d) {
+  const cats = (d.emailCategories || []).sort((a,b)=>b.count-a.count).slice(0,5);
+  const maxCat = Math.max(...cats.map(c=>c.count), 1);
+  const catIcons = { bokningsfråga:'📅', avbokning:'❌', faktura:'🧾', reklamation:'😤', allmänt:'💬', övrigt:'📬' };
+  return `<div class="card card-sm">
+    <div class="card-title">📧 Mejlkategorier</div>
+    ${cats.length ? `<div class="email-cats">
+      ${cats.map(c => `<div class="email-row">
+        <span class="email-name">${catIcons[c.name]||'📬'} ${c.name}</span>
+        <div class="email-bar-wrap"><div class="email-bar" style="width:${Math.round(c.count/maxCat*100)}%"></div></div>
         <span class="email-count">${c.count}</span>
+      </div>`).join('')}
+    </div>` : `<div class="empty-state">Inga mejldata ännu</div>`}
+  </div>`;
+}
+
+function renderNoShow(d) {
+  const rate = d.kpis?.noShowRate || 0;
+  const totalBookings = d.bookingsPerDay?.reduce((s,b)=>s+b.count,0) || 0;
+  const noShows = Math.round(totalBookings * rate / 100);
+  const costPerSlot = 450; // kr per bokningsplats
+  const weeklyCost = noShows * costPerSlot;
+  return `<div class="card card-sm">
+    <div class="card-title">❌ No-show-analys</div>
+    <div class="noshow-big">${rate}%</div>
+    <div class="noshow-sub">av bokningarna uteblir</div>
+    <div class="noshow-cost">
+      Senaste veckan: ca <strong>${weeklyCost.toLocaleString('sv-SE')} kr</strong> i uteblivna intäkter<br>
+      <span style="font-size:11px;margin-top:4px;display:block">Automatiska påminnelser kan minska detta med 60-80%</span>
+    </div>
+  </div>`;
+}
+
+function renderFunnel(d) {
+  const funnel = d.funnel || [];
+  const maxVal = Math.max(...funnel.map(f=>f.count), 1);
+  const dropoff = d.dropoffStep;
+  return `<div class="card card-sm full">
+    <div class="card-title">🔄 Konverteringsfunnel</div>
+    ${funnel.length ? `<div class="funnel">
+      ${funnel.map((f,i) => {
+        const drop = i > 0 ? Math.round((1 - f.count/funnel[i-1].count)*100) : 0;
+        const isDropoff = f.step === dropoff;
+        return `<div class="funnel-row">
+          <span class="funnel-label" style="${isDropoff?'color:var(--red);font-weight:700':''}">${f.step}</span>
+          <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:${Math.round(f.count/maxVal*100)}%;${isDropoff?'background:var(--red)':''}"></div></div>
+          <span class="funnel-count">${f.count}</span>
+          ${i>0&&drop>20?`<span class="funnel-drop">−${drop}%</span>`:'<span style="width:36px"></span>'}
+        </div>`;
+      }).join('')}
+    </div>` : `<div class="empty-state">Funneldata samlas in…</div>`}
+  </div>`;
+}
+
+function renderManualTime(d) {
+  const mt = d.manualTime || {};
+  const rows = [
+    { name: 'E-posthantering', h: mt.emailHours || 0 },
+    { name: 'Bokningsadmin', h: mt.bookingHours || 0 },
+    { name: 'Fakturering', h: mt.invoiceHours || 0 },
+    { name: 'Övrigt admin', h: mt.otherHours || 0 },
+  ].filter(r => r.h > 0);
+  const total = mt.total || rows.reduce((s,r)=>s+r.h,0);
+  return `<div class="card card-sm">
+    <div class="card-title">⏱️ Manuella tidsstjälar</div>
+    <div style="font-size:28px;font-weight:700;letter-spacing:-1px;margin-bottom:4px">${total}<span style="font-size:14px;font-weight:400;color:var(--muted)"> h/vecka</span></div>
+    <div class="sep"></div>
+    <div class="time-rows">
+      ${rows.length ? rows.map(r=>`<div class="time-row"><span class="time-name">${r.name}</span><span class="time-val">${r.h}h</span></div>`).join('') : '<div style="font-size:12px;color:var(--muted)">Data samlas in…</div>'}
+    </div>
+  </div>`;
+}
+
+function renderInvoicing(d) {
+  // Placeholder data – real data would come from Fortnox/Visma integration
+  return `<div class="card card-sm">
+    <div class="card-title">🧾 Fakturering</div>
+    <div style="display:flex;gap:20px;justify-content:space-around;margin-top:8px">
+      <div class="invoice-stat"><div class="invoice-num" style="color:var(--amber)">–</div><div class="invoice-lbl">Obetald (kr)</div></div>
+      <div class="invoice-stat"><div class="invoice-num">–</div><div class="invoice-lbl">Fakturor/mån</div></div>
+      <div class="invoice-stat"><div class="invoice-num" style="color:var(--muted)">–</div><div class="invoice-lbl">Dagar betalningstid</div></div>
+    </div>
+    <div style="margin-top:16px;font-size:12px;color:var(--muted);background:var(--bg);border-radius:8px;padding:12px">
+      🔌 Koppla Fortnox eller Visma för att se riktiga faktureringsdata
+    </div>
+  </div>`;
+}
+
+function renderSocial(d) {
+  return `<div class="card card-sm">
+    <div class="card-title">📱 Sociala medier</div>
+    <div class="social-rows">
+      <div class="social-row"><span class="social-name">📸 Instagram</span><span class="social-val" style="color:var(--muted)">–</span></div>
+      <div class="social-row"><span class="social-name">👍 Facebook</span><span class="social-val" style="color:var(--muted)">–</span></div>
+    </div>
+    <div style="margin-top:14px;font-size:12px;color:var(--muted);background:var(--bg);border-radius:8px;padding:12px">
+      🔌 Koppla Meta Business Suite för att se räckvidd och engagemang
+    </div>
+  </div>`;
+}
+
+function renderInventory(d) {
+  return `<div class="card card-sm">
+    <div class="card-title">📦 Lager</div>
+    <div style="font-size:12px;color:var(--muted);background:var(--bg);border-radius:8px;padding:12px">
+      🔌 Koppla WooCommerce eller Shopify för att spåra lagernivåer och svinn i realtid
+    </div>
+  </div>`;
+}
+
+function renderVisitors(d) {
+  return `<div class="card card-sm">
+    <div class="card-title">👥 Webbplatsbesökare</div>
+    <div style="font-size:28px;font-weight:700;letter-spacing:-1px;margin-bottom:4px">${d.kpis.visitors || 0}<span style="font-size:14px;font-weight:400;color:var(--muted)"> senaste 7 dagar</span></div>
+    <div style="font-size:12px;color:var(--muted);margin-top:10px">
+      ${d.kpis.conversionRate > 0 ? `Konverteringsgrad: <strong style="color:var(--text)">${d.kpis.conversionRate}%</strong>` : 'Konverteringsdata samlas in…'}
+    </div>
+  </div>`;
+}
+
+function renderHealthScore(d) {
+  const hs = d.healthScore || {};
+  const score = hs.score || 0;
+  const circumference = 283;
+  const offset = circumference - (score / 100) * circumference;
+  const color = score >= 70 ? '#22c55e' : score >= 40 ? '#f59e0b' : '#ef4444';
+  const label = score >= 70 ? 'Bra' : score >= 40 ? 'Förbättringsbar' : 'Kritisk';
+  return `<div class="card card-sm">
+    <div class="card-title">💚 Hälsostatus</div>
+    <div class="health-ring-wrap">
+      <div class="health-ring">
+        <svg width="100" height="100" viewBox="0 0 100 100">
+          <circle class="track" cx="50" cy="50" r="45"/>
+          <circle class="fill" cx="50" cy="50" r="45"
+            style="stroke:${color};stroke-dashoffset:${offset}"/>
+        </svg>
+        <span class="health-score-num">${score}</span>
       </div>
-    `).join('');
-    document.getElementById('email-list').innerHTML = html;
-  }
+      <span class="health-label" style="color:${color}">${label}</span>
+    </div>
+  </div>`;
+}
 
-  function renderManualTime(manualTime) {
-    if (!manualTime.items.length) {
-      document.getElementById('time-list').innerHTML = '<div style="color:#ccc;font-size:12px">Beräknas när data finns</div>';
-      return;
-    }
-    const rows = manualTime.items.map(item => `
-      <div class="time-item">
-        <span class="time-label">${item.label}</span>
-        <span class="time-hours">${item.hours}h</span>
-      </div>
-    `).join('');
-    const total = `
-      <div class="time-item total">
-        <span class="time-label">Totalt per vecka</span>
-        <span class="time-hours">${manualTime.total}h</span>
-      </div>
-    `;
-    document.getElementById('time-list').innerHTML = rows + total;
-  }
+function renderInsights(d) {
+  const insights = d.insights || [];
+  if (!insights.length) return `<div class="card card-sm"><div class="card-title">🤖 AI-insikter</div><div class="empty-state">Insikter genereras löpande under granskningen</div></div>`;
+  return `<div class="card card-sm full">
+    <div class="card-title">🤖 AI-insikter</div>
+    <div class="insight-list">
+      ${insights.slice(0,4).map(ins=>`<div class="insight-item ${ins.severity||'medium'}">
+        <div class="insight-title">${ins.title||''}</div>
+        <div class="insight-desc">${ins.description||ins.insight||''}</div>
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
 
-  function renderWeekDots(dayNumber) {
-    const days = ['M','T','O','T','F','L','S'];
-    const html = days.map((d, i) => {
-      const n = i + 1;
-      const cls = n < dayNumber ? 'done' : n === dayNumber ? 'today' : '';
-      return `<div class="day-dot ${cls}">${d}</div>`;
-    }).join('');
-    document.getElementById('week-days').innerHTML = html;
-  }
-
-  function renderInsights(insights) {
-    if (!insights.length) {
-      document.getElementById('insights-grid').innerHTML = '<div style="color:#ccc;font-size:12px">AI-insikter genereras när tillräcklig data finns</div>';
-      return;
-    }
-    const html = insights.slice(0, 4).map(i => `
-      <div class="insight-card">
-        <div class="insight-title">${i.title}</div>
-        <div class="insight-desc">${i.description}</div>
-        <span class="insight-tag">${i.category || 'tid'} · ${i.impact || 'medium'}</span>
-      </div>
-    `).join('');
-    document.getElementById('insights-grid').innerHTML = html;
-  }
-
-  async function generateReport() {
-    const token = getToken();
-    const btn = document.getElementById('report-btn');
-    btn.textContent = 'Genererar rapport...';
-    btn.disabled = true;
-    try {
-      const res = await fetch(`${API}/api/report/generate`, {
-        method: 'POST',
-        headers: { 'x-audit-token': token }
-      });
-      if (res.ok) {
-        btn.textContent = '✓ Rapport genererad – laddar om...';
-        setTimeout(() => loadDashboard(), 1500);
-      } else {
-        btn.textContent = 'Fel – försök igen';
-        btn.disabled = false;
-      }
-    } catch {
-      btn.textContent = 'Fel – försök igen';
-      btn.disabled = false;
-    }
-  }
-
-  function showError(msg) {
-    document.getElementById('company-name').textContent = msg;
-  }
-
-  loadDashboard();
+// ══════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════
+loadData();
+setInterval(loadData, 60000);
 </script>
 </body>
 </html>

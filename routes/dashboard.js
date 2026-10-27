@@ -42,7 +42,10 @@ router.get('/', auditAuth, async (req, res) => {
         dayNumber,
         daysLeft: Math.max(0, 7 - dayNumber + 1),
         startDate: req.audit.start_date,
-        endDate: req.audit.end_date
+        endDate: req.audit.end_date,
+        aiModules: req.audit.ai_modules || [],
+        aiSummary: req.audit.ai_summary || '',
+        setupComplete: req.audit.setup_complete || false
       },
       kpis: {
         visitors: pageviews.uniqueVisitors,

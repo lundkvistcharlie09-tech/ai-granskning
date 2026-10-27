@@ -114,6 +114,118 @@ Svara med JSON:
   res.json(saved);
 });
 
+// POST /api/notes/:auditId/setup – AI-analys av mötes-anteckningar → moduler + integrationsguide
+router.post('/:auditId/setup', adminAuth, async (req, res) => {
+  const { notes } = req.body;
+  if (!notes?.trim()) return res.status(400).json({ error: 'notes krävs' });
+
+  const { data: audit, error: auditErr } = await supabase
+    .from('audits')
+    .select('company_name, industry')
+    .eq('id', req.params.auditId)
+    .single();
+
+  if (auditErr || !audit) return res.status(404).json({ error: 'Audit hittades inte' });
+
+  try {
+    const OpenAI = require('openai');
+    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+    const prompt = `Du är en senior AI-konsult som ska analysera ett kundsamtal och bygga upp en skräddarsydd dashboard-profil.
+
+Företag: ${audit.company_name}
+Bransch: ${audit.industry || 'Okänd'}
+
+Anteckningar från kundsamtalet:
+"""
+${notes}
+"""
+
+Baserat på dessa anteckningar, bestäm:
+1. Vilka dashboard-moduler som är relevanta för detta företag
+2. Vilka integrationer som behövs och exakt hur Charlie ska koppla dem
+3. En kort sammanfattning av kundens situation
+
+TILLGÄNGLIGA MODULER (välj de som är relevanta):
+- email: Mejlanalys (antal, kategorier, volym per dag)
+- bookings: Bokningsstatistik (bokningar/dag, populära tider, no-shows)
+- funnel: Konverteringsfunnel (webbbesök → bokning → genomfört)
+- manual_time: Manuella tidsstjälar (vad tar mest tid manuellt)
+- noshow: No-show tracker (utebliven närvaro, kostnad)
+- invoicing: Faktureringsanalys (fakturor per månad, betalningstid)
+- social: Sociala medier (räckvidd, engagemang)
+- inventory: Lagerhantering (lagerstatus, svinn, påfyllning)
+- visitors: Webbplatsbesökare (sidor, trafikkällor, konvertering)
+
+TILLGÄNGLIGA INTEGRATIONER:
+- Gmail / Outlook (mejl)
+- Bokadirekt (bokningssystem)
+- Fresha (bokningssystem för skönhet)
+- Calendly (mötesbokning)
+- Google Calendar
+- WooCommerce / Shopify (e-handel)
+- Fortnox / Visma (fakturering)
+- Google Analytics
+- Instagram API / Meta Business
+- Slack (kommunikation)
+
+Svara med JSON:
+{
+  "summary": "1-2 meningar som beskriver kundens situation och huvudproblem",
+  "modules": ["module_id1", "module_id2"],
+  "integrations": [
+    {
+      "name": "Integrationsnamn",
+      "icon": "emoji",
+      "priority": "hög/medel/låg",
+      "why": "Varför detta behövs för just detta företag (1-2 meningar)",
+      "steps": [
+        "Steg 1: Konkret instruktion",
+        "Steg 2: Konkret instruktion",
+        "Steg 3: Konkret instruktion"
+      ],
+      "note": "Eventuell viktig notering (t.ex. kräver API-nyckel från leverantören)"
+    }
+  ]
+}
+
+Välj BARA de moduler och integrationer som verkligen är relevanta baserat på vad kunden berättade. En frisörsalong behöver bokningar + mejl + no-shows men inte lager. En e-handelsbutik behöver lager + besökare + konvertering men kanske inte bokningar.`;
+
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4o',
+      messages: [{ role: 'user', content: prompt }],
+      response_format: { type: 'json_object' },
+      temperature: 0.7
+    });
+
+    const result = JSON.parse(response.choices[0].message.content);
+
+    // Spara på audit-raden
+    const { data: updated, error: updateErr } = await supabase
+      .from('audits')
+      .update({
+        ai_modules: result.modules || [],
+        ai_integrations: result.integrations || [],
+        ai_summary: result.summary || '',
+        setup_notes: notes,
+        setup_complete: true
+      })
+      .eq('id', req.params.auditId)
+      .select()
+      .single();
+
+    if (updateErr) {
+      console.error('Update audit error:', updateErr);
+      return res.status(500).json({ error: updateErr.message });
+    }
+
+    res.json(updated);
+  } catch (e) {
+    console.error('Setup analysis failed:', e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // DELETE /api/notes/:auditId/:noteId – Ta bort en notering
 router.delete('/:auditId/:noteId', adminAuth, async (req, res) => {
   const { error } = await supabase
