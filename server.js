@@ -34,6 +34,7 @@ app.use('/api/dashboard', require('./routes/dashboard'));
 app.use('/api/email', require('./routes/email'));
 app.use('/api/report', require('./routes/report'));
 app.use('/api/admin', require('./routes/admin'));
+app.use('/api/notes', require('./routes/notes'));
 app.use('/track', require('./routes/tracking'));
 
 // Serve dashboard HTML
@@ -47,6 +48,11 @@ app.get('/dashboard/:token', (req, res) => {
 // Report route – serves report.html for /dashboard/:token/report
 app.get('/dashboard/:token/report', (req, res) => {
   res.sendFile(__dirname + '/public/report.html');
+});
+
+// Admin panel
+app.get('/admin', (req, res) => {
+  res.sendFile(__dirname + '/public/admin.html');
 });
 
 // Health check

@@ -391,10 +391,23 @@
 <!-- HIDDEN PDF DOCUMENT – rendered by html2pdf.js -->
 <div id="pdf-document"></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
   const API = 'https://ai-granskning.vercel.app';
   let _reportData = null; // store globally for PDF use
+  let _html2pdfLoaded = false;
+
+  // Lazy-load html2pdf.js to avoid CDN timing issues
+  function loadHtml2pdf() {
+    return new Promise((resolve, reject) => {
+      if (typeof html2pdf !== 'undefined') { resolve(); return; }
+      if (_html2pdfLoaded) { resolve(); return; }
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+      s.onload = () => { _html2pdfLoaded = true; resolve(); };
+      s.onerror = () => reject(new Error('Kunde inte ladda PDF-biblioteket'));
+      document.head.appendChild(s);
+    });
+  }
 
   function getToken() {
     const parts = window.location.pathname.split('/');
@@ -416,13 +429,16 @@
     }
   }
 
-  // Close dropdown when clicking outside
-  document.addEventListener('click', function(e) {
-    if (!document.getElementById('switcher-wrap').contains(e.target)) {
-      _switcherOpen = false;
-      document.getElementById('switcher-btn').classList.remove('open');
-      document.getElementById('switcher-dropdown').classList.remove('open');
-    }
+  // Close dropdown when clicking outside – wait for DOM ready
+  document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('click', function(e) {
+      const wrap = document.getElementById('switcher-wrap');
+      if (wrap && !wrap.contains(e.target)) {
+        _switcherOpen = false;
+        document.getElementById('switcher-btn').classList.remove('open');
+        document.getElementById('switcher-dropdown').classList.remove('open');
+      }
+    });
   });
 
   function showSwitcherContent() {
@@ -860,10 +876,9 @@
   }
 
   async function generatePDF() {
-    if (!_reportData) return;
+    if (!_reportData) { alert('Vänta tills rapporten laddats klart.'); return; }
     const btn = document.getElementById('pdf-btn');
     btn.disabled = true;
-    btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="animation:spin 1s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Genererar...`;
 
     // Add spinner animation
     if (!document.getElementById('spin-style')) {
@@ -872,6 +887,18 @@
       st.textContent = '@keyframes spin{to{transform:rotate(360deg)}}';
       document.head.appendChild(st);
     }
+    btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="animation:spin 1s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Laddar...`;
+
+    try {
+      await loadHtml2pdf();
+    } catch(e) {
+      alert('Kunde inte ladda PDF-biblioteket. Kontrollera internetanslutningen.');
+      btn.disabled = false;
+      btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Gör som PDF`;
+      return;
+    }
+
+    btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="animation:spin 1s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Genererar...`;
 
     const { dash, report } = _reportData;
     const audit = dash.audit || {};

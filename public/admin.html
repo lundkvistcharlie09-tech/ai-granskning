@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI-Granskning Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #FAFAFA; --card: #fff; --border: #F0F0F0;
+      --text: #111; --muted: #888; --label: #CCC;
+      --green: #22c55e; --radius: 12px;
+    }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    .topbar {
+      background: var(--card); border-bottom: 1px solid var(--border);
+      padding: 0 32px; height: 56px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .logo { font-size: 15px; font-weight: 700; }
+    .admin-badge {
+      font-size: 10px; font-weight: 700; color: var(--muted);
+      letter-spacing: 0.5px; text-transform: uppercase;
+      background: var(--bg); border: 1px solid var(--border);
+      padding: 4px 10px; border-radius: 20px;
+    }
+
+    /* LOGIN */
+    .login-wrap {
+      max-width: 360px; margin: 120px auto; padding: 40px;
+      background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+    }
+    .login-title { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+    .login-sub { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+    .field-label { font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
+    input[type=password], input[type=text], textarea {
+      width: 100%; border: 1px solid var(--border); border-radius: 8px;
+      padding: 10px 14px; font-size: 14px; font-family: 'Inter', sans-serif;
+      outline: none; transition: border-color 0.15s; background: var(--bg);
+    }
+    input[type=password]:focus, input[type=text]:focus, textarea:focus { border-color: #111; background: #fff; }
+    .btn-primary {
+      width: 100%; background: #111; color: #fff; border: none;
+      border-radius: 8px; padding: 12px; font-size: 14px; font-weight: 600;
+      font-family: 'Inter', sans-serif; cursor: pointer; margin-top: 16px;
+      transition: opacity 0.15s;
+    }
+    .btn-primary:hover { opacity: 0.8; }
+    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+    .error-msg { font-size: 12px; color: #ef4444; margin-top: 10px; }
+
+    /* MAIN LAYOUT */
+    .layout { display: flex; height: calc(100vh - 56px); }
+
+    /* SIDEBAR – company list */
+    .sidebar {
+      width: 260px; flex-shrink: 0;
+      border-right: 1px solid var(--border);
+      background: var(--card);
+      display: flex; flex-direction: column;
+      overflow: hidden;
+    }
+    .sidebar-header {
+      padding: 16px 20px 12px;
+      font-size: 10px; font-weight: 700; color: var(--label);
+      letter-spacing: 0.5px; text-transform: uppercase;
+      border-bottom: 1px solid var(--border); flex-shrink: 0;
+    }
+    .company-list { overflow-y: auto; flex: 1; }
+    .company-item {
+      padding: 14px 20px; border-bottom: 1px solid var(--border);
+      cursor: pointer; transition: background 0.1s;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .company-item:hover { background: var(--bg); }
+    .company-item.active { background: #f0f0f0; }
+    .company-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+    .company-dot.inactive { background: var(--label); }
+    .company-info { flex: 1; min-width: 0; }
+    .company-name-txt { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .company-industry-txt { font-size: 11px; color: var(--muted); }
+
+    /* MAIN CONTENT */
+    .main { flex: 1; overflow-y: auto; padding: 32px; display: flex; flex-direction: column; gap: 24px; }
+    .main-empty {
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      color: var(--muted); font-size: 14px;
+    }
+
+    /* CARD */
+    .card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 24px;
+    }
+    .card-title {
+      font-size: 12px; font-weight: 700; color: var(--label);
+      letter-spacing: 0.5px; text-transform: uppercase;
+      margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border);
+    }
+
+    /* NOTE INPUT */
+    .note-textarea { min-height: 100px; resize: vertical; margin-bottom: 12px; }
+    .note-hint { font-size: 12px; color: var(--muted); margin-bottom: 12px; line-height: 1.5; }
+    .btn-add {
+      background: #111; color: #fff; border: none; border-radius: 8px;
+      padding: 10px 20px; font-size: 13px; font-weight: 600;
+      font-family: 'Inter', sans-serif; cursor: pointer; transition: opacity 0.15s;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn-add:hover { opacity: 0.8; }
+    .btn-add:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* NOTES LIST */
+    .notes-list { display: flex; flex-direction: column; gap: 16px; }
+    .note-card {
+      border: 1px solid var(--border); border-radius: 10px; overflow: hidden;
+    }
+    .note-header {
+      padding: 14px 16px; background: var(--bg);
+      display: flex; justify-content: space-between; align-items: flex-start;
+      border-bottom: 1px solid var(--border);
+    }
+    .note-text-display { font-size: 14px; font-weight: 600; flex: 1; line-height: 1.4; }
+    .note-time { font-size: 11px; color: var(--muted); white-space: nowrap; margin-left: 12px; }
+    .note-delete {
+      background: none; border: none; cursor: pointer; color: var(--label);
+      font-size: 18px; line-height: 1; padding: 0 0 0 8px; transition: color 0.1s;
+    }
+    .note-delete:hover { color: #ef4444; }
+
+    /* AI ANALYSIS */
+    .ai-section { padding: 16px; }
+    .ai-loading { font-size: 13px; color: var(--muted); padding: 16px; text-align: center; }
+    .core-problem {
+      font-size: 13px; font-weight: 600;
+      background: #f0fdf4; border: 1px solid #bbf7d0;
+      border-radius: 8px; padding: 12px 14px; margin-bottom: 14px; color: #166534;
+    }
+    .pitch-angle {
+      font-size: 13px; font-style: italic; color: var(--muted);
+      border-left: 3px solid var(--border); padding-left: 12px; margin-bottom: 14px;
+    }
+    .problems-title {
+      font-size: 10px; font-weight: 700; color: var(--label);
+      letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 10px;
+    }
+    .problem-row {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 10px 0; border-bottom: 1px solid var(--border);
+    }
+    .problem-row:last-child { border-bottom: none; }
+    .likelihood-pill {
+      font-size: 10px; font-weight: 700; padding: 3px 8px;
+      border-radius: 20px; white-space: nowrap; flex-shrink: 0; margin-top: 1px;
+    }
+    .likelihood-hög { background: #fef2f2; color: #991b1b; }
+    .likelihood-medel { background: #fffbeb; color: #92400e; }
+    .likelihood-låg { background: var(--bg); color: var(--muted); }
+    .problem-content { flex: 1; }
+    .problem-name { font-size: 13px; font-weight: 600; margin-bottom: 3px; }
+    .problem-solution { font-size: 12px; color: var(--muted); margin-bottom: 3px; }
+    .problem-time { font-size: 11px; color: var(--green); font-weight: 600; }
+
+    /* REPORT LINK */
+    .report-link {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12px; color: var(--muted);
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 6px; padding: 7px 12px; text-decoration: none;
+      transition: border-color 0.15s;
+    }
+    .report-link:hover { border-color: #ccc; color: var(--text); }
+
+    .loading-spinner {
+      display: inline-block; width: 14px; height: 14px;
+      border: 2px solid #ccc; border-top-color: #111;
+      border-radius: 50%; animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="logo">AI-Granskning</span>
+  <span class="admin-badge">Admin</span>
+</div>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
+  <div class="login-wrap">
+    <div class="login-title">Logga in</div>
+    <div class="login-sub">Ange admin-lösenordet för att fortsätta</div>
+    <div class="field-label">Lösenord</div>
+    <input type="password" id="login-pw" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="btn-primary" onclick="doLogin()">Fortsätt</button>
+    <div class="error-msg" id="login-error" style="display:none">Fel lösenord</div>
+  </div>
+</div>
+
+<!-- MAIN APP (hidden until logged in) -->
+<div id="app" style="display:none">
+  <div class="layout">
+    <div class="sidebar">
+      <div class="sidebar-header">Företag</div>
+      <div class="company-list" id="company-list">
+        <div style="padding:16px;font-size:13px;color:var(--muted)">Laddar…</div>
+      </div>
+    </div>
+    <div class="main" id="main-content">
+      <div class="main-empty">← Välj ett företag</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = 'https://ai-granskning.vercel.app';
+let _pw = '';
+let _audits = [];
+let _currentAudit = null;
+
+// ── LOGIN ──────────────────────────────────────────────────────────
+async function doLogin() {
+  const pw = document.getElementById('login-pw').value.trim();
+  if (!pw) return;
+  document.getElementById('login-error').style.display = 'none';
+  const btn = document.querySelector('#login-screen .btn-primary');
+  btn.disabled = true; btn.textContent = 'Kontrollerar…';
+
+  const res = await fetch(`${API}/api/audits`, { headers: { 'x-admin-password': pw } });
+  if (!res.ok) {
+    btn.disabled = false; btn.textContent = 'Fortsätt';
+    document.getElementById('login-error').style.display = 'block';
+    return;
+  }
+  _pw = pw;
+  localStorage.setItem('ag_admin_pw', pw);
+  _audits = await res.json();
+  showApp();
+}
+
+function showApp() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  renderCompanyList();
+}
+
+// ── COMPANY LIST ──────────────────────────────────────────────────
+function renderCompanyList() {
+  const list = document.getElementById('company-list');
+  if (!_audits.length) {
+    list.innerHTML = '<div style="padding:16px;font-size:13px;color:var(--muted)">Inga företag</div>';
+    return;
+  }
+  list.innerHTML = _audits.map(a => `
+    <div class="company-item" id="co-${a.id}" onclick="selectCompany('${a.id}')">
+      <span class="company-dot ${a.status === 'active' ? '' : 'inactive'}"></span>
+      <div class="company-info">
+        <div class="company-name-txt">${a.company_name || 'Okänt'}</div>
+        <div class="company-industry-txt">${a.status === 'active' ? 'Aktiv' : 'Avslutad'}</div>
+      </div>
+    </div>`).join('');
+}
+
+// ── SELECT COMPANY ────────────────────────────────────────────────
+async function selectCompany(id) {
+  _currentAudit = _audits.find(a => a.id === id);
+  if (!_currentAudit) return;
+
+  // Highlight active
+  document.querySelectorAll('.company-item').forEach(el => el.classList.remove('active'));
+  document.getElementById('co-' + id)?.classList.add('active');
+
+  renderMainLoading();
+  const notes = await fetchNotes(id);
+  renderMain(notes);
+}
+
+async function fetchNotes(auditId) {
+  try {
+    const res = await fetch(`${API}/api/notes/${auditId}`, { headers: { 'x-admin-password': _pw } });
+    if (!res.ok) return [];
+    return await res.json();
+  } catch(e) { return []; }
+}
+
+function renderMainLoading() {
+  document.getElementById('main-content').innerHTML = `
+    <div class="main-empty"><span class="loading-spinner"></span></div>`;
+}
+
+// ── MAIN RENDER ────────────────────────────────────────────────────
+function renderMain(notes) {
+  const a = _currentAudit;
+  const reportUrl = `${API}/dashboard/${a.access_token}/report`;
+
+  document.getElementById('main-content').innerHTML = `
+    <!-- Header -->
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div>
+        <div style="font-size:10px;font-weight:700;color:var(--label);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:6px">Valt företag</div>
+        <div style="font-size:22px;font-weight:700;letter-spacing:-0.5px">${a.company_name}</div>
+        <div style="font-size:13px;color:var(--muted);margin-top:4px">${a.industry || '–'} · ${a.status === 'active' ? 'Aktiv granskning' : 'Avslutad'}</div>
+      </div>
+      <a href="${reportUrl}" target="_blank" class="report-link">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        Öppna rapport
+      </a>
+    </div>
+
+    <!-- ADD NOTE -->
+    <div class="card">
+      <div class="card-title">Ny observation från kundsamtal</div>
+      <div class="note-hint">Skriv vad företaget berättade – t.ex. "de lägger 3 timmar/vecka på att ringa och bekräfta bokningar" eller "de hanterar alla fakturor manuellt i Excel". AI analyserar och hittar relaterade problem i samma bransch.</div>
+      <textarea class="note-textarea" id="note-input" placeholder="Ex: Kunden säger att de skickar bokningsbekräftelser manuellt via mail till varje ny kund..."></textarea>
+      <button class="btn-add" id="add-note-btn" onclick="addNote()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Analysera med AI
+      </button>
+    </div>
+
+    <!-- NOTES LIST -->
+    <div class="card">
+      <div class="card-title">Observationer & AI-analys (${notes.length})</div>
+      <div class="notes-list" id="notes-list">
+        ${notes.length ? notes.map(renderNote).join('') : '<div style="font-size:13px;color:var(--muted)">Inga noter ännu. Lägg till din första observation ovan.</div>'}
+      </div>
+    </div>
+  `;
+}
+
+function renderNote(n) {
+  const a = n.ai_analysis;
+  const time = new Date(n.created_at).toLocaleString('sv-SE', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+  return `
+    <div class="note-card" id="note-${n.id}">
+      <div class="note-header">
+        <div class="note-text-display">"${n.note_text}"</div>
+        <span class="note-time">${time}</span>
+        <button class="note-delete" onclick="deleteNote('${n.id}')" title="Ta bort">×</button>
+      </div>
+      <div class="ai-section">
+        ${!a ? '<div class="ai-loading">AI-analys saknas</div>' : `
+          ${a.core_problem ? `<div class="core-problem">💡 ${a.core_problem}</div>` : ''}
+          ${a.pitch_angle ? `<div class="pitch-angle">${a.pitch_angle}</div>` : ''}
+          ${a.related_problems?.length ? `
+            <div class="problems-title">Relaterade problem AI identifierade</div>
+            ${a.related_problems.map(p => `
+              <div class="problem-row">
+                <span class="likelihood-pill likelihood-${p.likelihood}">${p.likelihood}</span>
+                <div class="problem-content">
+                  <div class="problem-name">${p.problem}</div>
+                  <div class="problem-solution">→ ${p.ai_solution}</div>
+                  ${p.time_saved_hours_weekly ? `<div class="problem-time">~${p.time_saved_hours_weekly}h/vecka besparing</div>` : ''}
+                </div>
+              </div>`).join('')}
+          ` : ''}
+        `}
+      </div>
+    </div>`;
+}
+
+// ── ADD NOTE ───────────────────────────────────────────────────────
+async function addNote() {
+  const text = document.getElementById('note-input')?.value?.trim();
+  if (!text || !_currentAudit) return;
+
+  const btn = document.getElementById('add-note-btn');
+  btn.disabled = true;
+  btn.innerHTML = `<span class="loading-spinner"></span> Analyserar…`;
+
+  try {
+    const res = await fetch(`${API}/api/notes/${_currentAudit.id}`, {
+      method: 'POST',
+      headers: { 'x-admin-password': _pw, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ note_text: text })
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      alert('Fel: ' + (err.error || res.status));
+      return;
+    }
+
+    document.getElementById('note-input').value = '';
+    const notes = await fetchNotes(_currentAudit.id);
+    renderMain(notes);
+  } catch(e) {
+    alert('Något gick fel: ' + e.message);
+  } finally {
+    const b = document.getElementById('add-note-btn');
+    if (b) { b.disabled = false; b.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Analysera med AI`; }
+  }
+}
+
+// ── DELETE NOTE ────────────────────────────────────────────────────
+async function deleteNote(noteId) {
+  if (!confirm('Ta bort denna observation?')) return;
+  await fetch(`${API}/api/notes/${_currentAudit.id}/${noteId}`, {
+    method: 'DELETE',
+    headers: { 'x-admin-password': _pw }
+  });
+  const notes = await fetchNotes(_currentAudit.id);
+  renderMain(notes);
+}
+
+// ── INIT ───────────────────────────────────────────────────────────
+const savedPw = localStorage.getItem('ag_admin_pw');
+if (savedPw) {
+  _pw = savedPw;
+  fetch(`${API}/api/audits`, { headers: { 'x-admin-password': savedPw } })
+    .then(r => r.ok ? r.json() : Promise.reject())
+    .then(data => { _audits = data; showApp(); })
+    .catch(() => {
+      localStorage.removeItem('ag_admin_pw');
+      // show login
+    });
+}
+</script>
+</body>
+</html>
