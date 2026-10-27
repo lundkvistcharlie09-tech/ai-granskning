@@ -158,13 +158,54 @@
       color: var(--muted);
       text-align: center;
     }
+
+    /* PDF BUTTON */
+    .pdf-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #111;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .pdf-btn:hover { opacity: 0.8; }
+    .pdf-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .topbar-actions { display: flex; align-items: center; gap: 12px; }
+
+    /* PDF DOCUMENT (hidden until print) */
+    #pdf-document { display: none; }
+
+    @media print {
+      body > *:not(#pdf-document) { display: none !important; }
+      #pdf-document {
+        display: block !important;
+        font-family: 'Inter', Georgia, serif;
+        color: #111;
+        max-width: 100%;
+        padding: 0;
+        margin: 0;
+      }
+    }
   </style>
 </head>
 <body>
 
 <div class="topbar">
   <span class="logo">AI-Granskning</span>
-  <span class="report-date" id="report-date">–</span>
+  <div class="topbar-actions">
+    <span class="report-date" id="report-date">–</span>
+    <button class="pdf-btn" id="pdf-btn" onclick="generatePDF()" disabled>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Gör som PDF
+    </button>
+  </div>
 </div>
 
 <div class="container">
@@ -244,8 +285,13 @@
 
 </div>
 
+<!-- HIDDEN PDF DOCUMENT – rendered by html2pdf.js -->
+<div id="pdf-document"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
   const API = 'https://ai-granskning.vercel.app';
+  let _reportData = null; // store globally for PDF use
 
   function getToken() {
     const parts = window.location.pathname.split('/');
@@ -272,7 +318,9 @@
         if (reportRes.ok) report = await reportRes.json();
       } catch(e) { console.warn('Report endpoint failed:', e); }
 
+      _reportData = { dash, report };
       render(dash, report);
+      document.getElementById('pdf-btn').disabled = false;
     } catch (err) {
       console.error('loadReport failed:', err);
       document.body.innerHTML = `<p style="padding:40px;color:#888;font-family:monospace">Fel: ${err.message}</p>`;
@@ -355,7 +403,315 @@
     document.getElementById('score-bar').style.width = score + '%';
   }
 
+  // ─── PDF GENERATION ───────────────────────────────────────────────────────
+
+  const CATEGORY_DESCRIPTIONS = {
+    'bokning': {
+      label: 'Bokningsförfrågningar',
+      desc: 'Kunder skickar mejl för att boka tid, fråga om lediga tider eller bekräfta en bokning. Varje sådant mejl kräver att du läser det, kollar din kalender och svarar manuellt – ofta flera gånger fram och tillbaka innan bokningen är klar.',
+      ai: 'Ett AI-system kan svara direkt och automatiskt när en bokningsförfrågan kommer in – dygnet runt, även på helger och kvällar. AI:n läser mejlet, förstår vad kunden vill ha, och svarar med lediga tider eller bekräftar direkt. Det sparar dig flera minuter per mejl och ger kunden svar på sekunder istället för timmar.'
+    },
+    'avbokning': {
+      label: 'Avbokningar och ombokningar',
+      desc: 'Avbokningar och ombokningar kräver att du uppdaterar kalendern, skickar bekräftelse och kanske erbjuder nya tider. Det är repetitivt arbete som tar tid men egentligen inte behöver din uppmärksamhet.',
+      ai: 'AI kan hantera hela flödet automatiskt: ta emot avbokningen, uppdatera bokningssystemet, skicka bekräftelse till kunden och automatiskt erbjuda en ny tid. Du behöver aldrig vara inblandad.'
+    },
+    'prisförfrågan': {
+      label: 'Prisförfrågningar',
+      desc: 'Kunder frågar om priser, paket och vad som ingår. Du svarar samma sak om och om igen – ofta på exakt samma fråga som du svarat på hundratals gånger tidigare.',
+      ai: 'AI kan svara på alla standardfrågor om pris direkt och exakt. Den kan ge fullständiga svar med all relevant information, anpassa sig efter vad kunden frågat om, och hänvisa till bokning om kunden är intresserad.'
+    },
+    'påminnelse': {
+      label: 'Påminnelser',
+      desc: 'Att manuellt skicka ut påminnelser inför bokningar, betalningsförfall eller uppföljningar är tidskrävande och lätt att glömma.',
+      ai: 'AI skickar automatiska påminnelser vid rätt tidpunkt – exempelvis 24h före ett besök. Forskning visar att automatiska påminnelser minskar no-shows med 30–50%, vilket direkt påverkar din intäkt.'
+    },
+    'fakturahantering': {
+      label: 'Fakturahantering',
+      desc: 'Frågor om fakturor, kvitton och betalningar kräver att du letar upp information och svarar manuellt. Det tar tid och är inte värdeskapande arbete.',
+      ai: 'AI kan svara på fakturafrågor automatiskt, skicka kopior av kvitton och ge betalningsstatus utan att du behöver lyfta ett finger.'
+    },
+    'fråga': {
+      label: 'Allmänna frågor',
+      desc: 'Generella frågor om öppettider, adress, vad ni erbjuder och hur det fungerar – frågor som har samma svar varje gång.',
+      ai: 'AI svarar på alla återkommande frågor direkt och fullständigt. Den lär sig ditt företag och kan ge detaljerade, korrekta svar dygnet runt utan din inblandning.'
+    },
+    'klagomål': {
+      label: 'Klagomål och synpunkter',
+      desc: 'Klagomål kräver snabb hantering – en sen eller dålig respons förvärrar situationen. Samtidigt tar det tid att formulera ett bra svar.',
+      ai: 'AI kan omedelbart bekräfta att klagomålet tagits emot, visa empati och samla in nödvändig information. Sedan kan du fokusera på att faktiskt lösa problemet istället för det administrativa.'
+    },
+    'övrigt': {
+      label: 'Övriga mejl',
+      desc: 'Mejl som inte faller in i en tydlig kategori men ändå tar tid att läsa och hantera.',
+      ai: 'AI kan screena och sortera dessa mejl, lyfta fram de som behöver din uppmärksamhet och svara på de som är enkla nog att hantera automatiskt.'
+    }
+  };
+
+  function getCatInfo(name) {
+    const key = name.toLowerCase().replace(/[åä]/g, 'a').replace(/ö/g, 'o').split(' ')[0];
+    for (const [k, v] of Object.entries(CATEGORY_DESCRIPTIONS)) {
+      if (key.includes(k) || k.includes(key)) return v;
+    }
+    return {
+      label: name,
+      desc: `Mejl kategoriserade som "${name}".`,
+      ai: 'AI kan automatisera hanteringen av dessa mejl, frigöra din tid och säkerställa snabbare svarstider.'
+    };
+  }
+
+  function scoreComment(score) {
+    if (score >= 80) return { text: 'Utmärkt', color: '#22c55e' };
+    if (score >= 60) return { text: 'Bra potential', color: '#f59e0b' };
+    if (score >= 40) return { text: 'Tydlig förbättringspotential', color: '#f97316' };
+    return { text: 'Hög prioritet för AI-stöd', color: '#ef4444' };
+  }
+
+  function noShowComment(rate) {
+    if (rate === 0 || rate == null) return 'Inga no-shows registrerade under perioden.';
+    if (rate < 5) return `${rate}% no-show rate är lågt – branschsnittet ligger ofta på 10–20%. Bra jobbat.`;
+    if (rate < 15) return `${rate}% no-show rate är inom normalt intervall. Automatiska påminnelser 24h i förväg kan sänka det till under 5%.`;
+    return `${rate}% no-show rate är högt. Varje no-show är en förlorad intäkt. AI-påminnelser är den enskilt snabbaste åtgärden för att minska detta.`;
+  }
+
+  function conversionComment(rate) {
+    if (!rate) return 'Ingen konverteringsdata tillgänglig under perioden.';
+    if (rate >= 5) return `${rate}% konvertering är starkt för din bransch. AI-chatt kan konvertera besökare som annars lämnar sidan utan att agera.`;
+    if (rate >= 2) return `${rate}% konvertering innebär att ${100 - rate}% av alla besökare lämnar utan att boka. En AI-assistent som svarar på frågor direkt kan dramatiskt öka detta.`;
+    return `${rate}% konvertering är lågt – de flesta besökare hittar inte vad de söker eller tvekar. En AI som är tillgänglig dygnet runt och svarar på alla frågor direkt kan vända detta.`;
+  }
+
+  function manualTimeComment(total) {
+    if (!total || total === 0) return 'Ingen manuell tid registrerad under perioden.';
+    const yearly = Math.round(total * 52);
+    return `${total} timmar per vecka innebär ungefär ${yearly} timmar per år på manuellt administrativt arbete. Det är tid som kan frigöras nästan helt med rätt AI-stöd.`;
+  }
+
+  function buildPDFHTML(dash, report) {
+    const audit = dash.audit || {};
+    const kpis = dash.kpis || {};
+    const funnel = dash.funnel || [];
+    const emailCategories = dash.emailCategories || [];
+    const manualTime = dash.manualTime || {};
+    const healthScore = dash.healthScore ?? report?.health_score ?? 0;
+
+    const start = audit.startDate ? new Date(audit.startDate).toLocaleDateString('sv-SE') : '–';
+    const end = audit.endDate ? new Date(audit.endDate).toLocaleDateString('sv-SE') : '–';
+    const today = new Date().toLocaleDateString('sv-SE');
+    const scoreInfo = scoreComment(healthScore);
+    const totalEmails = report?.total_emails ?? emailCategories.reduce((s, c) => s + c.count, 0) ?? 0;
+
+    const S = (s) => `<span style="font-size:11px;font-weight:700;color:#bbb;letter-spacing:0.5px;text-transform:uppercase;display:block;border-bottom:1px solid #eee;padding-bottom:10px;margin-bottom:18px">${s}</span>`;
+    const P = (s) => `<p style="font-size:13px;line-height:1.7;color:#444;margin:0 0 12px 0">${s}</p>`;
+    const H = (s) => `<h3 style="font-size:15px;font-weight:700;color:#111;margin:0 0 8px 0">${s}</h3>`;
+    const Box = (content, accent) => `<div style="background:#f8f8f8;border-left:3px solid ${accent||'#111'};border-radius:0 6px 6px 0;padding:16px 20px;margin:16px 0">${content}</div>`;
+    const AIBox = (content) => Box(`<div style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">💡 Hur AI hjälper</div>${P(content)}`, '#111');
+    const KV = (k, v, unit='') => `<div style="display:inline-block;margin:0 24px 16px 0"><div style="font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">${k}</div><div style="font-size:28px;font-weight:700;letter-spacing:-1px;color:#111">${v}<span style="font-size:13px;color:#888;font-weight:400;margin-left:4px">${unit}</span></div></div>`;
+
+    // Email category rows
+    let emailCatHTML = '';
+    if (emailCategories.length > 0) {
+      emailCatHTML = emailCategories.map(c => {
+        const info = getCatInfo(c.name);
+        const pct = totalEmails > 0 ? Math.round((c.count / totalEmails) * 100) : 0;
+        const barW = Math.max(4, pct);
+        return `
+          <div style="margin-bottom:28px">
+            ${H(info.label)}
+            <div style="margin-bottom:10px">
+              <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+                <span style="font-size:12px;color:#888">${c.count} mejl (${pct}% av totalt)</span>
+                ${c.totalMinutes ? `<span style="font-size:12px;color:#888">~${Math.round(c.totalMinutes/c.count)} min/mejl</span>` : ''}
+              </div>
+              <div style="background:#eee;border-radius:3px;height:5px"><div style="background:#111;border-radius:3px;height:5px;width:${barW}%"></div></div>
+            </div>
+            ${P(info.desc)}
+            ${AIBox(info.ai)}
+          </div>
+        `;
+      }).join('');
+    } else {
+      emailCatHTML = P('Inga mejl importerades under granskningsperioden. Mejlhantering är vanligtvis en av de största tidstjuvarna – lägg till mejldata för en fullständig analys.');
+    }
+
+    // Manual time rows
+    let manualTimeHTML = '';
+    if (manualTime.items?.length) {
+      manualTimeHTML = manualTime.items.map(i =>
+        `<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #eee;font-size:13px"><span>${i.label}</span><strong>${i.hours}h/vecka</strong></div>`
+      ).join('') + `<div style="display:flex;justify-content:space-between;padding:12px 0;font-size:14px;font-weight:700"><span>Totalt per vecka</span><span>${manualTime.total}h</span></div>`;
+    } else {
+      manualTimeHTML = P('Manuell tid beräknas baserat på mejlvolym och kategorier.');
+    }
+
+    // Funnel HTML
+    let funnelHTML = '';
+    if (funnel.length > 0) {
+      funnelHTML = funnel.map((f, i) => {
+        const barW = Math.max(4, f.percentage);
+        return `<div style="margin-bottom:14px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+            <span style="font-size:13px;font-weight:500">${f.step}</span>
+            <span style="font-size:13px;font-weight:700;color:#555">${f.count} · ${f.percentage}%</span>
+          </div>
+          <div style="background:#eee;border-radius:3px;height:6px"><div style="background:#111;border-radius:3px;height:6px;width:${barW}%"></div></div>
+          ${i > 0 && f.dropoff > 0 ? `<div style="font-size:11px;color:#aaa;margin-top:3px">↓ ${f.dropoff} lämnade här</div>` : ''}
+        </div>`;
+      }).join('');
+    } else {
+      funnelHTML = P('Ingen hemsidedata registrerades. Installera spårningssnippeten på hemsidan för att få konverteringsdata.');
+    }
+
+    return `
+      <div style="font-family:'Inter',system-ui,sans-serif;color:#111;max-width:700px;margin:0 auto;padding:48px 40px">
+
+        <!-- HEADER -->
+        <div style="margin-bottom:48px">
+          <div style="font-size:10px;font-weight:700;color:#bbb;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:10px">AI-Granskning · 7-dagarsrapport</div>
+          <div style="font-size:32px;font-weight:700;letter-spacing:-1.5px;margin-bottom:8px">${audit.companyName || '–'}</div>
+          <div style="font-size:13px;color:#888">${audit.industry || ''} · ${start} – ${end} · Rapport genererad ${today}</div>
+          <div style="margin-top:20px;padding:16px 20px;background:#f8f8f8;border-radius:8px">
+            <div style="font-size:13px;line-height:1.7;color:#444">
+              Under de senaste 7 dagarna har vi analyserat ${audit.companyName || 'ert företag'}s digitala flöden – besöksbeteende på hemsidan, mejlkommunikation och bokningsdata. Den här rapporten sammanfattar vad vi hittade och var artificiell intelligens skulle kunna ge störst nytta.
+            </div>
+          </div>
+        </div>
+
+        <!-- NYCKELTAL -->
+        <div style="margin-bottom:48px">
+          ${S('Nyckeltal – 7 dagar')}
+          <div style="margin-bottom:16px">
+            ${KV('Besökare', kpis.visitors ?? '–', 'sessioner')}
+            ${KV('Konvertering', (kpis.conversionRate ?? '–') + '%', 'besök→bokning')}
+            ${KV('No-show rate', (kpis.noShowRate ?? '–') + '%', 'av bokningar')}
+            ${KV('Totala mejl', totalEmails, 'st')}
+            ${KV('Manuell tid', manualTime.total ?? '–', 'h/vecka')}
+          </div>
+        </div>
+
+        <!-- AI-HÄLSOPOÄNG -->
+        <div style="margin-bottom:48px">
+          ${S('AI-Hälsopoäng')}
+          <div style="display:flex;align-items:center;gap:24px;padding:24px;background:#f8f8f8;border-radius:10px;margin-bottom:16px">
+            <div>
+              <div style="font-size:56px;font-weight:700;letter-spacing:-3px;color:#111">${healthScore}</div>
+              <div style="font-size:11px;color:#888;margin-top:2px">av 100 möjliga</div>
+            </div>
+            <div style="flex:1">
+              <div style="font-size:14px;font-weight:700;color:${scoreInfo.color};margin-bottom:6px">${scoreInfo.text}</div>
+              <div style="background:#ddd;border-radius:4px;height:8px"><div style="background:${scoreInfo.color};border-radius:4px;height:8px;width:${healthScore}%"></div></div>
+            </div>
+          </div>
+          ${P(`AI-hälsopoängen är ett samlat mått på hur mycket manuellt arbete som skulle kunna automatiseras i ert företag. Den beräknas utifrån konverteringsgrad, svarstider, no-show rate och manuell tid per vecka. En poäng under 70 betyder att det finns tydlig, konkret potential att spara tid och pengar med AI-stöd.`)}
+          ${P(conversionComment(kpis.conversionRate))}
+          ${P(noShowComment(kpis.noShowRate))}
+          ${P(manualTimeComment(manualTime.total))}
+        </div>
+
+        <!-- MEJLANALYS -->
+        <div style="margin-bottom:48px">
+          ${S('Mejlanalys – kategori för kategori')}
+          ${P(`Under veckan hanterades ${totalEmails} mejl. Nedan ser du en uppdelning per kategori med en förklaring av vad varje kategori innebär och hur AI konkret skulle kunna hantera det.`)}
+          ${emailCatHTML}
+        </div>
+
+        <!-- MANUELL TID -->
+        <div style="margin-bottom:48px">
+          ${S('Manuell tid per vecka')}
+          ${P('Beräknad tid spenderad på manuellt, repetitivt administrativt arbete – sådant som inte kräver din expertis men ändå tar din tid.')}
+          <div style="margin:16px 0">${manualTimeHTML}</div>
+          ${manualTime.total ? Box(
+            `<strong style="font-size:13px">Vad detta innebär på ett år:</strong><br>
+            <div style="margin-top:8px;font-size:13px;color:#444">${Math.round((manualTime.total||0) * 52)} timmar per år på administration som AI kan hantera. Räknat på 400 kr/timme är det ${Math.round((manualTime.total||0) * 52 * 400).toLocaleString('sv-SE')} kr i återvunnen arbetstid.</div>`,
+            '#111'
+          ) : ''}
+        </div>
+
+        <!-- KONVERTERINGSTRATT -->
+        <div style="margin-bottom:48px">
+          ${S('Konverteringstratt – besöksdata')}
+          ${P('Hur besökare rör sig genom hemsidan – från första sidvisning till genomförd bokning.')}
+          ${funnelHTML}
+          ${funnel.length > 0 ? Box(
+            `<strong style="font-size:13px">Vad detta innebär:</strong><br>
+            <div style="margin-top:8px;font-size:13px;color:#444">En AI-assistent på hemsidan kan fånga upp besökare som tvekar, svara på frågor direkt och guida dem till bokning. Forskning visar att AI-chatt på bokningssidor typiskt ökar konverteringen med 15–35%.</div>`,
+            '#111'
+          ) : ''}
+        </div>
+
+        <!-- REKOMMENDATIONER -->
+        <div style="margin-bottom:48px">
+          ${S('Sammanfattning och rekommendationer')}
+          ${P(`Baserat på 7 dagars granskning av ${audit.companyName || 'ert företag'} ser vi följande prioriterade åtgärder:`)}
+
+          <div style="margin:20px 0">
+            <div style="margin-bottom:20px;padding:16px 20px;border:1px solid #eee;border-radius:8px">
+              <div style="font-size:12px;font-weight:700;color:#111;margin-bottom:6px">1. AUTOMATISERA MEJLHANTERING</div>
+              <div style="font-size:13px;color:#444;line-height:1.7">En AI-assistent kopplad till mejlkorgen svarar automatiskt på bokningsförfrågningar, prisförfrågningar och vanliga frågor. Svarstiden går från timmar till sekunder, dygnet runt.</div>
+            </div>
+            <div style="margin-bottom:20px;padding:16px 20px;border:1px solid #eee;border-radius:8px">
+              <div style="font-size:12px;font-weight:700;color:#111;margin-bottom:6px">2. AUTOMATISKA PÅMINNELSER</div>
+              <div style="font-size:13px;color:#444;line-height:1.7">Automatiserade SMS/mejlpåminnelser 24–48h innan bokningar reducerar no-shows markant och ökar intäkten utan extra arbete.</div>
+            </div>
+            <div style="margin-bottom:20px;padding:16px 20px;border:1px solid #eee;border-radius:8px">
+              <div style="font-size:12px;font-weight:700;color:#111;margin-bottom:6px">3. AI-ASSISTENT PÅ HEMSIDAN</div>
+              <div style="font-size:13px;color:#444;line-height:1.7">En chattbot som svarar på frågor och hjälper besökare att boka direkt på hemsidan kan signifikant förbättra konverteringsgraden.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FOOTER -->
+        <div style="border-top:1px solid #eee;padding-top:20px;font-size:11px;color:#aaa;text-align:center">
+          Rapporten genererades av AI-Granskning · ai-granskning.se · Data insamlad under 7 dagar · ${today}
+        </div>
+
+      </div>
+    `;
+  }
+
+  async function generatePDF() {
+    if (!_reportData) return;
+    const btn = document.getElementById('pdf-btn');
+    btn.disabled = true;
+    btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="animation:spin 1s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Genererar...`;
+
+    // Add spinner animation
+    if (!document.getElementById('spin-style')) {
+      const st = document.createElement('style');
+      st.id = 'spin-style';
+      st.textContent = '@keyframes spin{to{transform:rotate(360deg)}}';
+      document.head.appendChild(st);
+    }
+
+    const { dash, report } = _reportData;
+    const audit = dash.audit || {};
+    const pdfEl = document.getElementById('pdf-document');
+    pdfEl.innerHTML = buildPDFHTML(dash, report);
+
+    const companyName = (audit.companyName || 'rapport').replace(/[^a-zA-Z0-9åäöÅÄÖ\s]/g, '').trim().replace(/\s+/g, '-').toLowerCase();
+    const fileName = `ai-granskning-${companyName}-${new Date().toISOString().split('T')[0]}.pdf`;
+
+    const opt = {
+      margin: 0,
+      filename: fileName,
+      image: { type: 'jpeg', quality: 0.95 },
+      html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+    };
+
+    try {
+      await html2pdf().set(opt).from(pdfEl).save();
+    } catch(e) {
+      console.error('PDF error:', e);
+      alert('Kunde inte generera PDF. Försök igen.');
+    } finally {
+      pdfEl.innerHTML = '';
+      btn.disabled = false;
+      btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Gör som PDF`;
+    }
+  }
+
   loadReport();
-</script>
 </body>
 </html>
