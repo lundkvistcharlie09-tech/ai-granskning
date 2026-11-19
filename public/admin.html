@@ -268,14 +268,8 @@
   <div class="login-wrap">
     <div class="login-title">Admin</div>
     <div class="login-sub">Ange PIN-kod för att fortsätta</div>
-    <div class="pin-row">
-      <input class="pin-box" type="password" inputmode="numeric" maxlength="1" id="pin0" oninput="pinInput(this,0)" onkeydown="pinKey(event,0)">
-      <input class="pin-box" type="password" inputmode="numeric" maxlength="1" id="pin1" oninput="pinInput(this,1)" onkeydown="pinKey(event,1)">
-      <input class="pin-box" type="password" inputmode="numeric" maxlength="1" id="pin2" oninput="pinInput(this,2)" onkeydown="pinKey(event,2)">
-      <input class="pin-box" type="password" inputmode="numeric" maxlength="1" id="pin3" oninput="pinInput(this,3)" onkeydown="pinKey(event,3)">
-      <input class="pin-box" type="password" inputmode="numeric" maxlength="1" id="pin4" oninput="pinInput(this,4)" onkeydown="pinKey(event,4)">
-      <input class="pin-box" type="password" inputmode="numeric" maxlength="1" id="pin5" oninput="pinInput(this,5)" onkeydown="pinKey(event,5)">
-    </div>
+    <input type="password" id="pin0" placeholder="Lösenord" style="margin-bottom:16px" onkeydown="if(event.key==='Enter')doLogin()">
+    <input type="hidden" id="pin1" value="x"><input type="hidden" id="pin2" value="x"><input type="hidden" id="pin3" value="x"><input type="hidden" id="pin4" value="x"><input type="hidden" id="pin5" value="x">
     <button class="btn btn-full" onclick="doLogin()" id="login-btn">Fortsätt</button>
     <div class="error-msg" id="login-error" style="display:none;text-align:center;margin-top:12px">Fel PIN-kod – försök igen</div>
   </div>
@@ -367,9 +361,8 @@ function pinKey(e, idx) {
 }
 
 async function doLogin() {
-  const pw = [0,1,2,3,4,5].map(i => document.getElementById('pin'+i).value).join('');
-  alert('Skickar: "' + pw + '" (längd: ' + pw.length + ')');
-  if (pw.length < 6) return;
+  const pw = document.getElementById('pin0').value.trim();
+  if (pw.length < 1) return;
   const btn = document.getElementById('login-btn');
   btn.disabled = true; btn.innerHTML = '<span class="spin"></span> Loggar in…';
   document.getElementById('login-error').style.display = 'none';
