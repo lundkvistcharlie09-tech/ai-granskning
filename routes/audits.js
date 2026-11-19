@@ -90,6 +90,29 @@ router.get('/me', auditAuth, async (req, res) => {
   });
 });
 
+// GET /api/audits – List all audits (admin only)
+router.get('/', adminAuth, async (req, res) => {
+  const { data, error } = await supabase
+    .from('audits')
+    .select('id, company_name, industry, status, start_date, end_date, created_at, access_token, ai_modules, ai_integrations, ai_summary, setup_complete, welcome_complete')
+    .order('created_at', { ascending: false });
+
+  if (error) return res.status(500).json({ error: error.message });
+  res.json(data);
+});
+
+// GET /api/welcome/:token – Public welcome page data (måste vara FÖRE /:id)
+router.get('/welcome/:token', async (req, res) => {
+  const { data, error } = await supabase
+    .from('audits')
+    .select('id, company_name, industry, welcome_goals, welcome_challenges, welcome_expectations, welcome_complete')
+    .eq('access_token', req.params.token)
+    .single();
+
+  if (error || !data) return res.status(404).json({ error: 'Not found' });
+  res.json(data);
+});
+
 // GET /api/audits/:id – Get audit by id (admin only)
 router.get('/:id', adminAuth, async (req, res) => {
   const { data, error } = await supabase
@@ -99,29 +122,6 @@ router.get('/:id', adminAuth, async (req, res) => {
     .single();
 
   if (error || !data) return res.status(404).json({ error: 'Audit not found' });
-  res.json(data);
-});
-
-// GET /api/audits – List all audits (admin only)
-router.get('/', adminAuth, async (req, res) => {
-  const { data, error } = await supabase
-    .from('audits')
-    .select('id, company_name, industry, status, start_date, end_date, created_at, access_token, ai_modules, ai_integrations, ai_summary, setup_complete')
-    .order('created_at', { ascending: false });
-
-  if (error) return res.status(500).json({ error: error.message });
-  res.json(data);
-});
-
-// GET /api/welcome/:token – Public welcome page data
-router.get('/welcome/:token', async (req, res) => {
-  const { data, error } = await supabase
-    .from('audits')
-    .select('id, company_name, industry, welcome_goals, welcome_challenges, welcome_expectations, welcome_complete')
-    .eq('access_token', req.params.token)
-    .single();
-
-  if (error || !data) return res.status(404).json({ error: 'Not found' });
   res.json(data);
 });
 
