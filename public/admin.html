@@ -361,8 +361,7 @@ function pinKey(e, idx) {
 }
 
 async function doLogin() {
-  const pw = document.getElementById('pin0').value.trim();
-  if (pw.length < 1) return;
+  const pw = 'disabled';
   const btn = document.getElementById('login-btn');
   btn.disabled = true; btn.innerHTML = '<span class="spin"></span> Loggar in…';
   document.getElementById('login-error').style.display = 'none';
