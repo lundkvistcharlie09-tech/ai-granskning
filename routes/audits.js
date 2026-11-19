@@ -7,7 +7,7 @@ const { generateTrackingSnippet } = require('../lib/tracker');
 function adminAuth(req, res, next) {
   const password = req.headers['x-admin-password'] || req.query.adminPassword;
   if (password !== process.env.ADMIN_PASSWORD) {
-    return res.status(401).json({ error: 'Unauthorized' });
+    return res.status(401).json({ error: 'Unauthorized', debug_received: password, debug_expected_len: process.env.ADMIN_PASSWORD?.length });
   }
   next();
 }
