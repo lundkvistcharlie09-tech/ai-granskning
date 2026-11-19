@@ -197,6 +197,39 @@
     .setup-title { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
     .setup-sub { font-size: 14px; color: var(--muted); line-height: 1.6; }
 
+    /* ANALYZING STATE */
+    .analyzing-wrap {
+      max-width: 520px; margin: 80px auto; padding: 0 24px;
+    }
+    .analyzing-header { margin-bottom: 40px; }
+    .analyzing-header h2 { font-size: 26px; font-weight: 800; letter-spacing: -0.8px; margin-bottom: 8px; }
+    .analyzing-header p { font-size: 14px; color: var(--muted); line-height: 1.6; }
+    .analyzing-steps-list { display: flex; flex-direction: column; gap: 0; }
+    .a-step {
+      display: flex; align-items: center; gap: 16px;
+      padding: 18px 0; border-bottom: 1px solid var(--border);
+    }
+    .a-step:last-child { border-bottom: none; }
+    .a-dot {
+      width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      border: 2px solid var(--border); transition: all 0.4s;
+    }
+    .a-dot.waiting { background: var(--bg); border-color: var(--border); }
+    .a-dot.active {
+      background: #fff; border-color: #6366f1;
+      box-shadow: 0 0 0 4px rgba(99,102,241,0.12);
+    }
+    .a-dot.active::after {
+      content: ''; display: block; width: 10px; height: 10px;
+      border: 2px solid #6366f1; border-top-color: transparent;
+      border-radius: 50%; animation: spin 0.7s linear infinite;
+    }
+    .a-dot.done { background: #22c55e; border-color: #22c55e; }
+    .a-dot.done::after { content: '✓'; color: #fff; font-size: 13px; font-weight: 700; border: none; animation: none; width: auto; height: auto; }
+    .a-step-text { font-size: 14px; font-weight: 500; color: var(--muted); transition: color 0.3s; }
+    .a-step-text.active { color: var(--text); font-weight: 600; }
+
     /* LOADING */
     .loading {
       display: flex; align-items: center; justify-content: center;
@@ -268,12 +301,28 @@ function render() {
     if (audit.welcomeComplete && audit.aiWelcomeAnalysis) {
       document.getElementById('root').innerHTML = renderWelcomeAnalysis(audit);
     } else if (audit.welcomeComplete) {
-      document.getElementById('root').innerHTML = `
-        <div class="setup-pending">
-          <div class="setup-icon">🔍</div>
-          <div class="setup-title">AI:n analyserar er situation</div>
-          <div class="setup-sub">Era svar är mottagna. AI:n bygger nu er granskningsplan – ladda om sidan om en liten stund.</div>
-        </div>`;
+      document.getElementById('root').innerHTML = renderAnalyzingState();
+      startAnalyzingAnimation();
+      // Poll every 4s to check if analysis is done
+      let polls = 0;
+      const pollInterval = setInterval(async () => {
+        polls++;
+        if (polls > 30) { clearInterval(pollInterval); return; } // max 2 min
+        try {
+          const r = await fetch('/api/dashboard', { headers: { 'x-audit-token': token } });
+          if (!r.ok) return;
+          const fresh = await r.json();
+          if (fresh.audit?.aiWelcomeAnalysis) {
+            clearInterval(pollInterval);
+            // Mark all steps done then reload
+            ['as1','as2','as3','as4'].forEach(id => {
+              const el = document.getElementById(id);
+              if (el) { el.className = 'a-dot done'; el.nextElementSibling.style.color = '#111'; }
+            });
+            setTimeout(() => location.reload(), 1200);
+          }
+        } catch(e) {}
+      }, 4000);
     } else {
       document.getElementById('root').innerHTML = `
         <div class="setup-pending">
@@ -548,6 +597,58 @@ function renderHealthScore(d) {
       <span class="health-label" style="color:${color}">${label}</span>
     </div>
   </div>`;
+}
+
+function renderAnalyzingState() {
+  return `
+    <div class="analyzing-wrap">
+      <div class="analyzing-header">
+        <h2>AI:n analyserar<br>er situation</h2>
+        <p>Era svar är mottagna. AI:n söker nu upp information om ert företag och bygger en skräddarsydd granskningsplan.</p>
+      </div>
+      <div class="analyzing-steps-list">
+        <div class="a-step">
+          <div class="a-dot waiting" id="as1"></div>
+          <div class="a-step-text" id="at1">Läser igenom era svar</div>
+        </div>
+        <div class="a-step">
+          <div class="a-dot waiting" id="as2"></div>
+          <div class="a-step-text" id="at2">Söker upp ert företag online</div>
+        </div>
+        <div class="a-step">
+          <div class="a-dot waiting" id="as3"></div>
+          <div class="a-step-text" id="at3">Analyserar er bransch och era utmaningar</div>
+        </div>
+        <div class="a-step">
+          <div class="a-dot waiting" id="as4"></div>
+          <div class="a-step-text" id="at4">Skapar er personliga granskningsplan</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function startAnalyzingAnimation() {
+  const steps = ['as1','as2','as3','as4'];
+  const texts = ['at1','at2','at3','at4'];
+  let i = 0;
+  function next() {
+    if (i > 0) {
+      const prev = document.getElementById(steps[i-1]);
+      const prevT = document.getElementById(texts[i-1]);
+      if (prev) prev.className = 'a-dot done';
+      if (prevT) prevT.className = 'a-step-text';
+    }
+    if (i < steps.length) {
+      const cur = document.getElementById(steps[i]);
+      const curT = document.getElementById(texts[i]);
+      if (cur) cur.className = 'a-dot active';
+      if (curT) curT.className = 'a-step-text active';
+      i++;
+      // Slow down on last step – waiting for real result
+      setTimeout(next, i < steps.length ? 2200 : 99999);
+    }
+  }
+  setTimeout(next, 400);
 }
 
 function renderWelcomeAnalysis(audit) {
