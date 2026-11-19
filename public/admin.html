@@ -500,51 +500,158 @@ function switchTab(tab) {
 }
 
 // ═══════════════════════════════════════════════════════════
-// SETUP FORM – första gången
+// WELCOME FORM – välkomsformulär för kund
 // ═══════════════════════════════════════════════════════════
 function renderSetupForm(a) {
+  const welcomeUrl = `${window.location.origin}/welcome/${a.access_token}`;
+  const hasWelcome = a.welcome_complete;
   return `
-    <div class="card">
-      <div class="card-title">AI-analys av kundens situation</div>
-      <div class="note-hint" style="margin-bottom:16px">Beskriv vad kunden berättade under mötet – vad de slösar tid på, vad som är kaos, vad de önskar var automatiserat. AI bygger sedan upp en skräddarsydd dashboard och kopplingsplan.</div>
-      <div class="form-group" style="margin-bottom:16px">
-        <label class="field-label">Vad sa kunden under mötet?</label>
-        <textarea style="min-height:120px" id="setup-notes" placeholder="Ex: De driver en frisörsalong med 3 anställda. Bokningar via telefon och SMS. Lägger 2 timmar/dag på att svara på frågor om tider. Har problem med no-shows – ungefär 1-2 per dag. Skickar fakturor manuellt i Word. Vill ha mer tid för det kreativa jobbet…"></textarea>
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-title">Välkomstsida till kunden</div>
+      <div class="note-hint" style="margin-bottom:20px">Fyll i vad kunden berättade under mötet. AI föreslår en förbättrad version av varje svar – kunden ser sedan sin personliga sida på länken nedan.</div>
+
+      ${hasWelcome ? `<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px 16px;font-size:13px;color:#166534;margin-bottom:16px;display:flex;align-items:center;gap:8px">
+        <span>✅</span> Välkomstsida sparad – <a href="${welcomeUrl}" target="_blank" style="color:#166534;font-weight:600">Öppna kundsida →</a>
+      </div>` : ''}
+
+      <!-- GOALS -->
+      <div class="form-group" style="margin-bottom:20px">
+        <label class="field-label">Vart vill kunden komma? (Mål)</label>
+        <textarea style="min-height:90px" id="w-goals" placeholder="Ex: Vill spara tid på administration, få fler återkommande kunder, slippa manuella bokningspåminnelser och kunna fokusera mer på det kreativa jobbet...">${a.welcome_goals || ''}</textarea>
+        <div id="ai-goals-wrap" style="display:none;margin-top:8px">
+          <div style="font-size:11px;font-weight:700;color:#6366f1;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:6px">✨ AI-förslag – klicka för att använda</div>
+          <div id="ai-goals-text" onclick="useAiSuggestion('goals')" style="background:#fafaff;border:1px solid #e0e0ff;border-radius:8px;padding:12px 14px;font-size:13px;line-height:1.65;color:#333;cursor:pointer;transition:background 0.15s" onmouseover="this.style.background='#f0f0ff'" onmouseout="this.style.background='#fafaff'"></div>
+          <button onclick="dismissAi('goals')" style="margin-top:6px;font-size:11px;color:var(--muted);background:none;border:none;cursor:pointer;padding:0">✕ Använd inte förslaget</button>
+        </div>
       </div>
-      <button class="btn" id="setup-btn" onclick="runSetupAnalysis()">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-        Analysera med AI
-      </button>
-      <div id="setup-result" style="margin-top:16px"></div>
-    </div>`;
+
+      <!-- CHALLENGES -->
+      <div class="form-group" style="margin-bottom:20px">
+        <label class="field-label">Vad bromsar dem idag? (Utmaningar)</label>
+        <textarea style="min-height:90px" id="w-challenges" placeholder="Ex: Lägger 2+ timmar/dag på att svara på bokningsfrågor via SMS och telefon. No-shows utan förvarning. Fakturering i Word tar evigheter...">${a.welcome_challenges || ''}</textarea>
+        <div id="ai-challenges-wrap" style="display:none;margin-top:8px">
+          <div style="font-size:11px;font-weight:700;color:#6366f1;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:6px">✨ AI-förslag – klicka för att använda</div>
+          <div id="ai-challenges-text" onclick="useAiSuggestion('challenges')" style="background:#fafaff;border:1px solid #e0e0ff;border-radius:8px;padding:12px 14px;font-size:13px;line-height:1.65;color:#333;cursor:pointer;transition:background 0.15s" onmouseover="this.style.background='#f0f0ff'" onmouseout="this.style.background='#fafaff'"></div>
+          <button onclick="dismissAi('challenges')" style="margin-top:6px;font-size:11px;color:var(--muted);background:none;border:none;cursor:pointer;padding:0">✕ Använd inte förslaget</button>
+        </div>
+      </div>
+
+      <!-- EXPECTATIONS -->
+      <div class="form-group" style="margin-bottom:24px">
+        <label class="field-label">Vad förväntar de sig av oss? (Förväntningar)</label>
+        <textarea style="min-height:90px" id="w-expectations" placeholder="Ex: Vill ha konkreta resultat inom 7 dagar. Förväntar sig tydliga rekommendationer, inte bara data. Vill att vi tar ansvar för genomförandet...">${a.welcome_expectations || ''}</textarea>
+        <div id="ai-expectations-wrap" style="display:none;margin-top:8px">
+          <div style="font-size:11px;font-weight:700;color:#6366f1;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:6px">✨ AI-förslag – klicka för att använda</div>
+          <div id="ai-expectations-text" onclick="useAiSuggestion('expectations')" style="background:#fafaff;border:1px solid #e0e0ff;border-radius:8px;padding:12px 14px;font-size:13px;line-height:1.65;color:#333;cursor:pointer;transition:background 0.15s" onmouseover="this.style.background='#f0f0ff'" onmouseout="this.style.background='#fafaff'"></div>
+          <button onclick="dismissAi('expectations')" style="margin-top:6px;font-size:11px;color:var(--muted);background:none;border:none;cursor:pointer;padding:0">✕ Använd inte förslaget</button>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn" id="ai-improve-btn" onclick="runAiImprove()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          Förbättra med AI
+        </button>
+        <button class="btn btn-ghost" id="welcome-save-btn" onclick="saveWelcome()">Spara & publicera kundsida</button>
+      </div>
+      <div id="welcome-result" style="margin-top:12px"></div>
+    </div>
+
+    ${hasWelcome ? `<div class="card">
+      <div class="card-title">Kundens länk</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:12px">Skicka denna länk till kunden – de ser sin personliga välkomstsida.</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input style="font-size:12px;background:var(--bg)" value="${welcomeUrl}" readonly>
+        <button class="btn btn-ghost btn-sm" onclick="navigator.clipboard.writeText('${welcomeUrl}').then(()=>this.textContent='Kopierat!')">Kopiera</button>
+      </div>
+    </div>` : ''}
+  `;
+}
+
+async function runAiImprove() {
+  const goals = document.getElementById('w-goals')?.value?.trim();
+  const challenges = document.getElementById('w-challenges')?.value?.trim();
+  const expectations = document.getElementById('w-expectations')?.value?.trim();
+
+  if (!goals && !challenges && !expectations) {
+    document.getElementById('welcome-result').innerHTML = '<div class="error-msg">Fyll i minst ett fält först.</div>';
+    return;
+  }
+
+  const btn = document.getElementById('ai-improve-btn');
+  btn.disabled = true; btn.innerHTML = '<span class="spin"></span> Förbättrar…';
+  document.getElementById('welcome-result').innerHTML = '';
+
+  try {
+    const res = await fetch(`${API}/api/notes/${_current.id}/improve-welcome`, {
+      method: 'POST',
+      headers: { 'x-admin-password': _pw, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ goals, challenges, expectations, companyName: _current.company_name, industry: _current.industry })
+    });
+    if (!res.ok) throw new Error((await res.json()).error || res.status);
+    const data = await res.json();
+
+    if (data.goals) {
+      document.getElementById('ai-goals-text').textContent = data.goals;
+      document.getElementById('ai-goals-wrap').style.display = 'block';
+    }
+    if (data.challenges) {
+      document.getElementById('ai-challenges-text').textContent = data.challenges;
+      document.getElementById('ai-challenges-wrap').style.display = 'block';
+    }
+    if (data.expectations) {
+      document.getElementById('ai-expectations-text').textContent = data.expectations;
+      document.getElementById('ai-expectations-wrap').style.display = 'block';
+    }
+  } catch(e) {
+    document.getElementById('welcome-result').innerHTML = `<div class="error-msg">Fel: ${e.message}</div>`;
+  } finally {
+    btn.disabled = false; btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Förbättra med AI';
+  }
+}
+
+function useAiSuggestion(field) {
+  const text = document.getElementById(`ai-${field}-text`).textContent;
+  document.getElementById(`w-${field}`).value = text;
+  document.getElementById(`ai-${field}-wrap`).style.display = 'none';
+}
+
+function dismissAi(field) {
+  document.getElementById(`ai-${field}-wrap`).style.display = 'none';
+}
+
+async function saveWelcome() {
+  const goals = document.getElementById('w-goals')?.value?.trim();
+  const challenges = document.getElementById('w-challenges')?.value?.trim();
+  const expectations = document.getElementById('w-expectations')?.value?.trim();
+
+  const btn = document.getElementById('welcome-save-btn');
+  btn.disabled = true; btn.innerHTML = '<span class="spin spin-dark"></span> Sparar…';
+
+  try {
+    const res = await fetch(`${API}/api/audits/${_current.id}/welcome`, {
+      method: 'POST',
+      headers: { 'x-admin-password': _pw, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ goals, challenges, expectations })
+    });
+    if (!res.ok) throw new Error((await res.json()).error || res.status);
+    const data = await res.json();
+
+    _current = { ..._current, ...data };
+    _audits = _audits.map(a => a.id === _current.id ? _current : a);
+    renderCompanyMain();
+
+    const welcomeUrl = `${window.location.origin}/welcome/${_current.access_token}`;
+    document.getElementById('welcome-result').innerHTML = `<div style="font-size:13px;color:#166534;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px 14px">✅ Sparad! <a href="${welcomeUrl}" target="_blank" style="color:#166534;font-weight:600">Öppna kundsidan →</a></div>`;
+  } catch(e) {
+    document.getElementById('welcome-result').innerHTML = `<div class="error-msg">Fel: ${e.message}</div>`;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Spara & publicera kundsida';
+  }
 }
 
 async function runSetupAnalysis() {
-  const notes = document.getElementById('setup-notes')?.value?.trim();
-  if (!notes) return;
-  const btn = document.getElementById('setup-btn');
-  btn.disabled = true; btn.innerHTML = '<span class="spin"></span> Analyserar…';
-  document.getElementById('setup-result').innerHTML = '';
-
-  try {
-    const res = await fetch(`${API}/api/notes/${_current.id}/setup`, {
-      method: 'POST',
-      headers: { 'x-admin-password': _pw, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ notes })
-    });
-    if (!res.ok) { const e = await res.json(); throw new Error(e.error || res.status); }
-    const data = await res.json();
-
-    // Update local copy
-    _current = { ..._current, ...data };
-    _audits = _audits.map(a => a.id === _current.id ? _current : a);
-    renderSidebar();
-    renderCompanyMain();
-    switchTab('integrations');
-  } catch(e) {
-    document.getElementById('setup-result').innerHTML = `<div class="error-msg">Fel: ${e.message}</div>`;
-    btn.disabled = false; btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Analysera med AI';
-  }
+  // Kept for compatibility – now triggered from integrations tab if needed
 }
 
 // ═══════════════════════════════════════════════════════════

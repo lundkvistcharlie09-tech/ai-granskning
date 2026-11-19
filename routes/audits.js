@@ -113,5 +113,37 @@ router.get('/', adminAuth, async (req, res) => {
   res.json(data);
 });
 
+// GET /api/welcome/:token – Public welcome page data
+router.get('/welcome/:token', async (req, res) => {
+  const { data, error } = await supabase
+    .from('audits')
+    .select('id, company_name, industry, welcome_goals, welcome_challenges, welcome_expectations, welcome_complete')
+    .eq('access_token', req.params.token)
+    .single();
+
+  if (error || !data) return res.status(404).json({ error: 'Not found' });
+  res.json(data);
+});
+
+// POST /api/audits/:id/welcome – Save welcome content (admin)
+router.post('/:id/welcome', adminAuth, async (req, res) => {
+  const { goals, challenges, expectations } = req.body;
+
+  const { data, error } = await supabase
+    .from('audits')
+    .update({
+      welcome_goals: goals || '',
+      welcome_challenges: challenges || '',
+      welcome_expectations: expectations || '',
+      welcome_complete: true
+    })
+    .eq('id', req.params.id)
+    .select()
+    .single();
+
+  if (error) return res.status(500).json({ error: error.message });
+  res.json(data);
+});
+
 module.exports = router;
 module.exports.auditAuth = auditAuth;

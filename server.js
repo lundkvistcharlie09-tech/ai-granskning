@@ -55,6 +55,11 @@ app.get('/admin', (req, res) => {
   res.sendFile(__dirname + '/public/admin.html');
 });
 
+// Welcome page for customers
+app.get('/welcome/:token', (req, res) => {
+  res.sendFile(__dirname + '/public/welcome.html');
+});
+
 // Health check
 app.get('/', (req, res) => {
   res.json({ status: 'ok', service: 'ai-granskning', version: '1.0.0' });

@@ -222,6 +222,60 @@ Välj BARA de moduler och integrationer som verkligen är relevanta baserat på 
   }
 });
 
+// POST /api/notes/:auditId/improve-welcome – Förbättra välkomsttexterna med AI
+router.post('/:auditId/improve-welcome', adminAuth, async (req, res) => {
+  const { goals, challenges, expectations, companyName, industry } = req.body;
+
+  try {
+    const OpenAI = require('openai');
+    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+    const improve = async (field, text, label) => {
+      if (!text?.trim()) return null;
+      const prompt = `Du är en professionell textkonsult. Förbättra följande text från ett möte med ett företag.
+
+Företag: ${companyName || 'Okänt'}
+Bransch: ${industry || 'Okänd'}
+Fält: ${label}
+
+Originaltext:
+"${text}"
+
+Skriv om texten så att den:
+- Är tydlig, professionell och inspirerande
+- Låter personlig och specifik för just detta företag
+- Är välformulerad men inte för formell
+- Behåller alla konkreta detaljer och siffror som nämns
+- Är på svenska
+
+Svara ENDAST med den förbättrade texten, inget annat.`;
+
+      const response = await openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.7,
+        max_tokens: 400
+      });
+      return response.choices[0].message.content.trim();
+    };
+
+    const [improvedGoals, improvedChallenges, improvedExpectations] = await Promise.all([
+      improve('goals', goals, 'Mål – vart vill kunden komma?'),
+      improve('challenges', challenges, 'Utmaningar – vad bromsar dem idag?'),
+      improve('expectations', expectations, 'Förväntningar – vad förväntar de sig av oss?')
+    ]);
+
+    res.json({
+      goals: improvedGoals,
+      challenges: improvedChallenges,
+      expectations: improvedExpectations
+    });
+  } catch (e) {
+    console.error('Improve welcome failed:', e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // DELETE /api/notes/:auditId/:noteId – Ta bort en notering
 router.delete('/:auditId/:noteId', adminAuth, async (req, res) => {
   const { error } = await supabase

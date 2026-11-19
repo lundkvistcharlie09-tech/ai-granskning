@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Välkommen – AI-Granskning</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #F8F8F6; --card: #fff; --border: #EBEBEB;
+      --text: #111; --muted: #888; --green: #22c55e;
+      --accent: #111; --radius: 16px;
+    }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    /* HEADER */
+    .header {
+      background: var(--card); border-bottom: 1px solid var(--border);
+      padding: 20px 32px; display: flex; align-items: center; gap: 12px;
+    }
+    .logo-mark {
+      width: 36px; height: 36px; background: #111; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; font-weight: 800; color: #fff; letter-spacing: -0.5px;
+    }
+    .logo-text { font-size: 15px; font-weight: 700; }
+
+    /* HERO */
+    .hero {
+      max-width: 680px; margin: 64px auto 0; padding: 0 24px; text-align: center;
+    }
+    .company-pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 100px; padding: 6px 16px;
+      font-size: 13px; font-weight: 500; color: var(--muted);
+      margin-bottom: 24px;
+    }
+    .company-pill .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); }
+    .hero h1 {
+      font-size: 40px; font-weight: 800; letter-spacing: -1.5px; line-height: 1.1;
+      margin-bottom: 16px;
+    }
+    .hero h1 span { color: var(--muted); }
+    .hero p {
+      font-size: 16px; color: var(--muted); line-height: 1.65;
+      max-width: 500px; margin: 0 auto;
+    }
+
+    /* DIVIDER */
+    .divider {
+      max-width: 680px; margin: 48px auto; padding: 0 24px;
+      display: flex; align-items: center; gap: 16px;
+    }
+    .divider-line { flex: 1; height: 1px; background: var(--border); }
+    .divider-label { font-size: 11px; font-weight: 700; color: var(--label, #CCC); letter-spacing: 0.5px; text-transform: uppercase; }
+
+    /* CARDS */
+    .cards { max-width: 680px; margin: 0 auto 80px; padding: 0 24px; display: flex; flex-direction: column; gap: 20px; }
+
+    .card {
+      background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 32px; position: relative; overflow: hidden;
+    }
+    .card-number {
+      position: absolute; top: 28px; right: 28px;
+      font-size: 48px; font-weight: 800; color: #F0F0EE; letter-spacing: -2px;
+      line-height: 1; user-select: none;
+    }
+    .card-label {
+      font-size: 11px; font-weight: 700; color: var(--muted);
+      letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 10px;
+    }
+    .card h2 { font-size: 18px; font-weight: 700; margin-bottom: 16px; letter-spacing: -0.3px; }
+    .card-body {
+      font-size: 15px; line-height: 1.75; color: #333; white-space: pre-wrap;
+    }
+
+    /* FOOTER */
+    .footer {
+      text-align: center; padding: 40px 24px;
+      font-size: 12px; color: var(--muted); border-top: 1px solid var(--border);
+    }
+    .footer strong { color: var(--text); }
+
+    /* LOADING / ERROR */
+    .state { max-width: 680px; margin: 120px auto; text-align: center; padding: 0 24px; }
+    .state h2 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+    .state p { font-size: 14px; color: var(--muted); }
+    .spin {
+      display: inline-block; width: 28px; height: 28px; border: 3px solid #EEE;
+      border-top-color: #111; border-radius: 50%; animation: spin 0.7s linear infinite; margin-bottom: 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 600px) {
+      .hero h1 { font-size: 28px; }
+      .card { padding: 24px; }
+      .card-number { font-size: 36px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo-mark">AI</div>
+  <div class="logo-text">AI-Granskning</div>
+</div>
+
+<div id="loading" class="state">
+  <div class="spin"></div>
+  <h2>Laddar din sida…</h2>
+</div>
+
+<div id="error" class="state" style="display:none">
+  <h2>Sidan hittades inte</h2>
+  <p>Kontakta din kontaktperson på AI-Granskning.</p>
+</div>
+
+<div id="content" style="display:none">
+  <div class="hero">
+    <div class="company-pill">
+      <span class="dot"></span>
+      <span id="company-name">Företaget</span>
+    </div>
+    <h1>Din AI-resa <span>börjar här.</span></h1>
+    <p>Nedan hittar du en sammanfattning av vad ni diskuterade med oss – era mål, utmaningar och förväntningar. Det här är grunden för allt vi bygger tillsammans.</p>
+  </div>
+
+  <div class="divider">
+    <div class="divider-line"></div>
+    <div class="divider-label">Vad ni vill uppnå</div>
+    <div class="divider-line"></div>
+  </div>
+
+  <div class="cards">
+    <div class="card" id="card-goals" style="display:none">
+      <div class="card-number">01</div>
+      <div class="card-label">Mål</div>
+      <h2>Vart vill ni komma?</h2>
+      <div class="card-body" id="text-goals"></div>
+    </div>
+
+    <div class="card" id="card-challenges" style="display:none">
+      <div class="card-number">02</div>
+      <div class="card-label">Utmaningar</div>
+      <h2>Vad bromsar er idag?</h2>
+      <div class="card-body" id="text-challenges"></div>
+    </div>
+
+    <div class="card" id="card-expectations" style="display:none">
+      <div class="card-number">03</div>
+      <div class="card-label">Förväntningar</div>
+      <h2>Vad förväntar ni er av oss?</h2>
+      <div class="card-body" id="text-expectations"></div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  <strong>AI-Granskning</strong> · Din personliga AI-konsult · <a href="mailto:hej@ai-granskning.se" style="color:inherit">hej@ai-granskning.se</a>
+</div>
+
+<script>
+const API = 'https://ai-granskning.vercel.app';
+const token = location.pathname.split('/').pop();
+
+async function load() {
+  try {
+    const res = await fetch(`${API}/api/audits/welcome/${token}`);
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+
+    document.getElementById('company-name').textContent = data.company_name;
+
+    if (data.welcome_goals) {
+      document.getElementById('text-goals').textContent = data.welcome_goals;
+      document.getElementById('card-goals').style.display = 'block';
+    }
+    if (data.welcome_challenges) {
+      document.getElementById('text-challenges').textContent = data.welcome_challenges;
+      document.getElementById('card-challenges').style.display = 'block';
+    }
+    if (data.welcome_expectations) {
+      document.getElementById('text-expectations').textContent = data.welcome_expectations;
+      document.getElementById('card-expectations').style.display = 'block';
+    }
+
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('content').style.display = 'block';
+  } catch(e) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('error').style.display = 'block';
+  }
+}
+
+load();
+</script>
+</body>
+</html>
