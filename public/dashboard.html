@@ -662,30 +662,23 @@ function renderWelcomeAnalysis(audit) {
 
         <!-- HEADER -->
         <div style="margin-bottom:32px">
-          <div style="font-size:11px;font-weight:700;color:var(--label);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:8px">AI-Analys · Klar</div>
-          <h1 style="font-size:28px;font-weight:800;letter-spacing:-1px;margin-bottom:10px">Din granskningsplan är redo</h1>
-          <p style="font-size:14px;color:var(--muted);line-height:1.6">AI:n har analyserat er situation och identifierat var de verkliga problemen troligtvis ligger. Nedan ser du vad som granskas under de kommande 7 dagarna.</p>
+          <div style="font-size:11px;font-weight:700;color:var(--green);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:8px">● Granskning pågår</div>
+          <h1 style="font-size:28px;font-weight:800;letter-spacing:-1px;margin-bottom:10px">Er AI-granskning är igång</h1>
+          <p style="font-size:14px;color:var(--muted);line-height:1.6">Nedan ser du vad AI:n granskar under de kommande 7 dagarna och vilken AI-lösning som troligtvis kommer byggas för er.</p>
         </div>
 
-        <!-- VERKLIGT PROBLEM -->
-        <div class="card" style="margin-bottom:16px;border-left:3px solid #6366f1">
-          <div class="card-title" style="color:#6366f1">🎯 Det verkliga problemet</div>
-          <div style="font-size:16px;font-weight:600;line-height:1.5;margin-bottom:12px">${a.real_problem || ''}</div>
-          ${a.customer_thinks ? `<div style="font-size:13px;color:var(--muted);background:var(--bg);border-radius:8px;padding:10px 14px"><strong>Ni trodde problemet var:</strong> ${a.customer_thinks}</div>` : ''}
-        </div>
-
-        <!-- TROLIGA ROTORSAKER -->
-        ${rootCauses.length ? `
+        <!-- VAD AI:N FOKUSERAR PÅ -->
         <div class="card" style="margin-bottom:16px">
-          <div class="card-title">🔍 Troliga rotorsaker</div>
-          <div style="display:flex;flex-direction:column;gap:8px">
-            ${rootCauses.map((c, i) => `
-              <div style="display:flex;align-items:flex-start;gap:10px;font-size:13px;line-height:1.5">
-                <div style="width:20px;height:20px;border-radius:50%;background:#f3f4f6;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--muted);flex-shrink:0;margin-top:1px">${i+1}</div>
-                <div>${c}</div>
+          <div class="card-title">🔍 Vad AI:n fokuserar på</div>
+          <div style="font-size:15px;line-height:1.6;margin-bottom:${rootCauses.length ? '16px' : '0'}">${a.real_problem || ''}</div>
+          ${rootCauses.length ? `<div style="display:flex;flex-direction:column;gap:8px">
+            ${rootCauses.map((c) => `
+              <div style="display:flex;align-items:flex-start;gap:10px;font-size:13px;line-height:1.5;color:var(--muted)">
+                <span style="color:#6366f1;font-weight:700;flex-shrink:0">→</span>
+                <span>${c}</span>
               </div>`).join('')}
-          </div>
-        </div>` : ''}
+          </div>` : ''}
+        </div>
 
         <!-- GRANSKNINGSPLAN -->
         <div class="section-label" style="margin-top:24px">Granskningsplan – 7 dagar</div>
@@ -704,16 +697,16 @@ function renderWelcomeAnalysis(audit) {
         </div>
 
         <!-- VECKOMÅL + AI-REKOMMENDATION -->
-        ${a.week_goal ? `
-        <div class="card" style="margin-bottom:16px;background:#f0fdf4;border-color:#bbf7d0">
-          <div class="card-title" style="color:#166534">✅ Vad vi ska ha bevisat efter 7 dagar</div>
-          <div style="font-size:14px;line-height:1.6;color:#166534">${a.week_goal}</div>
+        ${a.ai_recommendation ? `
+        <div class="card" style="margin-bottom:16px;background:#fafaff;border-color:#e0e0ff">
+          <div class="card-title" style="color:#6366f1">🤖 AI som ska byggas</div>
+          <div style="font-size:14px;line-height:1.6">${a.ai_recommendation}</div>
         </div>` : ''}
 
-        ${a.ai_recommendation ? `
-        <div class="card" style="margin-bottom:32px">
-          <div class="card-title">🤖 Preliminär AI-rekommendation</div>
-          <div style="font-size:14px;line-height:1.6;color:var(--muted)">${a.ai_recommendation}</div>
+        ${a.week_goal ? `
+        <div class="card" style="margin-bottom:32px;background:#f0fdf4;border-color:#bbf7d0">
+          <div class="card-title" style="color:#166534">✅ Mål efter 7 dagar</div>
+          <div style="font-size:14px;line-height:1.6;color:#166534">${a.week_goal}</div>
         </div>` : ''}
 
       </div>
