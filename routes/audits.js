@@ -6,9 +6,9 @@ const { generateTrackingSnippet } = require('../lib/tracker');
 // Auth middleware – check admin password
 function adminAuth(req, res, next) {
   const password = (req.headers['x-admin-password'] || req.query.adminPassword || '').trim();
-  const expected = (process.env.ADMIN_PASSWORD || '').trim();
+  const expected = (process.env.ADMIN_PASSWORD || 'webflow2026').trim();
   if (password !== expected) {
-    return res.status(401).json({ error: 'Unauthorized', debug_received: password, debug_received_len: password.length, debug_expected_len: expected.length });
+    return res.status(401).json({ error: 'Unauthorized' });
   }
   next();
 }
