@@ -10,11 +10,10 @@
     :root {
       --bg: #F8F8F6; --card: #fff; --border: #EBEBEB;
       --text: #111; --muted: #888; --green: #22c55e;
-      --accent: #111; --radius: 16px;
+      --accent: #6366f1; --radius: 16px;
     }
     body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
-    /* HEADER */
     .header {
       background: var(--card); border-bottom: 1px solid var(--border);
       padding: 20px 32px; display: flex; align-items: center; gap: 12px;
@@ -22,69 +21,123 @@
     .logo-mark {
       width: 36px; height: 36px; background: #111; border-radius: 10px;
       display: flex; align-items: center; justify-content: center;
-      font-size: 16px; font-weight: 800; color: #fff; letter-spacing: -0.5px;
+      font-size: 16px; font-weight: 800; color: #fff;
     }
     .logo-text { font-size: 15px; font-weight: 700; }
 
-    /* HERO */
     .hero {
-      max-width: 680px; margin: 64px auto 0; padding: 0 24px; text-align: center;
+      max-width: 680px; margin: 56px auto 0; padding: 0 24px; text-align: center;
     }
     .company-pill {
       display: inline-flex; align-items: center; gap: 8px;
       background: var(--card); border: 1px solid var(--border);
       border-radius: 100px; padding: 6px 16px;
-      font-size: 13px; font-weight: 500; color: var(--muted);
-      margin-bottom: 24px;
+      font-size: 13px; font-weight: 500; color: var(--muted); margin-bottom: 24px;
     }
     .company-pill .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); }
-    .hero h1 {
-      font-size: 40px; font-weight: 800; letter-spacing: -1.5px; line-height: 1.1;
-      margin-bottom: 16px;
-    }
+    .hero h1 { font-size: 38px; font-weight: 800; letter-spacing: -1.5px; line-height: 1.1; margin-bottom: 16px; }
     .hero h1 span { color: var(--muted); }
-    .hero p {
-      font-size: 16px; color: var(--muted); line-height: 1.65;
-      max-width: 500px; margin: 0 auto;
+    .hero p { font-size: 15px; color: var(--muted); line-height: 1.65; max-width: 500px; margin: 0 auto; }
+
+    .wrap { max-width: 680px; margin: 0 auto; padding: 40px 24px 80px; }
+
+    /* STEP INDICATOR */
+    .steps {
+      display: flex; align-items: center; gap: 0; margin-bottom: 40px;
     }
-
-    /* DIVIDER */
-    .divider {
-      max-width: 680px; margin: 48px auto; padding: 0 24px;
-      display: flex; align-items: center; gap: 16px;
+    .step { display: flex; align-items: center; gap: 8px; }
+    .step-num {
+      width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; color: var(--muted); flex-shrink: 0;
+      transition: all 0.2s;
     }
-    .divider-line { flex: 1; height: 1px; background: var(--border); }
-    .divider-label { font-size: 11px; font-weight: 700; color: var(--label, #CCC); letter-spacing: 0.5px; text-transform: uppercase; }
+    .step-num.active { background: #111; border-color: #111; color: #fff; }
+    .step-num.done { background: var(--green); border-color: var(--green); color: #fff; }
+    .step-label { font-size: 12px; font-weight: 600; color: var(--muted); }
+    .step-label.active { color: var(--text); }
+    .step-line { flex: 1; height: 1px; background: var(--border); margin: 0 12px; }
 
-    /* CARDS */
-    .cards { max-width: 680px; margin: 0 auto 80px; padding: 0 24px; display: flex; flex-direction: column; gap: 20px; }
-
-    .card {
+    /* FORM */
+    .form-card {
       background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
-      padding: 32px; position: relative; overflow: hidden;
+      padding: 32px; margin-bottom: 16px;
     }
-    .card-number {
-      position: absolute; top: 28px; right: 28px;
-      font-size: 48px; font-weight: 800; color: #F0F0EE; letter-spacing: -2px;
-      line-height: 1; user-select: none;
+    .form-card-num {
+      font-size: 11px; font-weight: 700; color: var(--accent);
+      letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 6px;
     }
-    .card-label {
-      font-size: 11px; font-weight: 700; color: var(--muted);
-      letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 10px;
+    .form-card h2 { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; margin-bottom: 6px; }
+    .form-card .hint { font-size: 13px; color: var(--muted); line-height: 1.55; margin-bottom: 18px; }
+    textarea {
+      width: 100%; border: 1.5px solid var(--border); border-radius: 10px;
+      padding: 14px 16px; font-family: inherit; font-size: 14px; line-height: 1.6;
+      color: var(--text); background: #FAFAFA; resize: vertical; min-height: 110px;
+      transition: border-color 0.15s; outline: none;
     }
-    .card h2 { font-size: 18px; font-weight: 700; margin-bottom: 16px; letter-spacing: -0.3px; }
-    .card-body {
-      font-size: 15px; line-height: 1.75; color: #333; white-space: pre-wrap;
+    textarea:focus { border-color: var(--accent); background: #fff; }
+    textarea::placeholder { color: #BBB; }
+    .char-count { font-size: 11px; color: var(--muted); text-align: right; margin-top: 6px; }
+
+    /* SUBMIT */
+    .submit-wrap { margin-top: 24px; }
+    .btn-primary {
+      width: 100%; padding: 16px; background: #111; color: #fff;
+      border: none; border-radius: 12px; font-family: inherit;
+      font-size: 15px; font-weight: 700; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      transition: background 0.15s; letter-spacing: -0.2px;
+    }
+    .btn-primary:hover { background: #333; }
+    .btn-primary:disabled { background: #CCC; cursor: not-allowed; }
+    .submit-note { font-size: 12px; color: var(--muted); text-align: center; margin-top: 10px; }
+
+    /* ANALYZING STATE */
+    .analyzing {
+      background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 48px 32px; text-align: center;
+    }
+    .analyzing-spin {
+      width: 48px; height: 48px; border: 3px solid #EEE; border-top-color: var(--accent);
+      border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 24px;
+    }
+    .analyzing h2 { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 10px; }
+    .analyzing p { font-size: 14px; color: var(--muted); line-height: 1.6; max-width: 380px; margin: 0 auto 24px; }
+    .analyzing-steps { display: flex; flex-direction: column; gap: 8px; max-width: 320px; margin: 0 auto; }
+    .analyzing-step {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 13px; color: var(--muted); text-align: left;
+    }
+    .analyzing-step .a-dot {
+      width: 8px; height: 8px; border-radius: 50%; background: #EEE; flex-shrink: 0;
+      transition: background 0.4s;
+    }
+    .analyzing-step .a-dot.active { background: var(--accent); }
+    .analyzing-step .a-dot.done { background: var(--green); }
+
+    /* DONE STATE */
+    .done-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 48px 32px; text-align: center;
+    }
+    .done-icon { font-size: 48px; margin-bottom: 20px; }
+    .done-card h2 { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 10px; }
+    .done-card p { font-size: 15px; color: var(--muted); line-height: 1.65; max-width: 420px; margin: 0 auto 28px; }
+    .dashboard-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: #111; color: #fff; padding: 14px 28px;
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+      text-decoration: none; transition: background 0.15s;
+    }
+    .dashboard-btn:hover { background: #333; }
+
+    /* ERROR */
+    .error-box {
+      background: #fff5f5; border: 1px solid #fecaca; border-radius: 10px;
+      padding: 14px 16px; font-size: 13px; color: #991b1b; margin-top: 16px;
     }
 
-    /* FOOTER */
-    .footer {
-      text-align: center; padding: 40px 24px;
-      font-size: 12px; color: var(--muted); border-top: 1px solid var(--border);
-    }
-    .footer strong { color: var(--text); }
-
-    /* LOADING / ERROR */
+    /* LOADING / NOT FOUND */
     .state { max-width: 680px; margin: 120px auto; text-align: center; padding: 0 24px; }
     .state h2 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
     .state p { font-size: 14px; color: var(--muted); }
@@ -96,8 +149,8 @@
 
     @media (max-width: 600px) {
       .hero h1 { font-size: 28px; }
-      .card { padding: 24px; }
-      .card-number { font-size: 36px; }
+      .form-card { padding: 24px; }
+      .header { padding: 16px 20px; }
     }
   </style>
 </head>
@@ -113,86 +166,234 @@
   <h2>Laddar din sida…</h2>
 </div>
 
-<div id="error" class="state" style="display:none">
+<div id="not-found" class="state" style="display:none">
   <h2>Sidan hittades inte</h2>
   <p>Kontakta din kontaktperson på AI-Granskning.</p>
 </div>
 
-<div id="content" style="display:none">
-  <div class="hero">
-    <div class="company-pill">
-      <span class="dot"></span>
-      <span id="company-name">Företaget</span>
-    </div>
-    <h1>Din AI-resa <span>börjar här.</span></h1>
-    <p>Nedan hittar du en sammanfattning av vad ni diskuterade med oss – era mål, utmaningar och förväntningar. Det här är grunden för allt vi bygger tillsammans.</p>
+<!-- ALREADY SUBMITTED -->
+<div id="already-done" style="display:none">
+  <div class="hero" style="margin-bottom:40px">
+    <div class="company-pill"><span class="dot"></span><span id="done-company-name"></span></div>
+    <h1>Tack! <span>Vi är igång.</span></h1>
+    <p>Din granskning är påbörjad. Inom kort har AI:n analyserat din situation och du kan följa resultaten på din dashboard.</p>
   </div>
-
-  <div class="divider">
-    <div class="divider-line"></div>
-    <div class="divider-label">Vad ni vill uppnå</div>
-    <div class="divider-line"></div>
-  </div>
-
-  <div class="cards">
-    <div class="card" id="card-goals" style="display:none">
-      <div class="card-number">01</div>
-      <div class="card-label">Mål</div>
-      <h2>Vart vill ni komma?</h2>
-      <div class="card-body" id="text-goals"></div>
-    </div>
-
-    <div class="card" id="card-challenges" style="display:none">
-      <div class="card-number">02</div>
-      <div class="card-label">Utmaningar</div>
-      <h2>Vad bromsar er idag?</h2>
-      <div class="card-body" id="text-challenges"></div>
-    </div>
-
-    <div class="card" id="card-expectations" style="display:none">
-      <div class="card-number">03</div>
-      <div class="card-label">Förväntningar</div>
-      <h2>Vad förväntar ni er av oss?</h2>
-      <div class="card-body" id="text-expectations"></div>
+  <div class="wrap" style="padding-top:0">
+    <div class="done-card">
+      <div class="done-icon">✅</div>
+      <h2>Formuläret är redan inskickat</h2>
+      <p>Du har redan skickat in dina svar. Granskningen är igång och AI:n arbetar med din analys.</p>
+      <a id="done-dashboard-link" href="#" class="dashboard-btn">Gå till din dashboard →</a>
     </div>
   </div>
 </div>
 
-<div class="footer">
+<!-- FORM -->
+<div id="form-view" style="display:none">
+  <div class="hero">
+    <div class="company-pill"><span class="dot"></span><span id="company-name"></span></div>
+    <h1>Berätta om <span>er verksamhet.</span></h1>
+    <p>Dina svar hjälper AI:n att förstå var era verkliga utmaningar ligger – inte bara vad ni tror är problemet.</p>
+  </div>
+
+  <div class="wrap">
+    <div class="steps">
+      <div class="step">
+        <div class="step-num active" id="sn1">1</div>
+        <div class="step-label active">Dina svar</div>
+      </div>
+      <div class="step-line"></div>
+      <div class="step">
+        <div class="step-num" id="sn2">2</div>
+        <div class="step-label">AI-analys</div>
+      </div>
+      <div class="step-line"></div>
+      <div class="step">
+        <div class="step-num" id="sn3">3</div>
+        <div class="step-label">Granskning startar</div>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <div class="form-card-num">01 · Mål</div>
+      <h2>Vart vill ni komma?</h2>
+      <div class="hint">Vad är ert största mål med att använda AI? Tänk på vad som skulle göra störst skillnad för er verksamhet – fler kunder, mer tid, lägre kostnader, bättre upplevelse?</div>
+      <textarea id="f-goals" placeholder="Ex: Vi vill att fler kunder ska komma tillbaka. Idag bokar de en gång och sen hör vi inte av dem igen. Vi vill ha ett system som automatiskt håller kontakten och får dem att återkomma..." oninput="countChars(this,'c-goals')"></textarea>
+      <div class="char-count" id="c-goals">0 tecken</div>
+    </div>
+
+    <div class="form-card">
+      <div class="form-card-num">02 · Utmaningar</div>
+      <h2>Vad tar mest tid och energi idag?</h2>
+      <div class="hint">Beskriv vad som är krångligast eller mest tidskrävande i er vardag. Det kan vara administration, kommunikation med kunder, bokningar, uppföljning – vad som helst som tar onödig tid.</div>
+      <textarea id="f-challenges" placeholder="Ex: Vi lägger jättemycket tid på att svara på samma frågor om och om igen via SMS och telefon. Dessutom missar vi ofta att följa upp kunder efter deras besök. Vi glömmer helt enkelt bort det..." oninput="countChars(this,'c-challenges')"></textarea>
+      <div class="char-count" id="c-challenges">0 tecken</div>
+    </div>
+
+    <div class="form-card">
+      <div class="form-card-num">03 · Förväntningar</div>
+      <h2>Vad förväntar ni er av oss?</h2>
+      <div class="hint">Vad är ni hoppfulla om att vi ska hjälpa er med? Vilken förändring vill ni se inom 7 dagar? Var gärna konkret.</div>
+      <textarea id="f-expectations" placeholder="Ex: Vi vill ha ett tydligt svar på varför kunder inte återkommer och en konkret plan för hur vi löser det. Helst att vi slipper göra allt manuellt – att det sköter sig självt..." oninput="countChars(this,'c-expectations')"></textarea>
+      <div class="char-count" id="c-expectations">0 tecken</div>
+    </div>
+
+    <div class="submit-wrap">
+      <button class="btn-primary" id="submit-btn" onclick="submitForm()">
+        <span>Starta min AI-granskning</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+      <div class="submit-note">AI:n analyserar era svar och söker upp information om ert företag online. Det tar ~30 sekunder.</div>
+      <div id="submit-error" class="error-box" style="display:none"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ANALYZING -->
+<div id="analyzing-view" style="display:none">
+  <div class="hero" style="margin-bottom:40px">
+    <div class="company-pill"><span class="dot"></span><span id="analyzing-company"></span></div>
+    <h1>AI:n <span>analyserar nu.</span></h1>
+  </div>
+  <div class="wrap" style="padding-top:0">
+    <div class="analyzing">
+      <div class="analyzing-spin"></div>
+      <h2>Bygger din granskningsplan</h2>
+      <p>AI:n läser igenom era svar och söker information om ert företag för att hitta var de verkliga problemen ligger.</p>
+      <div class="analyzing-steps">
+        <div class="analyzing-step"><div class="a-dot active" id="as1"></div><span>Läser era svar och förstår er situation</span></div>
+        <div class="analyzing-step"><div class="a-dot" id="as2"></div><span>Söker upp ert företag online</span></div>
+        <div class="analyzing-step"><div class="a-dot" id="as3"></div><span>Analyserar recensioner och synlighet</span></div>
+        <div class="analyzing-step"><div class="a-dot" id="as4"></div><span>Skapar skräddarsydd granskningsplan</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SUCCESS -->
+<div id="success-view" style="display:none">
+  <div class="hero" style="margin-bottom:40px">
+    <div class="company-pill"><span class="dot"></span><span id="success-company"></span></div>
+    <h1>Granskningen <span>är igång!</span></h1>
+  </div>
+  <div class="wrap" style="padding-top:0">
+    <div class="done-card">
+      <div class="done-icon">🚀</div>
+      <h2>Allt är klart</h2>
+      <p>AI:n har analyserat er situation och startat granskningen. Följ resultaten i realtid på er personliga dashboard.</p>
+      <a id="success-dashboard-link" href="#" class="dashboard-btn">Gå till min dashboard →</a>
+    </div>
+  </div>
+</div>
+
+<div class="footer" style="margin-top:40px">
   <strong>AI-Granskning</strong> · Din personliga AI-konsult · <a href="mailto:hej@ai-granskning.se" style="color:inherit">hej@ai-granskning.se</a>
 </div>
 
 <script>
 const API = 'https://ai-granskning.vercel.app';
 const token = location.pathname.split('/').pop();
+let _auditId = null;
+let _dashboardUrl = null;
+
+function countChars(el, countId) {
+  document.getElementById(countId).textContent = el.value.length + ' tecken';
+}
 
 async function load() {
   try {
     const res = await fetch(`${API}/api/audits/welcome/${token}`);
-    if (!res.ok) throw new Error();
+    if (!res.ok) throw new Error('not found');
     const data = await res.json();
 
-    document.getElementById('company-name').textContent = data.company_name;
-
-    if (data.welcome_goals) {
-      document.getElementById('text-goals').textContent = data.welcome_goals;
-      document.getElementById('card-goals').style.display = 'block';
-    }
-    if (data.welcome_challenges) {
-      document.getElementById('text-challenges').textContent = data.welcome_challenges;
-      document.getElementById('card-challenges').style.display = 'block';
-    }
-    if (data.welcome_expectations) {
-      document.getElementById('text-expectations').textContent = data.welcome_expectations;
-      document.getElementById('card-expectations').style.display = 'block';
-    }
+    _auditId = data.id;
+    _dashboardUrl = `${API.replace('vercel.app', 'vercel.app')}/dashboard/${token}`;
 
     document.getElementById('loading').style.display = 'none';
-    document.getElementById('content').style.display = 'block';
+
+    if (data.welcome_complete) {
+      // Already submitted – show done state
+      document.getElementById('done-company-name').textContent = data.company_name;
+      document.getElementById('done-dashboard-link').href = _dashboardUrl;
+      document.getElementById('already-done').style.display = 'block';
+    } else {
+      // Show form
+      document.getElementById('company-name').textContent = data.company_name;
+      // Pre-fill if partially saved
+      if (data.welcome_goals) document.getElementById('f-goals').value = data.welcome_goals;
+      if (data.welcome_challenges) document.getElementById('f-challenges').value = data.welcome_challenges;
+      if (data.welcome_expectations) document.getElementById('f-expectations').value = data.welcome_expectations;
+      document.getElementById('form-view').style.display = 'block';
+    }
   } catch(e) {
     document.getElementById('loading').style.display = 'none';
-    document.getElementById('error').style.display = 'block';
+    document.getElementById('not-found').style.display = 'block';
   }
+}
+
+async function submitForm() {
+  const goals = document.getElementById('f-goals').value.trim();
+  const challenges = document.getElementById('f-challenges').value.trim();
+  const expectations = document.getElementById('f-expectations').value.trim();
+
+  if (!goals || !challenges || !expectations) {
+    document.getElementById('submit-error').style.display = 'block';
+    document.getElementById('submit-error').textContent = 'Fyll i alla tre fälten innan du fortsätter.';
+    return;
+  }
+
+  document.getElementById('submit-error').style.display = 'none';
+
+  // Show analyzing
+  const companyName = document.getElementById('company-name').textContent;
+  document.getElementById('form-view').style.display = 'none';
+  document.getElementById('analyzing-company').textContent = companyName;
+  document.getElementById('analyzing-view').style.display = 'block';
+
+  // Animate dots
+  animateDots();
+
+  try {
+    const res = await fetch(`${API}/api/audits/${_auditId}/welcome`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ goals, challenges, expectations, submittedByCustomer: true })
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Något gick fel');
+    }
+
+    // Wait at least 3s for effect
+    await new Promise(r => setTimeout(r, 3000));
+
+    // Show success
+    document.getElementById('analyzing-view').style.display = 'none';
+    document.getElementById('success-company').textContent = companyName;
+    document.getElementById('success-dashboard-link').href = _dashboardUrl;
+    document.getElementById('success-view').style.display = 'block';
+
+  } catch(e) {
+    document.getElementById('analyzing-view').style.display = 'none';
+    document.getElementById('form-view').style.display = 'block';
+    document.getElementById('submit-error').style.display = 'block';
+    document.getElementById('submit-error').textContent = 'Fel: ' + e.message;
+  }
+}
+
+function animateDots() {
+  const dots = ['as1','as2','as3','as4'];
+  let i = 0;
+  const iv = setInterval(() => {
+    if (i > 0) document.getElementById(dots[i-1]).className = 'a-dot done';
+    if (i < dots.length) {
+      document.getElementById(dots[i]).className = 'a-dot active';
+      i++;
+    } else {
+      clearInterval(iv);
+    }
+  }, 900);
 }
 
 load();
