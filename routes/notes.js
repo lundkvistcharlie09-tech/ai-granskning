@@ -4,7 +4,12 @@ const supabase = require('../lib/supabase');
 // openai client created inline
 
 function adminAuth(req, res, next) {
-  next(); // Auth temporarily disabled
+  const password = (req.headers['x-admin-password'] || req.query.adminPassword || '').trim();
+  const expected = (process.env.ADMIN_PASSWORD || '090813').trim();
+  if (password !== expected) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  next();
 }
 
 // GET /api/notes/:auditId – Hämta noter för en audit

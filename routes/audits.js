@@ -5,7 +5,11 @@ const { generateTrackingSnippet } = require('../lib/tracker');
 
 // Auth middleware – check admin password
 function adminAuth(req, res, next) {
-  // Auth temporarily disabled
+  const password = (req.headers['x-admin-password'] || req.query.adminPassword || '').trim();
+  const expected = (process.env.ADMIN_PASSWORD || '090813').trim();
+  if (password !== expected) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
   next();
 }
 
