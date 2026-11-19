@@ -756,14 +756,8 @@ function copyLink(url) {
 // ═══════════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════════
-const savedPw = localStorage.getItem('ag_admin_pw');
-if (savedPw) {
-  _pw = savedPw;
-  fetch(`${API}/api/audits`, { headers: { 'x-admin-password': savedPw } })
-    .then(r => r.ok ? r.json() : Promise.reject())
-    .then(data => { _audits = data; showApp(); })
-    .catch(() => { localStorage.removeItem('ag_admin_pw'); });
-}
+localStorage.removeItem('ag_admin_pw');
+doLogin();
 </script>
 </body>
 </html>
