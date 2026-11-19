@@ -368,6 +368,7 @@ function pinKey(e, idx) {
 
 async function doLogin() {
   const pw = [0,1,2,3,4,5].map(i => document.getElementById('pin'+i).value).join('');
+  alert('Skickar: "' + pw + '" (längd: ' + pw.length + ')');
   if (pw.length < 6) return;
   const btn = document.getElementById('login-btn');
   btn.disabled = true; btn.innerHTML = '<span class="spin"></span> Loggar in…';
