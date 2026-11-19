@@ -848,9 +848,18 @@ function copyLink(url) {
 }
 
 // ═══════════════════════════════════════════════════════════
-// INIT
+// INIT – hämta kunder direkt vid sidladdning
 // ═══════════════════════════════════════════════════════════
-showApp();
+async function init() {
+  try {
+    const res = await fetch(`${API}/api/audits`, { headers: { 'x-admin-password': '' } });
+    if (res.ok) {
+      _audits = await res.json();
+    }
+  } catch(e) {}
+  showApp();
+}
+init();
 </script>
 </body>
 </html>
