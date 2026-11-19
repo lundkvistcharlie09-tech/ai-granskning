@@ -34,7 +34,16 @@
       background: var(--card); border: 1px solid var(--border); border-radius: 16px;
     }
     .login-title { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
-    .login-sub { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+    .login-sub { font-size: 13px; color: var(--muted); margin-bottom: 28px; }
+    .pin-row { display: flex; gap: 10px; justify-content: center; margin-bottom: 24px; }
+    .pin-box {
+      width: 48px; height: 56px; border: 1.5px solid var(--border); border-radius: 10px;
+      font-size: 22px; font-weight: 700; text-align: center; background: var(--bg);
+      color: var(--text); outline: none; transition: border-color 0.15s, box-shadow 0.15s;
+      caret-color: transparent;
+    }
+    .pin-box:focus { border-color: #111; box-shadow: 0 0 0 3px rgba(0,0,0,0.07); background: #fff; }
+    .pin-box.filled { border-color: #333; }
 
     input, textarea, select {
       width: 100%; border: 1px solid var(--border); border-radius: 8px;
@@ -258,11 +267,17 @@
 <div id="login-screen">
   <div class="login-wrap">
     <div class="login-title">Admin</div>
-    <div class="login-sub">Logga in för att hantera kunder och granskningar</div>
-    <label class="field-label">Lösenord</label>
-    <input type="password" id="login-pw" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
-    <button class="btn btn-full mt-12" onclick="doLogin()" id="login-btn">Fortsätt</button>
-    <div class="error-msg" id="login-error" style="display:none">Fel lösenord – försök igen</div>
+    <div class="login-sub">Ange PIN-kod för att fortsätta</div>
+    <div class="pin-row">
+      <input class="pin-box" type="password" inputmode="numeric" maxlength="1" id="pin0" oninput="pinInput(this,0)" onkeydown="pinKey(event,0)">
+      <input class="pin-box" type="password" inputmode="numeric" maxlength="1" id="pin1" oninput="pinInput(this,1)" onkeydown="pinKey(event,1)">
+      <input class="pin-box" type="password" inputmode="numeric" maxlength="1" id="pin2" oninput="pinInput(this,2)" onkeydown="pinKey(event,2)">
+      <input class="pin-box" type="password" inputmode="numeric" maxlength="1" id="pin3" oninput="pinInput(this,3)" onkeydown="pinKey(event,3)">
+      <input class="pin-box" type="password" inputmode="numeric" maxlength="1" id="pin4" oninput="pinInput(this,4)" onkeydown="pinKey(event,4)">
+      <input class="pin-box" type="password" inputmode="numeric" maxlength="1" id="pin5" oninput="pinInput(this,5)" onkeydown="pinKey(event,5)">
+    </div>
+    <button class="btn btn-full" onclick="doLogin()" id="login-btn">Fortsätt</button>
+    <div class="error-msg" id="login-error" style="display:none;text-align:center;margin-top:12px">Fel PIN-kod – försök igen</div>
   </div>
 </div>
 
@@ -333,9 +348,23 @@ let _tab = 'setup';
 // ═══════════════════════════════════════════════════════════
 // LOGIN
 // ═══════════════════════════════════════════════════════════
+function pinInput(el, idx) {
+  el.classList.toggle('filled', el.value.length > 0);
+  if (el.value.length === 1 && idx < 5) {
+    document.getElementById('pin' + (idx + 1)).focus();
+  }
+  if (idx === 5 && el.value.length === 1) doLogin();
+}
+function pinKey(e, idx) {
+  if (e.key === 'Backspace' && !e.target.value && idx > 0) {
+    const prev = document.getElementById('pin' + (idx - 1));
+    prev.value = ''; prev.classList.remove('filled'); prev.focus();
+  }
+}
+
 async function doLogin() {
-  const pw = document.getElementById('login-pw').value.trim();
-  if (!pw) return;
+  const pw = [0,1,2,3,4,5].map(i => document.getElementById('pin'+i).value).join('');
+  if (pw.length < 6) return;
   const btn = document.getElementById('login-btn');
   btn.disabled = true; btn.innerHTML = '<span class="spin"></span> Loggar in…';
   document.getElementById('login-error').style.display = 'none';
@@ -344,6 +373,8 @@ async function doLogin() {
   if (!res.ok) {
     btn.disabled = false; btn.textContent = 'Fortsätt';
     document.getElementById('login-error').style.display = 'block';
+    [0,1,2,3,4,5].forEach(i => { const b = document.getElementById('pin'+i); if(b){b.value='';b.classList.remove('filled');} });
+    document.getElementById('pin0').focus();
     return;
   }
   _pw = pw;
