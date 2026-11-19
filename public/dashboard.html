@@ -301,25 +301,24 @@ function render() {
     if (audit.welcomeComplete && audit.aiWelcomeAnalysis) {
       document.getElementById('root').innerHTML = renderWelcomeAnalysis(audit);
     } else if (audit.welcomeComplete) {
-      document.getElementById('root').innerHTML = renderAnalyzingState();
-      startAnalyzingAnimation();
+      document.getElementById('root').innerHTML = `
+        <div class="setup-pending">
+          <div class="setup-icon">🔍</div>
+          <div class="setup-title">Granskning startar snart</div>
+          <div class="setup-sub">Era svar är mottagna. Sidan uppdateras automatiskt.</div>
+        </div>`;
       // Poll every 4s to check if analysis is done
       let polls = 0;
       const pollInterval = setInterval(async () => {
         polls++;
-        if (polls > 30) { clearInterval(pollInterval); return; } // max 2 min
+        if (polls > 30) { clearInterval(pollInterval); return; }
         try {
           const r = await fetch('/api/dashboard', { headers: { 'x-audit-token': token } });
           if (!r.ok) return;
           const fresh = await r.json();
           if (fresh.audit?.aiWelcomeAnalysis) {
             clearInterval(pollInterval);
-            // Mark all steps done then reload
-            ['as1','as2','as3','as4'].forEach(id => {
-              const el = document.getElementById(id);
-              if (el) { el.className = 'a-dot done'; el.nextElementSibling.style.color = '#111'; }
-            });
-            setTimeout(() => location.reload(), 1200);
+            setTimeout(() => location.reload(), 500);
           }
         } catch(e) {}
       }, 4000);
