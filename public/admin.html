@@ -441,10 +441,10 @@ function renderCompanyMain() {
 
     <!-- CUSTOMER LINK -->
     <div class="card" style="padding:18px 24px">
-      <div style="font-size:11px;font-weight:700;color:var(--label);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:10px">Kundlänk</div>
+      <div style="font-size:11px;font-weight:700;color:var(--label);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:10px">Välkomstlänk till kunden</div>
       <div class="copy-field">
-        <input type="text" value="${dashUrl}" readonly id="dash-link-input">
-        <button class="copy-btn" onclick="copyLink('${dashUrl}')">Kopiera</button>
+        <input type="text" value="${location.origin}/welcome/${a.access_token}" readonly id="dash-link-input">
+        <button class="copy-btn" onclick="copyLink('${location.origin}/welcome/${a.access_token}')">Kopiera</button>
       </div>
     </div>
 
