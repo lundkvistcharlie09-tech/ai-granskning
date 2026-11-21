@@ -387,104 +387,6 @@ function render(data) {
 }
 
 // ══════════════════════════════════════
-// KPI GRID – med sparkline-kurvor
-// ══════════════════════════════════════
-function renderKpiGrid(kpis, modules, bookingsPerDay, manualTime) {
-  function sparkSvg(vals, color, fill) {
-    if (!vals||vals.length<2) return '';
-    const max=Math.max(...vals,1), min=Math.min(...vals,0), range=max-min||1;
-    const W=100,H=40;
-    const pts=vals.map((v,i)=>{
-      const x=(i/(vals.length-1))*W;
-      const y=H-((v-min)/range)*(H-6)-3;
-      return [x,y];
-    });
-    const line=pts.map((p,i)=>(i===0?`M${p[0].toFixed(1)} ${p[1].toFixed(1)}`:`L${p[0].toFixed(1)} ${p[1].toFixed(1)}`)).join(' ');
-    const area=`${line} L${W} ${H} L0 ${H} Z`;
-    return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
-      <defs><linearGradient id="g${Math.random().toString(36).slice(2)}" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="${color}" stop-opacity="0.25"/>
-        <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
-      </linearGradient></defs>
-      <path d="${area}" fill="${fill||'none'}" opacity=".6"/>
-      <path d="${line}" fill="none" stroke="${color}" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
-    </svg>`;
-  }
-
-  // Generate realistic-looking wavy sparkline values
-  function wave(base, n=7, variance=0.2) {
-    const r=[];
-    for(let i=0;i<n;i++) r.push(Math.max(0, base*(1 + (Math.random()-.5)*variance)));
-    r[n-1]=base; return r;
-  }
-
-  const cards=[];
-
-  if (modules.includes('visitors')||modules.includes('funnel')) {
-    const v=kpis.visitors||0;
-    const vals=wave(v);
-    cards.push(`<div class="kpi-card">
-      <div class="kpi-label">Webbbesökare</div>
-      <div class="kpi-value">${v}</div>
-      <div class="kpi-sparkline">${sparkSvg(vals,'#3b82f6','rgba(59,130,246,0.1)')}</div>
-      <div class="kpi-trend neu">senaste 7 dagarna</div>
-    </div>`);
-  }
-
-  if (modules.includes('bookings')||modules.includes('noshow')) {
-    const rate=kpis.noShowRate||0;
-    const isHigh=rate>10;
-    const vals=wave(rate,7,0.3);
-    cards.push(`<div class="kpi-card">
-      <div class="kpi-label">No-show-rate</div>
-      <div class="kpi-value" style="color:${isHigh?'var(--red)':'var(--green)'}">${rate}<span style="font-size:14px;font-weight:400;color:var(--muted2)">%</span></div>
-      <div class="kpi-sparkline">${sparkSvg(vals,isHigh?'#f04040':'#22c55e',isHigh?'rgba(240,64,64,0.1)':'rgba(34,197,94,0.1)')}</div>
-      <div class="kpi-trend ${isHigh?'neg':'pos'}">${isHigh?'⚠ Åtgärd behövs':'✓ OK nivå'}</div>
-    </div>`);
-  }
-
-  if (modules.includes('email')) {
-    const em=kpis.unansweredEmails||0;
-    const isHigh=em>5;
-    const vals=wave(em,7,0.4);
-    cards.push(`<div class="kpi-card">
-      <div class="kpi-label">Obesvarade mejl</div>
-      <div class="kpi-value" style="color:${isHigh?'var(--amber)':'var(--text)'}">${em}</div>
-      <div class="kpi-sparkline">${sparkSvg(vals,isHigh?'#f59e0b':'#888','rgba(245,158,11,0.1)')}</div>
-      <div class="kpi-trend ${isHigh?'neg':'neu'}">${isHigh?'Kräver svar':'Under kontroll'}</div>
-    </div>`);
-  }
-
-  if (modules.includes('funnel')) {
-    const cr=kpis.conversionRate||0;
-    const vals=wave(cr,7,0.25);
-    cards.push(`<div class="kpi-card">
-      <div class="kpi-label">Konvertering</div>
-      <div class="kpi-value">${cr}<span style="font-size:14px;font-weight:400;color:var(--muted2)">%</span></div>
-      <div class="kpi-sparkline">${sparkSvg(vals,'#d4f044','rgba(212,240,68,0.1)')}</div>
-      <div class="kpi-trend neu">besök → bokning</div>
-    </div>`);
-  }
-
-  if (modules.includes('manual_time')) {
-    const h=manualTime?.total||0;
-    const vals=wave(h,7,0.15);
-    cards.push(`<div class="kpi-card">
-      <div class="kpi-label">Manuell tid</div>
-      <div class="kpi-value">${h}<span style="font-size:14px;font-weight:400;color:var(--muted2)">h/v</span></div>
-      <div class="kpi-sparkline">${sparkSvg(vals,'#8b5cf6','rgba(139,92,246,0.1)')}</div>
-      <div class="kpi-trend neg">kan automatiseras</div>
-    </div>`);
-  }
-
-  if (!cards.length) {
-    const hs=0;
-    cards.push(`<div class="kpi-card"><div class="kpi-label">Hälsostatus</div><div class="kpi-value">${hs}<span style="font-size:14px;color:var(--muted2)">/100</span></div><div class="kpi-trend neu">Totalt betyg</div></div>`);
-  }
-
-  return `<div class="kpi-grid">${cards.slice(0,4).join('')}</div>`;
-}
-
 // ══════════════════════════════════════
 // MAIN AREA CHART – granskningsframsteg dag 1–7
 // ══════════════════════════════════════
@@ -653,54 +555,49 @@ function renderMainChart(bookingsPerDay, audit) {
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
       ${hasData ? 'Automatiskt insamlad data' : 'Uppdateras varje dag under granskningen'} · granskningsperiod dag 1–7
     </div>
-  </div>
-  <script>
-  (function(){
-    const chartEl = document.getElementById('chart-${uid}');
-    const tooltip = document.getElementById('ctt-${uid}');
-    const crosshair = document.getElementById('cth-${uid}');
-    const ttDay = document.getElementById('ctt-day-${uid}');
-    const ttVal = document.getElementById('ctt-val-${uid}');
-    const ttSub = document.getElementById('ctt-sub-${uid}');
+  </div>`;
 
-    const dayData = ${JSON.stringify(knownCounts.map((v,i)=>({
-      label: 'Dag '+(i+1),
-      value: v,
-      sub: hasData ? (v===1?'bokning':'bokningar') : 'granskning pågår'
-    })))};
+  // Initiera tooltip efter render via global kö
+  const tooltipCfg = {
+    uid: uid,
+    dayData: knownCounts.map((v,i)=>({label:'Dag '+(i+1), value:v, sub:hasData?(v===1?'bokning':'bokningar'):'granskning pågår'})),
+    svgW: W, padL: padL, iW: iW, hasData: hasData
+  };
+  setTimeout(()=>initChartTooltip(tooltipCfg), 0);
+  return html;
+}
 
-    const svgW = ${W}, padL = ${padL}, iW = ${iW};
+function initChartTooltip(cfg) {
+  const chartEl = document.getElementById('chart-'+cfg.uid);
+  const tooltip  = document.getElementById('ctt-'+cfg.uid);
+  const crosshair= document.getElementById('cth-'+cfg.uid);
+  const ttDay    = document.getElementById('ctt-day-'+cfg.uid);
+  const ttVal    = document.getElementById('ctt-val-'+cfg.uid);
+  const ttSub    = document.getElementById('ctt-sub-'+cfg.uid);
+  if (!chartEl) return;
 
-    chartEl.addEventListener('mousemove', function(e) {
-      const rect = chartEl.getBoundingClientRect();
-      const relX = e.clientX - rect.left;
-      const pct = (relX - padL * rect.width / svgW) / (iW * rect.width / svgW);
-      const idx = Math.round(pct * (dayData.length - 1));
-      if (idx < 0 || idx >= dayData.length) return;
-
-      const d = dayData[idx];
-      ttDay.textContent = d.label;
-      ttVal.textContent = d.value !== null ? (${hasData} ? d.value + ' ' + d.sub : 'Pågår') : 'Ingen data';
-      ttSub.textContent = d.value !== null ? d.sub : '–';
-
-      // Positionera tooltip
-      let left = relX + 12;
-      if (left + 140 > rect.width) left = relX - 140;
-      tooltip.style.left = left + 'px';
-      tooltip.style.top = '10px';
-      tooltip.style.display = 'block';
-
-      // Crosshair
-      crosshair.style.left = relX + 'px';
-      crosshair.style.display = 'block';
-    });
-
-    chartEl.addEventListener('mouseleave', function() {
-      tooltip.style.display = 'none';
-      crosshair.style.display = 'none';
-    });
-  })();
-  </script>`;
+  chartEl.addEventListener('mousemove', function(e) {
+    const rect = chartEl.getBoundingClientRect();
+    const relX = e.clientX - rect.left;
+    const pct = (relX - cfg.padL * rect.width / cfg.svgW) / (cfg.iW * rect.width / cfg.svgW);
+    const idx = Math.round(pct * (cfg.dayData.length - 1));
+    if (idx < 0 || idx >= cfg.dayData.length) return;
+    const d = cfg.dayData[idx];
+    ttDay.textContent = d.label;
+    ttVal.textContent = d.value !== null ? (cfg.hasData ? d.value + ' ' + d.sub : 'Pågår') : 'Ingen data';
+    ttSub.textContent = d.value !== null ? d.sub : '–';
+    let left = relX + 12;
+    if (left + 140 > rect.width) left = relX - 140;
+    tooltip.style.left = left + 'px';
+    tooltip.style.top = '10px';
+    tooltip.style.display = 'block';
+    crosshair.style.left = relX + 'px';
+    crosshair.style.display = 'block';
+  });
+  chartEl.addEventListener('mouseleave', function() {
+    tooltip.style.display = 'none';
+    crosshair.style.display = 'none';
+  });
 }
 
 // ══════════════════════════════════════
