@@ -335,11 +335,11 @@ function render(data) {
     </div>
   </div>`;
 
-  // ── MAIN CHART
-  html += renderMainChart(bookingsPerDay, audit);
-
   // ── KPI STRIP (5 kort)
   html += renderKpiStrip(kpis, modules, bookingsPerDay, manualTime);
+
+  // ── MAIN CHART
+  html += renderMainChart(bookingsPerDay, audit);
 
   // ── AI TOOLS (anpassade efter analys)
   if (audit.aiWelcomeAnalysis) {
@@ -979,11 +979,11 @@ function renderWelcomeAnalysis(audit, kpis={}, bookingsPerDay=[], manualTime={})
       </div>
     </div>
 
-    <!-- LINJEDIAGRAM -->
-    ${renderMainChart(bookingsPerDay, audit)}
-
     <!-- KPI STRIP -->
     ${renderKpiStrip(kpis, [], bookingsPerDay, manualTime)}
+
+    <!-- LINJEDIAGRAM -->
+    ${renderMainChart(bookingsPerDay, audit)}
 
     <!-- GRANSKNINGSSTATUS – tidslinje med dag-statusar -->
     <div class="card" style="margin-bottom:20px">
