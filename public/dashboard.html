@@ -267,11 +267,28 @@ setInterval(async () => {
   } catch(e) {}
 }, 30000);
 
+// ══════════════════════════════════════
+// COMPANY LOGO – favicon eller initialer
+// ══════════════════════════════════════
+function companyLogo(audit, initials) {
+  const site = audit.welcomeWebsite || '';
+  if (site) {
+    let domain = site.replace(/^https?:\/\//, '').split('/')[0];
+    const faviconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
+    return `<div class="co-logo" style="overflow:hidden;padding:0;background:#1c1c1c">
+      <img src="${faviconUrl}" width="52" height="52" style="object-fit:contain;border-radius:12px"
+        onerror="this.parentElement.innerHTML='${initials}';this.parentElement.style.padding='';this.parentElement.style.overflow='';this.parentElement.style.fontSize='18px';this.parentElement.style.fontWeight='800';this.parentElement.style.color='var(--muted3)'"/>
+    </div>`;
+  }
+  return `<div class="co-logo">${initials}</div>`;
+}
+
 function render(data) {
   const { audit, kpis, funnel, dropoffStep, bookingsPerDay, emailCategories, manualTime, healthScore, insights } = data;
   const modules = audit.aiModules || [];
 
   const initials = (audit.companyName||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  const logoHtml = companyLogo(audit, initials);
   document.getElementById('topbarCenter').innerHTML = `
     <span class="company-tag">${audit.companyName}</span>
     <span class="tag-pill">${audit.industry||'Företag'}</span>
@@ -300,7 +317,7 @@ function render(data) {
   // ── COMPANY HEADER
   html += `<div class="co-header">
     <div class="co-left">
-      <div class="co-logo">${initials}</div>
+      ${logoHtml}
       <div>
         <div class="co-name">${audit.companyName}</div>
         <div class="co-sub">
@@ -825,6 +842,7 @@ function renderWelcomeAnalysis(audit) {
   const auditPlan = a.audit_plan || [];
   const rootCauses = a.likely_root_causes || [];
   const initials = (audit.companyName||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  const logoHtml = companyLogo(audit, initials);
   const dayPct = Math.round((audit.dayNumber/7)*100);
 
   // Statusikon för granskningssteg
@@ -851,7 +869,7 @@ function renderWelcomeAnalysis(audit) {
     <!-- HEADER -->
     <div class="co-header">
       <div class="co-left">
-        <div class="co-logo">${initials}</div>
+        ${logoHtml}
         <div>
           <div class="co-name">${audit.companyName}</div>
           <div class="co-sub">

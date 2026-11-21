@@ -215,6 +215,14 @@
     </div>
 
     <div class="form-card">
+      <div class="form-card-num">00 · Hemsida</div>
+      <h2>Vad är er webbadress?</h2>
+      <div class="hint">Klistra in länken till er hemsida. AI:n använder den för att söka upp information om ert företag online.</div>
+      <input type="url" id="f-website" placeholder="https://www.ertforetag.se" style="width:100%;padding:14px 16px;background:var(--input-bg,#f8f8f8);border:1.5px solid var(--border,#e5e5e5);border-radius:10px;font-size:15px;font-family:Inter,sans-serif;color:var(--text,#111);outline:none;box-sizing:border-box;transition:border-color .2s" onfocus="this.style.borderColor='var(--accent,#111)'" onblur="this.style.borderColor='var(--border,#e5e5e5)'"/>
+      <div class="char-count" id="c-website" style="margin-top:6px">Frivilligt men rekommenderat</div>
+    </div>
+
+    <div class="form-card">
       <div class="form-card-num">01 · Mål</div>
       <h2>Vart vill ni komma?</h2>
       <div class="hint">Vad är ert största mål med att använda AI? Tänk på vad som skulle göra störst skillnad för er verksamhet – fler kunder, mer tid, lägre kostnader, bättre upplevelse?</div>
@@ -335,6 +343,7 @@ async function submitForm() {
   const goals = document.getElementById('f-goals').value.trim();
   const challenges = document.getElementById('f-challenges').value.trim();
   const expectations = document.getElementById('f-expectations').value.trim();
+  const website = document.getElementById('f-website').value.trim();
 
   if (!goals || !challenges || !expectations) {
     document.getElementById('submit-error').style.display = 'block';
@@ -357,7 +366,7 @@ async function submitForm() {
     const res = await fetch(`${API}/api/audits/${_auditId}/welcome`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ goals, challenges, expectations, submittedByCustomer: true })
+      body: JSON.stringify({ goals, challenges, expectations, website, submittedByCustomer: true })
     });
 
     if (!res.ok) {

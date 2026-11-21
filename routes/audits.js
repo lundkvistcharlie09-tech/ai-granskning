@@ -15,7 +15,7 @@ async function auditAuth(req, res, next) {
 
   const { data, error } = await supabase
     .from('audits')
-    .select('id, company_name, industry, status, start_date, end_date, report_url, ai_modules, ai_summary, setup_complete, welcome_complete, ai_welcome_analysis')
+    .select('id, company_name, industry, status, start_date, end_date, report_url, ai_modules, ai_summary, setup_complete, welcome_complete, ai_welcome_analysis, welcome_website')
     .eq('access_token', token)
     .single();
 
@@ -127,7 +127,7 @@ router.get('/:id', adminAuth, async (req, res) => {
 
 // POST /api/audits/:id/welcome – Save welcome content + trigger AI analysis
 router.post('/:id/welcome', async (req, res) => {
-  const { goals, challenges, expectations, submittedByCustomer } = req.body;
+  const { goals, challenges, expectations, website, submittedByCustomer } = req.body;
 
   // 1. Hämta audit-info
   const { data: audit, error: auditErr } = await supabase
@@ -145,6 +145,7 @@ router.post('/:id/welcome', async (req, res) => {
       welcome_goals: goals || '',
       welcome_challenges: challenges || '',
       welcome_expectations: expectations || '',
+      welcome_website: website || '',
       welcome_complete: true
     })
     .eq('id', req.params.id)
@@ -155,7 +156,7 @@ router.post('/:id/welcome', async (req, res) => {
 
   // 3. Om kunden skickade in – kör AI-analys i bakgrunden
   if (submittedByCustomer) {
-    runWelcomeAnalysis(audit, goals, challenges, expectations).catch(e =>
+    runWelcomeAnalysis(audit, goals, challenges, expectations, website).catch(e =>
       console.error('Background analysis failed:', e)
     );
   }
@@ -164,7 +165,7 @@ router.post('/:id/welcome', async (req, res) => {
 });
 
 // Kör AI-analys av kundens svar + sök upp företaget online
-async function runWelcomeAnalysis(audit, goals, challenges, expectations) {
+async function runWelcomeAnalysis(audit, goals, challenges, expectations, website) {
   try {
     const OpenAI = require('openai');
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -175,7 +176,7 @@ async function runWelcomeAnalysis(audit, goals, challenges, expectations) {
 FÖRETAGETS INFORMATION:
 Företag: ${audit.company_name}
 Bransch: ${audit.industry || 'Okänd'}
-Hemsida: ${audit.website_url || 'Okänd'}
+Hemsida: ${website || audit.website_url || 'Okänd'}
 
 KUNDENS EGNA SVAR:
 Mål: "${goals}"

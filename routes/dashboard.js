@@ -47,7 +47,8 @@ router.get('/', auditAuth, async (req, res) => {
         aiSummary: req.audit.ai_summary || '',
         setupComplete: req.audit.setup_complete || false,
         welcomeComplete: req.audit.welcome_complete || false,
-        aiWelcomeAnalysis: req.audit.ai_welcome_analysis || null
+        aiWelcomeAnalysis: req.audit.ai_welcome_analysis || null,
+        welcomeWebsite: req.audit.welcome_website || ''
       },
       kpis: {
         visitors: pageviews.uniqueVisitors,
