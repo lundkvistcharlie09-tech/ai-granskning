@@ -469,97 +469,159 @@ function renderKpiGrid(kpis, modules, bookingsPerDay, manualTime) {
 }
 
 // ══════════════════════════════════════
-// MAIN AREA CHART – bokningsaktivitet
+// MAIN AREA CHART – granskningsframsteg dag 1–7
 // ══════════════════════════════════════
 function renderMainChart(bookingsPerDay, audit) {
-  const perDay=bookingsPerDay||[];
-  if (!perDay.length) return '';
+  const perDay = bookingsPerDay || [];
+  const dayNum = audit.dayNumber || 1;
 
-  const counts=perDay.map(d=>d.count);
-  const days=perDay.map(d=>d.day);
-  const max=Math.max(...counts,1);
-  const W=600, H=200, padL=10, padR=10, padT=20, padB=10;
+  // Bygg dag 1–7 data: bokningar per granskningsdag
+  // Om bookingsPerDay finns använder vi det, annars visar vi bara dag-struktur
+  const dayLabels = ['Dag 1','Dag 2','Dag 3','Dag 4','Dag 5','Dag 6','Dag 7'];
+
+  // Hämta bokningar per dag (index 0–6 = dag 1–7)
+  let counts;
+  if (perDay.length >= 2) {
+    // Använd riktig data, fyll ut till 7 dagar
+    counts = Array.from({length:7}, (_,i) => perDay[i] ? perDay[i].count : null);
+  } else {
+    // Ingen bokningsdata – visa tomt diagram (linjen ritas bara för klara dagar)
+    counts = Array.from({length:7}, () => null);
+  }
+
+  // Markera bara dagar som faktiskt passerat
+  const knownCounts = counts.slice(0, dayNum).map(v => v !== null ? v : 0);
+
+  const W=700, H=180, padL=36, padR=20, padT=28, padB=8;
   const iW=W-padL-padR, iH=H-padT-padB;
+  const max = Math.max(...knownCounts, 1);
+  const uid = Math.random().toString(36).slice(2);
 
-  const pts=counts.map((v,i)=>{
-    const x=padL+(i/(counts.length-1))*iW;
-    const y=padT+iH-(v/max)*iH*0.9;
-    return [x,y];
-  });
+  function xOf(i, total) { return padL + (i / (total-1)) * iW; }
+  function yOf(v) { return padT + iH - (v / max) * iH * 0.88; }
 
-  // Smooth bezier
+  // Punkter för klara dagar
+  const pts = knownCounts.map((v,i) => [xOf(i, 7), yOf(v)]);
+
   function bezier(pts) {
-    if (pts.length<2) return '';
-    let d=`M ${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)}`;
+    if (pts.length < 2) return pts.length===1 ? `M${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)}` : '';
+    let d = `M ${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)}`;
     for (let i=1;i<pts.length;i++) {
-      const cp1x=pts[i-1][0]+(pts[i][0]-pts[i-1][0])*0.5;
-      const cp1y=pts[i-1][1];
-      const cp2x=pts[i-1][0]+(pts[i][0]-pts[i-1][0])*0.5;
-      const cp2y=pts[i][1];
-      d+=` C ${cp1x.toFixed(1)} ${cp1y.toFixed(1)}, ${cp2x.toFixed(1)} ${cp2y.toFixed(1)}, ${pts[i][0].toFixed(1)} ${pts[i][1].toFixed(1)}`;
+      const cx = pts[i-1][0] + (pts[i][0]-pts[i-1][0])*0.45;
+      d += ` C ${cx.toFixed(1)} ${pts[i-1][1].toFixed(1)}, ${cx.toFixed(1)} ${pts[i][1].toFixed(1)}, ${pts[i][0].toFixed(1)} ${pts[i][1].toFixed(1)}`;
     }
     return d;
   }
 
-  const linePath=bezier(pts);
-  const areaPath=`${linePath} L${pts[pts.length-1][0].toFixed(1)} ${(H).toFixed(1)} L${pts[0][0].toFixed(1)} ${(H).toFixed(1)} Z`;
+  const linePath = pts.length >= 2 ? bezier(pts) : '';
+  const bottom = padT + iH;
+  const areaPath = linePath ? `${linePath} L${pts[pts.length-1][0].toFixed(1)} ${bottom} L${pts[0][0].toFixed(1)} ${bottom} Z` : '';
 
-  // Find the highest day for annotation
-  const peakIdx=counts.indexOf(max);
-  const peakPt=pts[peakIdx];
-  const todayIdx=perDay.findIndex(d=>d.date===new Date().toISOString().split('T')[0]);
-  const todayPt=todayIdx>=0?pts[todayIdx]:null;
-
-  // Grid lines
-  const gridLines=[.25,.5,.75,1].map(f=>{
-    const y=padT+iH-(f*iH*0.9);
-    return `<line x1="${padL}" y1="${y.toFixed(1)}" x2="${W-padR}" y2="${y.toFixed(1)}" stroke="#2a2a2a" stroke-width="1"/>
-      <text x="${padL-4}" y="${(y+4).toFixed(1)}" text-anchor="end" fill="#444" font-size="10">${Math.round(f*max)}</text>`;
+  // Gridlinjer (horisontella)
+  const gridVals = [0.25, 0.5, 0.75, 1.0];
+  const gridLines = gridVals.map(f => {
+    const y = yOf(f * max);
+    const label = Math.round(f * max);
+    return `<line x1="${padL}" y1="${y.toFixed(1)}" x2="${W-padR}" y2="${y.toFixed(1)}" stroke="#222" stroke-width="1"/>
+      <text x="${(padL-7).toFixed(1)}" y="${(y+4).toFixed(1)}" text-anchor="end" fill="#444" font-size="10" font-family="Inter,sans-serif">${label}</text>`;
   }).join('');
 
-  let annotations='';
-  if (peakPt && max>0) {
-    const bx=peakPt[0];
-    const by=peakPt[1]-16;
-    annotations+=`<line x1="${bx.toFixed(1)}" y1="${peakPt[1].toFixed(1)}" x2="${bx.toFixed(1)}" y2="${(by+10).toFixed(1)}" stroke="#555" stroke-width="1" stroke-dasharray="3,3"/>
-      <circle cx="${bx.toFixed(1)}" cy="${peakPt[1].toFixed(1)}" r="4" fill="#d4f044"/>`;
-  }
-  if (todayPt) {
-    const tx=todayPt[0];
-    annotations+=`<circle cx="${tx.toFixed(1)}" cy="${todayPt[1].toFixed(1)}" r="5" fill="none" stroke="#3b82f6" stroke-width="2"/>
-      <circle cx="${tx.toFixed(1)}" cy="${todayPt[1].toFixed(1)}" r="2" fill="#3b82f6"/>`;
+  // Vertikala dagmarkeringar
+  const dayLines = dayLabels.map((_,i) => {
+    const x = xOf(i, 7);
+    return `<line x1="${x.toFixed(1)}" y1="${padT}" x2="${x.toFixed(1)}" y2="${bottom}" stroke="#1e1e1e" stroke-width="1"/>`;
+  }).join('');
+
+  // Datapunkter – prickar + tooltip-label vid aktiv dag
+  let dots = '';
+  pts.forEach((p, i) => {
+    const isToday = i === dayNum - 1;
+    const v = knownCounts[i];
+    if (isToday) {
+      // Stor glödande prick för dagens dag
+      dots += `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="6" fill="rgba(212,240,68,0.15)" stroke="#d4f044" stroke-width="1.5"/>
+        <circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3.5" fill="#d4f044"/>`;
+      // Annotation ovanför
+      const lx = Math.min(Math.max(p[0], padL+40), W-padR-40);
+      dots += `<rect x="${(lx-36).toFixed(1)}" y="${(p[1]-34).toFixed(1)}" width="72" height="22" rx="5" fill="#d4f044"/>
+        <text x="${lx.toFixed(1)}" y="${(p[1]-18).toFixed(1)}" text-anchor="middle" fill="#0f0f0f" font-size="11" font-weight="700" font-family="Inter,sans-serif">Dag ${dayNum} · idag</text>`;
+    } else {
+      dots += `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3" fill="#d4f044" opacity="0.7"/>`;
+    }
+  });
+
+  // Väntande dagar (grå prickar)
+  for (let i = dayNum; i < 7; i++) {
+    const x = xOf(i, 7);
+    const y = padT + iH * 0.5; // mittenlinje
+    dots += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="2.5" fill="#2a2a2a" stroke="#3a3a3a" stroke-width="1"/>`;
   }
 
-  const uid=Math.random().toString(36).slice(2);
+  // Dag-etiketter på X-axeln
+  const xLabels = dayLabels.map((lbl, i) => {
+    const x = xOf(i, 7);
+    const isToday = i === dayNum - 1;
+    const isPast = i < dayNum - 1;
+    const color = isToday ? '#d4f044' : isPast ? '#666' : '#333';
+    const weight = isToday ? '700' : '400';
+    return `<text x="${x.toFixed(1)}" y="${(H+2).toFixed(1)}" text-anchor="middle" fill="${color}" font-size="10" font-weight="${weight}" font-family="Inter,sans-serif">${lbl}</text>`;
+  }).join('');
+
+  // Stat i headern – verklig total om data finns
+  const totalBookings = knownCounts.reduce((a,b)=>a+b,0);
+  const hasData = perDay.length >= 2;
+
+  // Milstolpar (dag 1, dag 4, dag 7)
+  const milestones = [
+    { day: 0, label: 'Start' },
+    { day: 3, label: 'Halvtid' },
+    { day: 6, label: 'Rapport' },
+  ];
+  const milestoneMarks = milestones.map(m => {
+    const x = xOf(m.day, 7);
+    const done = m.day < dayNum;
+    const color = done ? '#3b82f6' : '#2a2a2a';
+    return `<line x1="${x.toFixed(1)}" y1="${padT}" x2="${x.toFixed(1)}" y2="${(padT-10).toFixed(1)}" stroke="${color}" stroke-width="1.5"/>
+      <text x="${x.toFixed(1)}" y="${(padT-14).toFixed(1)}" text-anchor="middle" fill="${done?'#3b82f6':'#333'}" font-size="9" font-family="Inter,sans-serif">${m.label}</text>`;
+  }).join('');
 
   return `<div class="chart-card">
     <div class="chart-header">
       <div>
-        <div class="chart-title">Bokningsaktivitet</div>
-        <div class="chart-subtitle">Senaste 7 dagarna · uppdateras automatiskt</div>
+        <div class="chart-title">${hasData ? 'Bokningsaktivitet' : 'Granskningsframsteg'}</div>
+        <div class="chart-subtitle">Dag 1–7 · ${audit.companyName}</div>
       </div>
-      <div class="chart-meta">Per dag</div>
+      <div style="display:flex;align-items:center;gap:16px">
+        ${hasData ? `<div style="text-align:right">
+          <div style="font-size:22px;font-weight:800;letter-spacing:-1px;color:var(--yellow);line-height:1">${totalBookings}</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:1px">bokningar hittills</div>
+        </div>` : ''}
+        <div style="text-align:right">
+          <div style="font-size:22px;font-weight:800;letter-spacing:-1px;line-height:1">${dayNum}<span style="font-size:13px;font-weight:400;color:var(--muted)">/7</span></div>
+          <div style="font-size:11px;color:var(--muted);margin-top:1px">dagar klara</div>
+        </div>
+      </div>
     </div>
-    <div class="chart-wrap">
-      <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="width:100%;height:100%;overflow:visible">
+    <div class="chart-wrap" style="height:200px">
+      <svg viewBox="0 0 ${W} ${H+14}" preserveAspectRatio="none" style="width:100%;height:100%;overflow:visible">
         <defs>
           <linearGradient id="ag${uid}" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#d4f044" stop-opacity="0.18"/>
-            <stop offset="85%" stop-color="#d4f044" stop-opacity="0"/>
+            <stop offset="0%" stop-color="#d4f044" stop-opacity="0.15"/>
+            <stop offset="100%" stop-color="#d4f044" stop-opacity="0"/>
           </linearGradient>
         </defs>
         ${gridLines}
-        <path d="${areaPath}" fill="url(#ag${uid})"/>
-        <path d="${linePath}" fill="none" stroke="#d4f044" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
-        ${annotations}
+        ${dayLines}
+        ${milestoneMarks}
+        ${areaPath ? `<path d="${areaPath}" fill="url(#ag${uid})"/>` : ''}
+        ${linePath ? `<path d="${linePath}" fill="none" stroke="#d4f044" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>` : ''}
+        ${dots}
+        ${xLabels}
       </svg>
-    </div>
-    <div class="chart-axis">
-      ${days.map(d=>`<span>${d}</span>`).join('')}
     </div>
     <div class="chart-footnote">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-      Automatiskt insamlad data · ${audit.companyName}
+      ${hasData ? 'Automatiskt insamlad data' : 'Uppdateras varje dag under granskningen'} · granskningsperiod dag 1–7
     </div>
   </div>`;
 }
