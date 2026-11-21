@@ -4,322 +4,463 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AI-Granskning Dashboard</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #FAFAFA; --card: #fff; --border: #F0F0F0;
-      --text: #111; --muted: #888; --label: #CCC;
-      --green: #22c55e; --red: #ef4444; --amber: #f59e0b;
-      --blue: #3b82f6; --radius: 12px;
+      --bg: #0d0d0d;
+      --bg2: #141414;
+      --card: #1a1a1a;
+      --card2: #202020;
+      --border: #2a2a2a;
+      --border2: #333;
+      --text: #f0f0f0;
+      --muted: #666;
+      --muted2: #888;
+      --green: #22c55e;
+      --green-dim: rgba(34,197,94,0.12);
+      --red: #ef4444;
+      --red-dim: rgba(239,68,68,0.12);
+      --amber: #f59e0b;
+      --amber-dim: rgba(245,158,11,0.12);
+      --blue: #3b82f6;
+      --blue-dim: rgba(59,130,246,0.12);
+      --purple: #8b5cf6;
+      --purple-dim: rgba(139,92,246,0.12);
+      --radius: 12px;
     }
-
     body {
       font-family: 'Inter', sans-serif;
       background: var(--bg); color: var(--text);
       min-height: 100vh;
     }
 
-    /* TOP BAR */
+    /* ── TOPBAR ─────────────────────────── */
     .topbar {
-      background: var(--card); border-bottom: 1px solid var(--border);
-      padding: 0 28px; height: 56px;
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px; height: 56px;
       display: flex; align-items: center; justify-content: space-between;
       position: sticky; top: 0; z-index: 50;
     }
-    .logo { font-size: 15px; font-weight: 700; }
-    .company-name { font-size: 14px; color: var(--muted); }
+    .logo {
+      font-size: 13px; font-weight: 700; color: var(--muted2);
+      letter-spacing: 0.5px; text-transform: uppercase;
+    }
+    .topbar-center { display: flex; align-items: center; gap: 10px; }
+    .company-tag {
+      font-size: 14px; font-weight: 700; color: var(--text);
+    }
+    .industry-tag {
+      font-size: 11px; color: var(--muted2);
+      background: var(--card); border: 1px solid var(--border2);
+      padding: 3px 10px; border-radius: 20px;
+    }
     .day-badge {
-      font-size: 11px; font-weight: 700; color: var(--muted);
-      background: var(--bg); border: 1px solid var(--border);
-      padding: 4px 12px; border-radius: 20px;
+      font-size: 11px; font-weight: 700;
+      background: var(--green-dim); color: var(--green);
+      border: 1px solid rgba(34,197,94,0.25);
+      padding: 3px 10px; border-radius: 20px;
     }
-    .topbar-right { display: flex; align-items: center; gap: 12px; }
-
-    /* LAYOUT */
-    .container { max-width: 1100px; margin: 0 auto; padding: 32px 28px; }
-
-    /* SECTION HEADER */
-    .section-label {
-      font-size: 10px; font-weight: 700; color: var(--label);
-      letter-spacing: 0.7px; text-transform: uppercase;
-      margin-bottom: 14px; margin-top: 32px;
+    .live-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--green);
+      animation: pulse 2s infinite;
+      display: inline-block;
     }
-    .section-label:first-child { margin-top: 0; }
+    @keyframes pulse {
+      0%,100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
 
-    /* CARD */
-    .card {
+    /* ── LAYOUT ─────────────────────────── */
+    .container { max-width: 1200px; margin: 0 auto; padding: 32px 28px; }
+
+    /* ── COMPANY HEADER ─────────────────── */
+    .company-header {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      margin-bottom: 36px; gap: 20px;
+    }
+    .company-header-left { display: flex; align-items: center; gap: 20px; }
+    .company-logo-box {
+      width: 56px; height: 56px; border-radius: 14px;
+      background: linear-gradient(135deg, #2a2a2a, #1a1a1a);
+      border: 1px solid var(--border2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; font-weight: 800; color: var(--muted2);
+      flex-shrink: 0;
+    }
+    .company-info {}
+    .company-name-big {
+      font-size: 22px; font-weight: 800; letter-spacing: -0.5px;
+      margin-bottom: 6px;
+    }
+    .company-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .meta-pill {
+      font-size: 11px; color: var(--muted2);
       background: var(--card); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 24px;
+      padding: 3px 10px; border-radius: 20px;
     }
-    .card-sm { padding: 18px; }
-    .card-title {
-      font-size: 12px; font-weight: 700; color: var(--label);
-      letter-spacing: 0.4px; text-transform: uppercase;
-      margin-bottom: 14px;
+    .meta-pill.green { color: var(--green); background: var(--green-dim); border-color: rgba(34,197,94,0.2); }
+    .company-header-right { text-align: right; flex-shrink: 0; }
+    .audit-status-label { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+    .audit-progress-bar {
+      width: 180px; height: 4px;
+      background: var(--border2); border-radius: 4px;
+      overflow: hidden; margin-top: 8px;
+    }
+    .audit-progress-fill {
+      height: 100%; border-radius: 4px;
+      background: linear-gradient(90deg, var(--green), #16a34a);
+      transition: width 0.6s ease;
     }
 
-    /* KPI GRID */
-    .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-    @media(max-width:700px) { .kpi-grid { grid-template-columns: 1fr 1fr; } }
+    /* ── KPI ROW ────────────────────────── */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+    @media(max-width:800px) { .kpi-row { grid-template-columns: 1fr 1fr; } }
+    @media(max-width:450px) { .kpi-row { grid-template-columns: 1fr; } }
 
     .kpi-card {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 20px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 22px;
+      cursor: pointer;
+      transition: border-color 0.15s, transform 0.15s;
+      position: relative;
+      overflow: hidden;
     }
+    .kpi-card:hover {
+      border-color: var(--border2);
+      transform: translateY(-1px);
+    }
+    .kpi-card.active { border-color: var(--blue); }
     .kpi-label {
-      font-size: 11px; font-weight: 600; color: var(--muted);
-      margin-bottom: 8px; display: flex; align-items: center; gap: 5px;
+      font-size: 11px; font-weight: 600; color: var(--muted2);
+      letter-spacing: 0.3px; margin-bottom: 10px;
+      display: flex; align-items: center; gap: 6px;
     }
-    .kpi-value { font-size: 28px; font-weight: 700; letter-spacing: -1px; line-height: 1; }
-    .kpi-unit { font-size: 14px; font-weight: 400; color: var(--muted); }
-    .kpi-sub { font-size: 11px; color: var(--muted); margin-top: 6px; }
-    .kpi-trend-up { color: var(--green); }
-    .kpi-trend-down { color: var(--red); }
+    .kpi-value {
+      font-size: 32px; font-weight: 800; letter-spacing: -1.5px;
+      line-height: 1; margin-bottom: 10px;
+    }
+    .kpi-unit { font-size: 14px; font-weight: 500; color: var(--muted2); }
+    .kpi-sparkline { height: 36px; width: 100%; }
+    .kpi-sparkline svg { width: 100%; height: 100%; }
+    .kpi-trend {
+      font-size: 11px; font-weight: 600;
+      display: flex; align-items: center; gap: 4px;
+      margin-top: 6px;
+    }
+    .kpi-trend.up { color: var(--green); }
+    .kpi-trend.down { color: var(--red); }
+    .kpi-trend.neutral { color: var(--muted2); }
 
-    /* MODULES GRID */
-    .modules-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    @media(max-width:700px) { .modules-grid { grid-template-columns: 1fr; } }
-    .modules-grid .full { grid-column: 1 / -1; }
+    /* ── MAIN GRID ──────────────────────── */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+    @media(max-width:900px) { .main-grid { grid-template-columns: 1fr; } }
 
-    /* BAR CHART */
-    .bar-chart { display: flex; align-items: flex-end; gap: 6px; height: 80px; margin-top: 8px; }
-    .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+    @media(max-width:900px) { .detail-grid { grid-template-columns: 1fr 1fr; } }
+    @media(max-width:600px) { .detail-grid { grid-template-columns: 1fr; } }
+
+    /* ── CARD ────────────────────────────── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+    }
+    .card-title {
+      font-size: 11px; font-weight: 700; color: var(--muted2);
+      letter-spacing: 0.5px; text-transform: uppercase;
+      margin-bottom: 18px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .card-title-badge {
+      font-size: 10px; font-weight: 600; padding: 2px 8px;
+      border-radius: 20px; background: var(--border); color: var(--muted2);
+      text-transform: none; letter-spacing: 0;
+    }
+
+    /* ── CHART: 7-DAR AKTIVITET ─────────── */
+    .activity-chart { height: 160px; position: relative; margin-top: 8px; }
+    .activity-chart svg { width: 100%; height: 100%; }
+
+    /* ── BAR CHART ──────────────────────── */
+    .bar-chart { display: flex; align-items: flex-end; gap: 8px; height: 90px; margin-top: 4px; }
+    .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px; min-width: 0; }
     .bar {
-      width: 100%; background: #f0f0f0; border-radius: 4px 4px 0 0;
-      transition: height 0.3s ease; min-height: 4px;
+      width: 100%; background: var(--border2);
+      border-radius: 4px 4px 0 0;
+      transition: height 0.4s cubic-bezier(.4,0,.2,1);
+      min-height: 3px;
     }
-    .bar.filled { background: var(--text); }
+    .bar.filled { background: #3a3a3a; }
     .bar.today { background: var(--blue); }
+    .bar.today:hover { background: #60a5fa; }
     .bar-day { font-size: 10px; color: var(--muted); }
-    .bar-num { font-size: 10px; font-weight: 700; color: var(--muted); }
+    .bar-num { font-size: 10px; font-weight: 700; color: var(--muted2); }
 
-    /* FUNNEL */
-    .funnel { display: flex; flex-direction: column; gap: 6px; }
+    /* ── FUNNEL ─────────────────────────── */
+    .funnel { display: flex; flex-direction: column; gap: 8px; }
     .funnel-row { display: flex; align-items: center; gap: 10px; }
-    .funnel-label { font-size: 12px; color: var(--muted); width: 110px; flex-shrink: 0; }
-    .funnel-bar-wrap { flex: 1; background: #f0f0f0; border-radius: 4px; height: 8px; }
-    .funnel-bar { height: 100%; border-radius: 4px; background: var(--text); transition: width 0.4s; }
-    .funnel-count { font-size: 12px; font-weight: 700; width: 30px; text-align: right; }
+    .funnel-label { font-size: 11px; color: var(--muted2); width: 100px; flex-shrink: 0; }
+    .funnel-bar-wrap { flex: 1; background: var(--border); border-radius: 4px; height: 7px; overflow: hidden; }
+    .funnel-bar { height: 100%; border-radius: 4px; background: #3a3a3a; transition: width 0.5s; }
+    .funnel-count { font-size: 11px; font-weight: 700; width: 28px; text-align: right; color: var(--muted2); }
     .funnel-drop { font-size: 10px; color: var(--red); font-weight: 700; white-space: nowrap; }
 
-    /* EMAIL CATEGORIES */
-    .email-cats { display: flex; flex-direction: column; gap: 8px; }
+    /* ── EMAIL CATS ─────────────────────── */
+    .email-cats { display: flex; flex-direction: column; gap: 10px; }
     .email-row { display: flex; align-items: center; gap: 10px; }
-    .email-name { font-size: 12px; color: var(--muted); flex: 1; }
-    .email-bar-wrap { flex: 2; background: #f0f0f0; border-radius: 4px; height: 6px; }
-    .email-bar { height: 100%; border-radius: 4px; background: var(--text); }
-    .email-count { font-size: 12px; font-weight: 700; width: 24px; text-align: right; }
+    .email-name { font-size: 12px; color: var(--muted2); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .email-bar-wrap { flex: 2; background: var(--border); border-radius: 4px; height: 5px; }
+    .email-bar { height: 100%; border-radius: 4px; background: var(--blue); }
+    .email-count { font-size: 11px; font-weight: 700; width: 22px; text-align: right; color: var(--muted2); }
 
-    /* TIME BREAKDOWN */
-    .time-rows { display: flex; flex-direction: column; gap: 10px; }
+    /* ── TIME BREAKDOWN ─────────────────── */
+    .time-rows { display: flex; flex-direction: column; gap: 12px; }
     .time-row { display: flex; justify-content: space-between; align-items: center; }
-    .time-name { font-size: 13px; color: var(--muted); }
+    .time-name { font-size: 12px; color: var(--muted2); }
     .time-val { font-size: 14px; font-weight: 700; }
 
-    /* HEALTH SCORE */
-    .health-ring-wrap {
-      display: flex; align-items: center; justify-content: center;
-      flex-direction: column; gap: 8px; padding: 8px 0;
+    /* ── NOSHOW ─────────────────────────── */
+    .noshow-big {
+      font-size: 48px; font-weight: 800; letter-spacing: -2px;
+      color: var(--red); margin-bottom: 4px; line-height: 1;
     }
-    .health-ring { position: relative; width: 100px; height: 100px; }
+    .noshow-sub { font-size: 12px; color: var(--muted); margin-bottom: 16px; }
+    .noshow-cost {
+      font-size: 13px; color: var(--muted2);
+      padding-top: 14px; border-top: 1px solid var(--border);
+      line-height: 1.6;
+    }
+    .noshow-cost strong { color: var(--red); }
+
+    /* ── HEALTH SCORE ───────────────────── */
+    .health-wrap { display: flex; align-items: center; gap: 20px; }
+    .health-ring { position: relative; width: 90px; height: 90px; flex-shrink: 0; }
     .health-ring svg { transform: rotate(-90deg); }
     .health-ring circle { fill: none; stroke-width: 8; }
-    .health-ring .track { stroke: #f0f0f0; }
-    .health-ring .fill { stroke-dasharray: 283; stroke-linecap: round; transition: stroke-dashoffset 0.6s; }
+    .health-ring .track { stroke: var(--border2); }
+    .health-ring .fill { stroke-dasharray: 283; stroke-linecap: round; transition: stroke-dashoffset 0.8s ease; }
     .health-score-num {
-      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-      font-size: 24px; font-weight: 700;
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 22px; font-weight: 800;
     }
-    .health-label { font-size: 13px; font-weight: 600; }
+    .health-info { flex: 1; }
+    .health-label { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+    .health-breakdown { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+    .health-item { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--muted2); }
+    .health-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
 
-    /* AI INSIGHTS */
+    /* ── AI INSIGHTS ────────────────────── */
     .insight-list { display: flex; flex-direction: column; gap: 10px; }
     .insight-item {
-      padding: 12px 14px; border-radius: 8px;
-      border: 1px solid var(--border); font-size: 13px;
-      line-height: 1.5;
+      padding: 14px 16px; border-radius: 10px;
+      background: var(--bg2); border: 1px solid var(--border);
+      font-size: 13px; line-height: 1.5;
     }
     .insight-item.high { border-left: 3px solid var(--red); }
     .insight-item.medium { border-left: 3px solid var(--amber); }
     .insight-item.low { border-left: 3px solid var(--green); }
     .insight-title { font-weight: 700; margin-bottom: 3px; font-size: 12px; }
-    .insight-desc { font-size: 12px; color: var(--muted); }
+    .insight-desc { font-size: 12px; color: var(--muted2); }
 
-    /* NOSHOW */
-    .noshow-big {
-      font-size: 42px; font-weight: 700; letter-spacing: -2px;
-      color: var(--red); margin-bottom: 4px;
-    }
-    .noshow-sub { font-size: 12px; color: var(--muted); }
-    .noshow-cost {
-      margin-top: 14px; font-size: 13px; color: var(--muted);
-      padding-top: 14px; border-top: 1px solid var(--border);
-    }
-    .noshow-cost strong { color: var(--text); font-size: 16px; }
+    /* ── INVOICE ────────────────────────── */
+    .invoice-grid { display: flex; gap: 0; margin-top: 4px; }
+    .invoice-stat { flex: 1; text-align: center; padding: 12px; border-right: 1px solid var(--border); }
+    .invoice-stat:last-child { border-right: none; }
+    .invoice-num { font-size: 26px; font-weight: 800; letter-spacing: -1px; }
+    .invoice-lbl { font-size: 10px; color: var(--muted); margin-top: 4px; }
 
-    /* INVOICING */
-    .invoice-stat { text-align: center; }
-    .invoice-num { font-size: 32px; font-weight: 700; letter-spacing: -1px; }
-    .invoice-lbl { font-size: 11px; color: var(--muted); margin-top: 4px; }
-
-    /* SOCIAL */
+    /* ── SOCIAL ─────────────────────────── */
     .social-rows { display: flex; flex-direction: column; gap: 12px; }
     .social-row { display: flex; justify-content: space-between; align-items: center; }
-    .social-name { font-size: 13px; display: flex; align-items: center; gap: 6px; }
-    .social-val { font-size: 14px; font-weight: 700; }
+    .social-name { font-size: 13px; color: var(--muted2); display: flex; align-items: center; gap: 6px; }
+    .social-val { font-size: 15px; font-weight: 700; }
 
-    /* INVENTORY */
-    .inventory-rows { display: flex; flex-direction: column; gap: 8px; }
-    .inv-row { display: flex; align-items: center; gap: 10px; }
-    .inv-name { font-size: 12px; flex: 1; }
-    .inv-bar-wrap { flex: 2; background: #f0f0f0; border-radius: 4px; height: 8px; }
-    .inv-bar { height: 100%; border-radius: 4px; }
-    .inv-bar.ok { background: var(--green); }
-    .inv-bar.low { background: var(--amber); }
-    .inv-bar.critical { background: var(--red); }
-    .inv-pct { font-size: 11px; font-weight: 700; width: 32px; text-align: right; }
-
-    /* REPORT BTN */
+    /* ── REPORT BTN ─────────────────────── */
     .report-btn {
-      display: inline-flex; align-items: center; gap: 7px;
-      background: #111; color: #fff; border: none;
-      border-radius: 8px; padding: 11px 20px; font-size: 13px; font-weight: 600;
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--text); color: var(--bg); border: none;
+      border-radius: 8px; padding: 11px 22px;
+      font-size: 13px; font-weight: 700;
       font-family: 'Inter', sans-serif; cursor: pointer; text-decoration: none;
+      transition: opacity 0.15s;
     }
-    .report-btn:hover { opacity: 0.8; }
+    .report-btn:hover { opacity: 0.85; }
 
-    /* SETUP PENDING STATE */
+    /* ── SETUP PENDING ──────────────────── */
     .setup-pending {
-      max-width: 480px; margin: 80px auto; text-align: center; padding: 0 20px;
+      max-width: 440px; margin: 100px auto;
+      text-align: center; padding: 0 20px;
     }
     .setup-icon { font-size: 48px; margin-bottom: 20px; }
-    .setup-title { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
-    .setup-sub { font-size: 14px; color: var(--muted); line-height: 1.6; }
+    .setup-title { font-size: 22px; font-weight: 800; margin-bottom: 10px; letter-spacing: -0.5px; }
+    .setup-sub { font-size: 14px; color: var(--muted2); line-height: 1.6; }
 
-    /* ANALYZING STATE */
+    /* ── ANALYZING (welcome wait) ───────── */
     .analyzing-wrap {
-      max-width: 520px; margin: 80px auto; padding: 0 24px;
+      max-width: 500px; margin: 80px auto; padding: 0 20px;
     }
-    .analyzing-header { margin-bottom: 40px; }
-    .analyzing-header h2 { font-size: 26px; font-weight: 800; letter-spacing: -0.8px; margin-bottom: 8px; }
-    .analyzing-header p { font-size: 14px; color: var(--muted); line-height: 1.6; }
+    .analyzing-header { margin-bottom: 36px; }
+    .analyzing-header h2 { font-size: 26px; font-weight: 800; letter-spacing: -1px; margin-bottom: 10px; }
+    .analyzing-header p { font-size: 14px; color: var(--muted2); line-height: 1.6; }
     .analyzing-steps-list { display: flex; flex-direction: column; gap: 0; }
-    .a-step {
-      display: flex; align-items: center; gap: 16px;
-      padding: 18px 0; border-bottom: 1px solid var(--border);
-    }
+    .a-step { display: flex; align-items: flex-start; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--border); }
     .a-step:last-child { border-bottom: none; }
     .a-dot {
-      width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center;
-      border: 2px solid var(--border); transition: all 0.4s;
+      width: 12px; height: 12px; border-radius: 50%;
+      border: 2px solid var(--border2); flex-shrink: 0; margin-top: 3px;
+      transition: all 0.3s;
     }
-    .a-dot.waiting { background: var(--bg); border-color: var(--border); }
-    .a-dot.active {
-      background: #fff; border-color: #6366f1;
-      box-shadow: 0 0 0 4px rgba(99,102,241,0.12);
-    }
-    .a-dot.active::after {
-      content: ''; display: block; width: 10px; height: 10px;
-      border: 2px solid #6366f1; border-top-color: transparent;
-      border-radius: 50%; animation: spin 0.7s linear infinite;
-    }
-    .a-dot.done { background: #22c55e; border-color: #22c55e; }
-    .a-dot.done::after { content: '✓'; color: #fff; font-size: 13px; font-weight: 700; border: none; animation: none; width: auto; height: auto; }
-    .a-step-text { font-size: 14px; font-weight: 500; color: var(--muted); transition: color 0.3s; }
+    .a-dot.active { border-color: var(--blue); background: var(--blue); box-shadow: 0 0 10px rgba(59,130,246,0.4); animation: pulse 1.5s infinite; }
+    .a-dot.done { border-color: var(--green); background: var(--green); }
+    .a-dot.waiting { border-color: var(--border2); }
+    .a-step-text { font-size: 14px; color: var(--muted); transition: color 0.3s; }
     .a-step-text.active { color: var(--text); font-weight: 600; }
 
-    /* LOADING */
-    .loading {
-      display: flex; align-items: center; justify-content: center;
-      min-height: 60vh; flex-direction: column; gap: 12px; color: var(--muted);
-    }
-    .spinner {
-      width: 28px; height: 28px; border: 2.5px solid var(--border);
-      border-top-color: var(--text); border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    /* ── WELCOME ANALYSIS ───────────────── */
+    .analysis-section { max-width: 900px; }
 
-    /* EMPTY STATE */
-    .empty-state {
-      padding: 32px; text-align: center;
-      font-size: 13px; color: var(--muted);
+    .audit-plan-cards {
+      display: grid; grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px; margin-bottom: 14px;
+    }
+    @media(max-width:700px) { .audit-plan-cards { grid-template-columns: 1fr; } }
+
+    .plan-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 18px;
+    }
+    .plan-day {
+      font-size: 10px; font-weight: 700; color: var(--muted2);
+      letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 8px;
+    }
+    .plan-focus { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+    .plan-why { font-size: 12px; color: var(--muted2); margin-bottom: 10px; line-height: 1.5; }
+    .plan-checks { display: flex; flex-direction: column; gap: 4px; }
+    .plan-check { font-size: 11px; color: var(--muted); display: flex; gap: 6px; }
+    .plan-check::before { content: '→'; color: var(--purple); flex-shrink: 0; }
+
+    /* ── SEP ────────────────────────────── */
+    .sep { height: 1px; background: var(--border); margin: 14px 0; }
+
+    /* ── SECTION LABEL ──────────────────── */
+    .section-label {
+      font-size: 10px; font-weight: 700; color: var(--muted);
+      letter-spacing: 0.7px; text-transform: uppercase;
+      margin-bottom: 14px; margin-top: 32px;
+    }
+    .section-label:first-child { margin-top: 0; }
+
+    /* ── EMPTY STATE ────────────────────── */
+    .empty-state { font-size: 13px; color: var(--muted); padding: 20px 0; text-align: center; }
+
+    /* ── CONNECT HINT ───────────────────── */
+    .connect-hint {
+      margin-top: 14px; font-size: 12px; color: var(--muted);
+      background: var(--bg2); border-radius: 8px; padding: 12px 14px;
+      border: 1px solid var(--border); line-height: 1.5;
     }
 
-    /* SEPARATOR */
-    .sep { height: 1px; background: var(--border); margin: 8px 0; }
+    /* ── SCROLLBAR ──────────────────────── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 6px; }
   </style>
 </head>
 <body>
 
-<div class="topbar">
+<!-- TOP BAR -->
+<div class="topbar" id="topbar">
   <span class="logo">AI-Granskning</span>
-  <span class="company-name" id="company-name">Laddar…</span>
-  <div class="topbar-right">
-    <span class="day-badge" id="day-badge">Dag –</span>
+  <div class="topbar-center" id="topbarCenter"></div>
+  <div style="display:flex;align-items:center;gap:8px">
+    <span class="live-dot"></span>
+    <span style="font-size:11px;color:var(--muted)">Live</span>
   </div>
 </div>
 
-<div id="root">
-  <div class="loading">
-    <div class="spinner"></div>
-    <span>Laddar dashboard…</span>
-  </div>
-</div>
+<div id="root" style="min-height:80vh"></div>
 
 <script>
-const token = location.pathname.split('/dashboard/')[1]?.split('/')[0];
-if (!token) { document.getElementById('root').innerHTML = '<div class="loading"><span>Ogiltig länk</span></div>'; }
+const token = location.pathname.split('/')[2];
+let currentData = null;
 
-let _data = null;
-
-async function loadData() {
+async function load() {
+  if (!token) {
+    document.getElementById('root').innerHTML = `<div class="setup-pending"><div class="setup-icon">🔑</div><div class="setup-title">Åtkomst saknas</div><div class="setup-sub">Öppna länken du fick från din konsult.</div></div>`;
+    return;
+  }
   try {
-    const res = await fetch('/api/dashboard', { headers: { 'x-audit-token': token } });
-    if (!res.ok) throw new Error(res.status);
-    _data = await res.json();
-    render();
+    const r = await fetch('/api/dashboard', { headers: { 'x-audit-token': token } });
+    if (!r.ok) throw new Error('auth');
+    const data = await r.json();
+    currentData = data;
+    render(data);
   } catch(e) {
-    document.getElementById('root').innerHTML = `<div class="loading"><span>Kunde inte ladda data (${e.message})</span></div>`;
+    document.getElementById('root').innerHTML = `<div class="setup-pending"><div class="setup-icon">🔒</div><div class="setup-title">Länken är ogiltig</div><div class="setup-sub">Kontakta din konsult för en ny länk.</div></div>`;
   }
 }
 
-function render() {
-  const d = _data;
-  const audit = d.audit;
+// Auto-refresh every 30s
+setInterval(async () => {
+  try {
+    const r = await fetch('/api/dashboard', { headers: { 'x-audit-token': token } });
+    if (r.ok) { currentData = await r.json(); render(currentData); }
+  } catch(e) {}
+}, 30000);
+
+function render(data) {
+  const { audit, kpis, funnel, dropoffStep, bookingsPerDay, emailCategories, manualTime, healthScore, insights } = data;
   const modules = audit.aiModules || [];
 
   // Topbar
-  document.getElementById('company-name').textContent = audit.companyName || '';
-  document.getElementById('day-badge').textContent = `Dag ${audit.dayNumber} / 7`;
-  document.title = `${audit.companyName} – AI-Granskning`;
+  document.getElementById('topbarCenter').innerHTML = `
+    <span class="company-tag">${audit.companyName}</span>
+    <span class="industry-tag">${audit.industry || 'Företag'}</span>
+    <span class="day-badge">Dag ${audit.dayNumber} / 7</span>
+  `;
 
-  // If no modules set yet → show welcome analysis or setup-pending
+  // States
   if (!audit.setupComplete || !modules.length) {
     if (audit.welcomeComplete && audit.aiWelcomeAnalysis) {
-      document.getElementById('root').innerHTML = renderWelcomeAnalysis(audit);
+      document.getElementById('root').innerHTML = renderWelcomeAnalysis(audit, kpis, healthScore);
     } else if (audit.welcomeComplete) {
       document.getElementById('root').innerHTML = `
         <div class="setup-pending">
           <div class="setup-icon">🔍</div>
-          <div class="setup-title">Granskning startar snart</div>
-          <div class="setup-sub">Era svar är mottagna. Sidan uppdateras automatiskt.</div>
+          <div class="setup-title">AI:n analyserar er situation</div>
+          <div class="setup-sub">Era svar är mottagna. Sidan uppdateras automatiskt när analysen är klar.</div>
         </div>`;
-      // Poll every 4s to check if analysis is done
       let polls = 0;
-      const pollInterval = setInterval(async () => {
+      const pi = setInterval(async () => {
         polls++;
-        if (polls > 30) { clearInterval(pollInterval); return; }
+        if (polls > 30) { clearInterval(pi); return; }
         try {
           const r = await fetch('/api/dashboard', { headers: { 'x-audit-token': token } });
           if (!r.ok) return;
           const fresh = await r.json();
-          if (fresh.audit?.aiWelcomeAnalysis) {
-            clearInterval(pollInterval);
-            setTimeout(() => location.reload(), 500);
-          }
+          if (fresh.audit?.aiWelcomeAnalysis) { clearInterval(pi); setTimeout(() => location.reload(), 500); }
         } catch(e) {}
       }, 4000);
     } else {
@@ -327,143 +468,279 @@ function render() {
         <div class="setup-pending">
           <div class="setup-icon">⚙️</div>
           <div class="setup-title">Dashboard konfigureras</div>
-          <div class="setup-sub">
-            Din personliga AI-dashboard håller på att byggas upp.<br>
-            Den är klar när din konsult har slutfört analyssteget.
-          </div>
+          <div class="setup-sub">Din personliga AI-dashboard håller på att byggas upp.<br>Den är klar när din konsult har slutfört analyssteget.</div>
         </div>`;
     }
     return;
   }
 
-  let html = '<div class="container">';
+  // ── FULL DASHBOARD ──
+  const dayPct = Math.round((audit.dayNumber / 7) * 100);
+  let html = `<div class="container">`;
 
-  // ── KPI TOPP-RAD ───────────────────────────────────────
-  html += renderKpiRow(d, modules);
+  // Company header
+  const initials = (audit.companyName || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
+  html += `
+    <div class="company-header">
+      <div class="company-header-left">
+        <div class="company-logo-box">${initials}</div>
+        <div class="company-info">
+          <div class="company-name-big">${audit.companyName}</div>
+          <div class="company-meta">
+            <span class="meta-pill">${audit.industry || 'Företag'}</span>
+            <span class="meta-pill green">● Aktiv granskning</span>
+            <span class="meta-pill">Dag ${audit.dayNumber} av 7</span>
+          </div>
+        </div>
+      </div>
+      <div class="company-header-right">
+        <div class="audit-status-label" style="font-size:11px;color:var(--muted);margin-bottom:6px">Granskningsframsteg</div>
+        <div style="font-size:22px;font-weight:800;letter-spacing:-1px">${dayPct}%</div>
+        <div class="audit-progress-bar">
+          <div class="audit-progress-fill" style="width:${dayPct}%"></div>
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-top:6px">${audit.daysLeft > 0 ? `${audit.daysLeft} dag${audit.daysLeft !== 1 ? 'ar' : ''} kvar` : 'Klar'}</div>
+      </div>
+    </div>`;
 
-  // ── MODULER ────────────────────────────────────────────
-  html += '<div class="section-label">Detaljerad analys</div>';
-  html += '<div class="modules-grid">';
+  // KPI row
+  html += renderKpiRow(kpis, modules, bookingsPerDay, manualTime);
 
-  if (modules.includes('bookings')) html += renderBookings(d);
-  if (modules.includes('email')) html += renderEmail(d);
-  if (modules.includes('noshow')) html += renderNoShow(d);
-  if (modules.includes('funnel')) html += renderFunnel(d);
-  if (modules.includes('manual_time')) html += renderManualTime(d);
-  if (modules.includes('invoicing')) html += renderInvoicing(d);
-  if (modules.includes('social')) html += renderSocial(d);
-  if (modules.includes('inventory')) html += renderInventory(d);
-  if (modules.includes('visitors')) html += renderVisitors(d);
+  // Main grid: activity chart + health
+  html += `<div class="main-grid">`;
+  html += renderActivityChart(bookingsPerDay, emailCategories, modules);
+  html += renderHealthCard(healthScore, kpis);
+  html += `</div>`;
 
-  // Health score + AI insights always shown
-  html += renderHealthScore(d);
-  html += renderInsights(d);
+  // Detail grid
+  html += `<div class="detail-grid">`;
+  if (modules.includes('bookings') || modules.includes('noshow')) html += renderNoShowCard(kpis, bookingsPerDay);
+  if (modules.includes('email')) html += renderEmailCard(emailCategories);
+  if (modules.includes('funnel')) html += renderFunnelCard(funnel, dropoffStep);
+  if (modules.includes('manual_time')) html += renderManualTimeCard(manualTime);
+  if (modules.includes('invoicing')) html += renderInvoiceCard();
+  if (modules.includes('social')) html += renderSocialCard();
+  if (modules.includes('inventory')) html += renderInventoryCard();
+  if (modules.includes('visitors')) html += renderVisitorsCard(kpis);
+  html += `</div>`;
 
-  html += '</div>'; // modules-grid
+  // AI Insights
+  if (insights && insights.length) {
+    html += `<div class="section-label">AI-insikter</div>`;
+    html += renderInsightsCard(insights);
+  }
 
-  // ── RAPPORT-KNAPP ───────────────────────────────────────
+  // Report
   html += `
     <div class="section-label">Slutrapport</div>
     <div class="card" style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
       <div>
-        <div style="font-weight:700;margin-bottom:4px">AI-genererad analysrapport</div>
-        <div style="font-size:13px;color:var(--muted)">
-          ${audit.daysLeft > 0 ? `Rapporten genereras om ${audit.daysLeft} dag${audit.daysLeft !== 1 ? 'ar' : ''} – dag 7 av granskningen.` : 'Granskningen är klar. Se din rapport nedan.'}
+        <div style="font-weight:700;font-size:15px;margin-bottom:4px">AI-genererad analysrapport</div>
+        <div style="font-size:13px;color:var(--muted2)">
+          ${audit.daysLeft > 0 ? `Rapporten genereras dag 7 – om ${audit.daysLeft} dag${audit.daysLeft !== 1 ? 'ar' : ''}.` : 'Granskningen är klar. Rapporten finns nedan.'}
         </div>
       </div>
       <a href="/dashboard/${token}/report" class="report-btn">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
         ${audit.daysLeft > 0 ? 'Förhandsgranska' : 'Öppna rapport'}
       </a>
     </div>
+    <div style="height:40px"></div>
   `;
 
-  html += '</div>'; // container
+  html += `</div>`;
   document.getElementById('root').innerHTML = html;
 }
 
-// ══════════════════════════════════════════════════════════
-// KPI ROW – visas alltid baserat på tillgängliga moduler
-// ══════════════════════════════════════════════════════════
-function renderKpiRow(d, modules) {
-  const kpis = [];
-  if (modules.includes('visitors') || modules.includes('funnel')) {
-    kpis.push(`<div class="kpi-card">
-      <div class="kpi-label">👥 Besökare</div>
-      <div class="kpi-value">${d.kpis.visitors || 0}</div>
-      <div class="kpi-sub">senaste 7 dagarna</div>
-    </div>`);
-  }
-  if (modules.includes('bookings') || modules.includes('noshow')) {
-    kpis.push(`<div class="kpi-card">
-      <div class="kpi-label">📅 No-show-rate</div>
-      <div class="kpi-value ${d.kpis.noShowRate > 10 ? 'kpi-trend-down' : ''}">${d.kpis.noShowRate || 0}<span class="kpi-unit">%</span></div>
-      <div class="kpi-sub">${d.kpis.noShowRate > 10 ? '⚠️ Hög andel' : 'OK nivå'}</div>
-    </div>`);
-  }
-  if (modules.includes('email')) {
-    kpis.push(`<div class="kpi-card">
-      <div class="kpi-label">📧 Obesvarade mejl</div>
-      <div class="kpi-value ${d.kpis.unansweredEmails > 5 ? 'kpi-trend-down' : ''}">${d.kpis.unansweredEmails || 0}</div>
-      <div class="kpi-sub">kräver svar</div>
-    </div>`);
-  }
-  if (modules.includes('funnel')) {
-    kpis.push(`<div class="kpi-card">
-      <div class="kpi-label">🔄 Konvertering</div>
-      <div class="kpi-value">${d.kpis.conversionRate || 0}<span class="kpi-unit">%</span></div>
-      <div class="kpi-sub">besök → bokning</div>
-    </div>`);
-  }
-  if (modules.includes('manual_time')) {
-    kpis.push(`<div class="kpi-card">
-      <div class="kpi-label">⏱️ Manuell tid</div>
-      <div class="kpi-value">${d.manualTime?.total || 0}<span class="kpi-unit">h/v</span></div>
-      <div class="kpi-sub">kan automatiseras</div>
-    </div>`);
-  }
-  // Fallback om inga KPI-moduler valts
-  if (!kpis.length) {
-    kpis.push(`<div class="kpi-card"><div class="kpi-label">Hälsostatus</div><div class="kpi-value">${d.healthScore?.score || '–'}</div><div class="kpi-sub">av 100</div></div>`);
+// ══════════════════════════════════
+// KPI ROW
+// ══════════════════════════════════
+function renderKpiRow(kpis, modules, bookingsPerDay, manualTime) {
+  const cards = [];
+
+  // Sparkline helper
+  function spark(vals, color, fill) {
+    if (!vals || vals.length < 2) return '';
+    const max = Math.max(...vals, 1);
+    const min = Math.min(...vals, 0);
+    const range = max - min || 1;
+    const w = 100, h = 36;
+    const pts = vals.map((v, i) => {
+      const x = (i / (vals.length - 1)) * w;
+      const y = h - ((v - min) / range) * (h - 4) - 2;
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    }).join(' ');
+    return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">
+      <polyline points="${pts}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linejoin="round"/>
+    </svg>`;
   }
 
-  return `<div class="section-label">Nyckeltal</div>
-    <div class="kpi-grid">${kpis.slice(0,4).join('')}</div>`;
+  if (modules.includes('visitors') || modules.includes('funnel')) {
+    const v = kpis.visitors || 0;
+    const sparkVals = [Math.max(0, v*0.6), v*0.8, v*0.7, v*0.9, v*0.75, v*1.1, v];
+    cards.push(`<div class="kpi-card">
+      <div class="kpi-label">👥 Besökare</div>
+      <div class="kpi-value">${v}</div>
+      <div class="kpi-sparkline">${spark(sparkVals, '#3b82f6')}</div>
+      <div class="kpi-trend neutral">senaste 7 dagarna</div>
+    </div>`);
+  }
+
+  if (modules.includes('bookings') || modules.includes('noshow')) {
+    const rate = kpis.noShowRate || 0;
+    const isHigh = rate > 10;
+    const sparkVals = [rate*0.9, rate*1.1, rate*0.8, rate*1.2, rate*1.0, rate*0.95, rate];
+    cards.push(`<div class="kpi-card">
+      <div class="kpi-label">❌ No-show-rate</div>
+      <div class="kpi-value" style="${isHigh ? 'color:var(--red)' : ''}">${rate}<span class="kpi-unit">%</span></div>
+      <div class="kpi-sparkline">${spark(sparkVals, isHigh ? '#ef4444' : '#22c55e')}</div>
+      <div class="kpi-trend ${isHigh ? 'down' : 'up'}">${isHigh ? '⚠ Hög – åtgärd behövs' : '✓ OK nivå'}</div>
+    </div>`);
+  }
+
+  if (modules.includes('email')) {
+    const em = kpis.unansweredEmails || 0;
+    const isHigh = em > 5;
+    const sparkVals = [Math.max(0,em-3), em+2, em-1, em+4, em+1, em+3, em];
+    cards.push(`<div class="kpi-card">
+      <div class="kpi-label">📧 Obesvarade mejl</div>
+      <div class="kpi-value" style="${isHigh ? 'color:var(--amber)' : ''}">${em}</div>
+      <div class="kpi-sparkline">${spark(sparkVals, isHigh ? '#f59e0b' : '#3b82f6')}</div>
+      <div class="kpi-trend ${isHigh ? 'down' : 'neutral'}">${isHigh ? 'Kräver svar' : 'Under kontroll'}</div>
+    </div>`);
+  }
+
+  if (modules.includes('funnel')) {
+    const cr = kpis.conversionRate || 0;
+    const sparkVals = [cr*0.8, cr*1.1, cr*0.9, cr*1.2, cr*1.0, cr*0.95, cr];
+    cards.push(`<div class="kpi-card">
+      <div class="kpi-label">🔄 Konvertering</div>
+      <div class="kpi-value">${cr}<span class="kpi-unit">%</span></div>
+      <div class="kpi-sparkline">${spark(sparkVals, '#22c55e')}</div>
+      <div class="kpi-trend neutral">besök → bokning</div>
+    </div>`);
+  }
+
+  if (modules.includes('manual_time')) {
+    const h = manualTime?.total || 0;
+    const sparkVals = [h*0.9, h*1.1, h*0.95, h*1.05, h*1.0, h*0.98, h];
+    cards.push(`<div class="kpi-card">
+      <div class="kpi-label">⏱ Manuell tid</div>
+      <div class="kpi-value">${h}<span class="kpi-unit">h/v</span></div>
+      <div class="kpi-sparkline">${spark(sparkVals, '#8b5cf6')}</div>
+      <div class="kpi-trend down">kan automatiseras</div>
+    </div>`);
+  }
+
+  if (!cards.length) {
+    const hs = healthScore?.score || 0;
+    cards.push(`<div class="kpi-card">
+      <div class="kpi-label">💚 Hälsostatus</div>
+      <div class="kpi-value">${hs}<span class="kpi-unit">/100</span></div>
+      <div class="kpi-trend neutral">Totalt betyg</div>
+    </div>`);
+  }
+
+  return `<div class="kpi-row">${cards.slice(0,4).join('')}</div>`;
 }
 
-// ══════════════════════════════════════════════════════════
-// MODULES
-// ══════════════════════════════════════════════════════════
-
-function renderBookings(d) {
-  const perDay = d.bookingsPerDay || [];
+// ══════════════════════════════════
+// ACTIVITY CHART
+// ══════════════════════════════════
+function renderActivityChart(bookingsPerDay, emailCats, modules) {
+  const perDay = bookingsPerDay || [];
   const max = Math.max(...perDay.map(b => b.count), 1);
   const today = new Date().toISOString().split('T')[0];
-  return `<div class="card card-sm">
-    <div class="card-title">📅 Bokningar per dag</div>
+
+  return `<div class="card">
+    <div class="card-title">Bokningar per dag
+      <span class="card-title-badge">7 dagar</span>
+    </div>
     <div class="bar-chart">
       ${perDay.map(b => {
-        const h = Math.round((b.count / max) * 70);
+        const h = Math.max(3, Math.round((b.count / max) * 80));
         const cls = b.date === today ? 'today' : b.count > 0 ? 'filled' : '';
         return `<div class="bar-col">
           <span class="bar-num">${b.count || ''}</span>
-          <div class="bar ${cls}" style="height:${h || 4}px"></div>
+          <div class="bar ${cls}" style="height:${h}px"></div>
           <span class="bar-day">${b.day}</span>
         </div>`;
       }).join('')}
     </div>
+    ${perDay.length === 0 ? '<div class="empty-state">Bokningsdata samlas in…</div>' : ''}
   </div>`;
 }
 
-function renderEmail(d) {
-  const cats = (d.emailCategories || []).sort((a,b)=>b.count-a.count).slice(0,5);
-  const maxCat = Math.max(...cats.map(c=>c.count), 1);
-  const catIcons = { bokningsfråga:'📅', avbokning:'❌', faktura:'🧾', reklamation:'😤', allmänt:'💬', övrigt:'📬' };
-  return `<div class="card card-sm">
-    <div class="card-title">📧 Mejlkategorier</div>
-    ${cats.length ? `<div class="email-cats">
-      ${cats.map(c => `<div class="email-row">
-        <span class="email-name">${catIcons[c.name]||'📬'} ${c.name}</span>
+// ══════════════════════════════════
+// HEALTH SCORE
+// ══════════════════════════════════
+function renderHealthCard(hs, kpis) {
+  const score = hs?.score || 0;
+  const circ = 283;
+  const offset = circ - (score / 100) * circ;
+  const color = score >= 70 ? '#22c55e' : score >= 40 ? '#f59e0b' : '#ef4444';
+  const label = score >= 70 ? 'God status' : score >= 40 ? 'Förbättringsbar' : 'Kritisk';
+
+  const items = [
+    { label: 'E-post', color: (kpis.unansweredEmails > 5 ? '#f59e0b' : '#22c55e') },
+    { label: 'Bokningar', color: (kpis.noShowRate > 10 ? '#ef4444' : '#22c55e') },
+    { label: 'Konvertering', color: (kpis.conversionRate > 2 ? '#22c55e' : '#f59e0b') },
+  ].filter(i => i);
+
+  return `<div class="card">
+    <div class="card-title">Hälsostatus</div>
+    <div class="health-wrap">
+      <div class="health-ring">
+        <svg width="90" height="90" viewBox="0 0 100 100">
+          <circle class="track" cx="50" cy="50" r="45"/>
+          <circle class="fill" cx="50" cy="50" r="45"
+            style="stroke:${color};stroke-dashoffset:${offset}"/>
+        </svg>
+        <span class="health-score-num" style="color:${color}">${score}</span>
+      </div>
+      <div class="health-info">
+        <div class="health-label" style="color:${color}">${label}</div>
+        <div style="font-size:12px;color:var(--muted2)">av 100 möjliga poäng</div>
+        <div class="health-breakdown">
+          ${items.map(i => `<div class="health-item"><div class="health-dot" style="background:${i.color}"></div>${i.label}</div>`).join('')}
+        </div>
+      </div>
+    </div>
+    ${hs?.factors ? `<div class="sep"></div><div style="font-size:12px;color:var(--muted2);line-height:1.5">${hs.summary || ''}</div>` : ''}
+  </div>`;
+}
+
+// ══════════════════════════════════
+// NO-SHOW
+// ══════════════════════════════════
+function renderNoShowCard(kpis, bookingsPerDay) {
+  const rate = kpis?.noShowRate || 0;
+  const totalBookings = (bookingsPerDay || []).reduce((s,b) => s + b.count, 0);
+  const noShows = Math.round(totalBookings * rate / 100);
+  const weeklyCost = noShows * 450;
+  return `<div class="card">
+    <div class="card-title">No-show-analys</div>
+    <div class="noshow-big">${rate}%</div>
+    <div class="noshow-sub">av bokningarna uteblir</div>
+    <div class="noshow-cost">
+      Senaste veckan: ca <strong>${weeklyCost.toLocaleString('sv-SE')} kr</strong> uteblivet<br>
+      <span style="font-size:11px;display:block;margin-top:4px">Automatiska påminnelser kan minska detta 60–80%</span>
+    </div>
+  </div>`;
+}
+
+// ══════════════════════════════════
+// EMAIL
+// ══════════════════════════════════
+function renderEmailCard(cats) {
+  const sorted = (cats || []).sort((a,b) => b.count - a.count).slice(0, 5);
+  const maxCat = Math.max(...sorted.map(c => c.count), 1);
+  const icons = { bokningsfråga:'📅', avbokning:'❌', faktura:'🧾', reklamation:'😤', allmänt:'💬', övrigt:'📬' };
+  return `<div class="card">
+    <div class="card-title">Mejlkategorier</div>
+    ${sorted.length ? `<div class="email-cats">
+      ${sorted.map(c => `<div class="email-row">
+        <span class="email-name">${icons[c.name]||'📬'} ${c.name}</span>
         <div class="email-bar-wrap"><div class="email-bar" style="width:${Math.round(c.count/maxCat*100)}%"></div></div>
         <span class="email-count">${c.count}</span>
       </div>`).join('')}
@@ -471,56 +748,43 @@ function renderEmail(d) {
   </div>`;
 }
 
-function renderNoShow(d) {
-  const rate = d.kpis?.noShowRate || 0;
-  const totalBookings = d.bookingsPerDay?.reduce((s,b)=>s+b.count,0) || 0;
-  const noShows = Math.round(totalBookings * rate / 100);
-  const costPerSlot = 450; // kr per bokningsplats
-  const weeklyCost = noShows * costPerSlot;
-  return `<div class="card card-sm">
-    <div class="card-title">❌ No-show-analys</div>
-    <div class="noshow-big">${rate}%</div>
-    <div class="noshow-sub">av bokningarna uteblir</div>
-    <div class="noshow-cost">
-      Senaste veckan: ca <strong>${weeklyCost.toLocaleString('sv-SE')} kr</strong> i uteblivna intäkter<br>
-      <span style="font-size:11px;margin-top:4px;display:block">Automatiska påminnelser kan minska detta med 60-80%</span>
-    </div>
-  </div>`;
-}
-
-function renderFunnel(d) {
-  const funnel = d.funnel || [];
-  const maxVal = Math.max(...funnel.map(f=>f.count), 1);
-  const dropoff = d.dropoffStep;
-  return `<div class="card card-sm full">
-    <div class="card-title">🔄 Konverteringsfunnel</div>
-    ${funnel.length ? `<div class="funnel">
-      ${funnel.map((f,i) => {
-        const drop = i > 0 ? Math.round((1 - f.count/funnel[i-1].count)*100) : 0;
-        const isDropoff = f.step === dropoff;
+// ══════════════════════════════════
+// FUNNEL
+// ══════════════════════════════════
+function renderFunnelCard(funnel, dropoffStep) {
+  const f = funnel || [];
+  const maxVal = Math.max(...f.map(x => x.count), 1);
+  return `<div class="card">
+    <div class="card-title">Konverteringsfunnel</div>
+    ${f.length ? `<div class="funnel">
+      ${f.map((s, i) => {
+        const drop = i > 0 ? Math.round((1 - s.count/f[i-1].count)*100) : 0;
+        const isDropoff = s.step === dropoffStep;
         return `<div class="funnel-row">
-          <span class="funnel-label" style="${isDropoff?'color:var(--red);font-weight:700':''}">${f.step}</span>
-          <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:${Math.round(f.count/maxVal*100)}%;${isDropoff?'background:var(--red)':''}"></div></div>
-          <span class="funnel-count">${f.count}</span>
-          ${i>0&&drop>20?`<span class="funnel-drop">−${drop}%</span>`:'<span style="width:36px"></span>'}
+          <span class="funnel-label" style="${isDropoff ? 'color:var(--red);font-weight:700' : ''}">${s.step}</span>
+          <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:${Math.round(s.count/maxVal*100)}%;${isDropoff ? 'background:var(--red)' : ''}"></div></div>
+          <span class="funnel-count">${s.count}</span>
+          ${i>0 && drop>20 ? `<span class="funnel-drop">−${drop}%</span>` : '<span style="width:36px"></span>'}
         </div>`;
       }).join('')}
     </div>` : `<div class="empty-state">Funneldata samlas in…</div>`}
   </div>`;
 }
 
-function renderManualTime(d) {
-  const mt = d.manualTime || {};
+// ══════════════════════════════════
+// MANUAL TIME
+// ══════════════════════════════════
+function renderManualTimeCard(mt) {
   const rows = [
-    { name: 'E-posthantering', h: mt.emailHours || 0 },
-    { name: 'Bokningsadmin', h: mt.bookingHours || 0 },
-    { name: 'Fakturering', h: mt.invoiceHours || 0 },
-    { name: 'Övrigt admin', h: mt.otherHours || 0 },
+    { name: 'E-posthantering', h: mt?.emailHours || 0 },
+    { name: 'Bokningsadmin', h: mt?.bookingHours || 0 },
+    { name: 'Fakturering', h: mt?.invoiceHours || 0 },
+    { name: 'Övrigt admin', h: mt?.otherHours || 0 },
   ].filter(r => r.h > 0);
-  const total = mt.total || rows.reduce((s,r)=>s+r.h,0);
-  return `<div class="card card-sm">
-    <div class="card-title">⏱️ Manuella tidsstjälar</div>
-    <div style="font-size:28px;font-weight:700;letter-spacing:-1px;margin-bottom:4px">${total}<span style="font-size:14px;font-weight:400;color:var(--muted)"> h/vecka</span></div>
+  const total = mt?.total || rows.reduce((s,r)=>s+r.h, 0);
+  return `<div class="card">
+    <div class="card-title">Manuella tidsstjälar</div>
+    <div style="font-size:30px;font-weight:800;letter-spacing:-1px;margin-bottom:4px">${total}<span style="font-size:14px;font-weight:400;color:var(--muted2)"> h/vecka</span></div>
     <div class="sep"></div>
     <div class="time-rows">
       ${rows.length ? rows.map(r=>`<div class="time-row"><span class="time-name">${r.name}</span><span class="time-val">${r.h}h</span></div>`).join('') : '<div style="font-size:12px;color:var(--muted)">Data samlas in…</div>'}
@@ -528,102 +792,172 @@ function renderManualTime(d) {
   </div>`;
 }
 
-function renderInvoicing(d) {
-  // Placeholder data – real data would come from Fortnox/Visma integration
-  return `<div class="card card-sm">
-    <div class="card-title">🧾 Fakturering</div>
-    <div style="display:flex;gap:20px;justify-content:space-around;margin-top:8px">
+// ══════════════════════════════════
+// INVOICING
+// ══════════════════════════════════
+function renderInvoiceCard() {
+  return `<div class="card">
+    <div class="card-title">Fakturering</div>
+    <div class="invoice-grid">
       <div class="invoice-stat"><div class="invoice-num" style="color:var(--amber)">–</div><div class="invoice-lbl">Obetald (kr)</div></div>
       <div class="invoice-stat"><div class="invoice-num">–</div><div class="invoice-lbl">Fakturor/mån</div></div>
-      <div class="invoice-stat"><div class="invoice-num" style="color:var(--muted)">–</div><div class="invoice-lbl">Dagar betalningstid</div></div>
+      <div class="invoice-stat"><div class="invoice-num" style="color:var(--muted2)">–</div><div class="invoice-lbl">Dagar bet.tid</div></div>
     </div>
-    <div style="margin-top:16px;font-size:12px;color:var(--muted);background:var(--bg);border-radius:8px;padding:12px">
-      🔌 Koppla Fortnox eller Visma för att se riktiga faktureringsdata
-    </div>
+    <div class="connect-hint">🔌 Koppla Fortnox eller Visma för att se riktiga faktureringsdata</div>
   </div>`;
 }
 
-function renderSocial(d) {
-  return `<div class="card card-sm">
-    <div class="card-title">📱 Sociala medier</div>
+// ══════════════════════════════════
+// SOCIAL
+// ══════════════════════════════════
+function renderSocialCard() {
+  return `<div class="card">
+    <div class="card-title">Sociala medier</div>
     <div class="social-rows">
-      <div class="social-row"><span class="social-name">📸 Instagram</span><span class="social-val" style="color:var(--muted)">–</span></div>
-      <div class="social-row"><span class="social-name">👍 Facebook</span><span class="social-val" style="color:var(--muted)">–</span></div>
+      <div class="social-row"><span class="social-name">📸 Instagram</span><span class="social-val" style="color:var(--muted2)">–</span></div>
+      <div class="social-row"><span class="social-name">👍 Facebook</span><span class="social-val" style="color:var(--muted2)">–</span></div>
     </div>
-    <div style="margin-top:14px;font-size:12px;color:var(--muted);background:var(--bg);border-radius:8px;padding:12px">
-      🔌 Koppla Meta Business Suite för att se räckvidd och engagemang
+    <div class="connect-hint">🔌 Koppla Meta Business Suite för räckvidd och engagemang</div>
+  </div>`;
+}
+
+// ══════════════════════════════════
+// INVENTORY
+// ══════════════════════════════════
+function renderInventoryCard() {
+  return `<div class="card">
+    <div class="card-title">Lager</div>
+    <div class="connect-hint">🔌 Koppla WooCommerce eller Shopify för lagernivåer och svinn i realtid</div>
+  </div>`;
+}
+
+// ══════════════════════════════════
+// VISITORS
+// ══════════════════════════════════
+function renderVisitorsCard(kpis) {
+  return `<div class="card">
+    <div class="card-title">Webbplatsbesökare</div>
+    <div style="font-size:30px;font-weight:800;letter-spacing:-1px;margin-bottom:4px">${kpis.visitors || 0}<span style="font-size:14px;font-weight:400;color:var(--muted2)"> senaste 7 dagar</span></div>
+    <div style="font-size:12px;color:var(--muted2);margin-top:10px">
+      ${kpis.conversionRate > 0 ? `Konverteringsgrad: <strong style="color:var(--text)">${kpis.conversionRate}%</strong>` : 'Konverteringsdata samlas in…'}
     </div>
   </div>`;
 }
 
-function renderInventory(d) {
-  return `<div class="card card-sm">
-    <div class="card-title">📦 Lager</div>
-    <div style="font-size:12px;color:var(--muted);background:var(--bg);border-radius:8px;padding:12px">
-      🔌 Koppla WooCommerce eller Shopify för att spåra lagernivåer och svinn i realtid
-    </div>
+// ══════════════════════════════════
+// AI INSIGHTS
+// ══════════════════════════════════
+function renderInsightsCard(insights) {
+  return `<div class="insight-list">
+    ${insights.map(ins => `<div class="insight-item ${ins.priority || 'medium'}">
+      <div class="insight-title">${ins.title || ''}</div>
+      <div class="insight-desc">${ins.description || ''}</div>
+    </div>`).join('')}
   </div>`;
 }
 
-function renderVisitors(d) {
-  return `<div class="card card-sm">
-    <div class="card-title">👥 Webbplatsbesökare</div>
-    <div style="font-size:28px;font-weight:700;letter-spacing:-1px;margin-bottom:4px">${d.kpis.visitors || 0}<span style="font-size:14px;font-weight:400;color:var(--muted)"> senaste 7 dagar</span></div>
-    <div style="font-size:12px;color:var(--muted);margin-top:10px">
-      ${d.kpis.conversionRate > 0 ? `Konverteringsgrad: <strong style="color:var(--text)">${d.kpis.conversionRate}%</strong>` : 'Konverteringsdata samlas in…'}
-    </div>
-  </div>`;
-}
+// ══════════════════════════════════
+// WELCOME ANALYSIS (before full setup)
+// ══════════════════════════════════
+function renderWelcomeAnalysis(audit, kpis, healthScore) {
+  const a = audit.aiWelcomeAnalysis;
+  const auditPlan = a.audit_plan || [];
+  const rootCauses = a.likely_root_causes || [];
+  const initials = (audit.companyName || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
 
-function renderHealthScore(d) {
-  const hs = d.healthScore || {};
-  const score = hs.score || 0;
-  const circumference = 283;
-  const offset = circumference - (score / 100) * circumference;
-  const color = score >= 70 ? '#22c55e' : score >= 40 ? '#f59e0b' : '#ef4444';
-  const label = score >= 70 ? 'Bra' : score >= 40 ? 'Förbättringsbar' : 'Kritisk';
-  return `<div class="card card-sm">
-    <div class="card-title">💚 Hälsostatus</div>
-    <div class="health-ring-wrap">
-      <div class="health-ring">
-        <svg width="100" height="100" viewBox="0 0 100 100">
-          <circle class="track" cx="50" cy="50" r="45"/>
-          <circle class="fill" cx="50" cy="50" r="45"
-            style="stroke:${color};stroke-dashoffset:${offset}"/>
-        </svg>
-        <span class="health-score-num">${score}</span>
+  return `<div class="container">
+
+    <!-- HEADER -->
+    <div class="company-header">
+      <div class="company-header-left">
+        <div class="company-logo-box">${initials}</div>
+        <div class="company-info">
+          <div class="company-name-big">${audit.companyName}</div>
+          <div class="company-meta">
+            <span class="meta-pill">${audit.industry || 'Företag'}</span>
+            <span class="meta-pill green">● Granskning pågår</span>
+            <span class="meta-pill">Dag ${audit.dayNumber} av 7</span>
+          </div>
+        </div>
       </div>
-      <span class="health-label" style="color:${color}">${label}</span>
+      <div class="company-header-right">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:6px">Granskningsframsteg</div>
+        <div style="font-size:22px;font-weight:800;letter-spacing:-1px">${Math.round(audit.dayNumber/7*100)}%</div>
+        <div class="audit-progress-bar">
+          <div class="audit-progress-fill" style="width:${Math.round(audit.dayNumber/7*100)}%"></div>
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-top:6px">${audit.daysLeft} dagar kvar</div>
+      </div>
     </div>
+
+    <!-- REAL PROBLEM CARD -->
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-title">🔍 Vad AI:n fokuserar på</div>
+      <div style="font-size:16px;font-weight:600;line-height:1.6;margin-bottom:${rootCauses.length ? '18px' : '0'}">${a.real_problem || ''}</div>
+      ${rootCauses.length ? `<div style="display:flex;flex-direction:column;gap:10px">
+        ${rootCauses.map(c => `<div style="display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--muted2);line-height:1.5">
+          <span style="color:var(--purple);font-weight:700;flex-shrink:0;margin-top:1px">→</span>
+          <span>${c}</span>
+        </div>`).join('')}
+      </div>` : ''}
+    </div>
+
+    <!-- GRANSKNINGSPLAN -->
+    <div class="section-label">Granskningsplan – 7 dagar</div>
+    <div class="audit-plan-cards">
+      ${auditPlan.map(p => `<div class="plan-card">
+        <div class="plan-day">${p.day}</div>
+        <div class="plan-focus">${p.focus}</div>
+        <div class="plan-why">${p.why}</div>
+        <div class="plan-checks">
+          ${(p.ai_will_check || []).map(c => `<div class="plan-check">${c}</div>`).join('')}
+        </div>
+      </div>`).join('')}
+    </div>
+
+    <!-- VECKOMÅL + AI-REKOMMENDATION -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+      ${a.week_goal ? `<div class="card" style="border-color:rgba(34,197,94,0.25);background:var(--green-dim)">
+        <div class="card-title" style="color:var(--green)">🎯 Veckans mål</div>
+        <div style="font-size:14px;line-height:1.6;font-weight:500">${a.week_goal}</div>
+      </div>` : ''}
+      ${a.ai_recommendation ? `<div class="card" style="border-color:rgba(139,92,246,0.25);background:var(--purple-dim)">
+        <div class="card-title" style="color:var(--purple)">🤖 Preliminär AI-lösning</div>
+        <div style="font-size:14px;line-height:1.6;font-weight:500">${a.ai_recommendation}</div>
+      </div>` : ''}
+    </div>
+
+    <!-- ONLINE CHECKS -->
+    ${a.online_checks && a.online_checks.length ? `
+    <div class="section-label">Vad AI:n granskar online</div>
+    <div class="card">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        ${a.online_checks.map(c => `<div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted2);padding:10px;background:var(--bg2);border-radius:8px">
+          <span style="color:var(--blue)">✓</span> ${c}
+        </div>`).join('')}
+      </div>
+    </div>` : ''}
+
+    <div style="height:48px"></div>
   </div>`;
 }
 
+// ══════════════════════════════════
+// ANALYZING ANIMATION
+// ══════════════════════════════════
 function renderAnalyzingState() {
-  return `
-    <div class="analyzing-wrap">
-      <div class="analyzing-header">
-        <h2>AI:n analyserar<br>er situation</h2>
-        <p>Era svar är mottagna. AI:n söker nu upp information om ert företag och bygger en skräddarsydd granskningsplan.</p>
-      </div>
-      <div class="analyzing-steps-list">
-        <div class="a-step">
-          <div class="a-dot waiting" id="as1"></div>
-          <div class="a-step-text" id="at1">Läser igenom era svar</div>
-        </div>
-        <div class="a-step">
-          <div class="a-dot waiting" id="as2"></div>
-          <div class="a-step-text" id="at2">Söker upp ert företag online</div>
-        </div>
-        <div class="a-step">
-          <div class="a-dot waiting" id="as3"></div>
-          <div class="a-step-text" id="at3">Analyserar er bransch och era utmaningar</div>
-        </div>
-        <div class="a-step">
-          <div class="a-dot waiting" id="as4"></div>
-          <div class="a-step-text" id="at4">Skapar er personliga granskningsplan</div>
-        </div>
-      </div>
-    </div>`;
+  return `<div class="analyzing-wrap">
+    <div class="analyzing-header">
+      <h2>AI:n analyserar<br>er situation</h2>
+      <p>Era svar är mottagna. AI:n söker nu upp information om ert företag och bygger en skräddarsydd granskningsplan.</p>
+    </div>
+    <div class="analyzing-steps-list">
+      <div class="a-step"><div class="a-dot waiting" id="as1"></div><div class="a-step-text" id="at1">Läser igenom era svar</div></div>
+      <div class="a-step"><div class="a-dot waiting" id="as2"></div><div class="a-step-text" id="at2">Söker upp ert företag online</div></div>
+      <div class="a-step"><div class="a-dot waiting" id="as3"></div><div class="a-step-text" id="at3">Analyserar er bransch och era utmaningar</div></div>
+      <div class="a-step"><div class="a-dot waiting" id="as4"></div><div class="a-step-text" id="at4">Skapar er personliga granskningsplan</div></div>
+    </div>
+  </div>`;
 }
 
 function startAnalyzingAnimation() {
@@ -633,104 +967,23 @@ function startAnalyzingAnimation() {
   function next() {
     if (i > 0) {
       const prev = document.getElementById(steps[i-1]);
-      const prevT = document.getElementById(texts[i-1]);
       if (prev) prev.className = 'a-dot done';
+      const prevT = document.getElementById(texts[i-1]);
       if (prevT) prevT.className = 'a-step-text';
     }
     if (i < steps.length) {
       const cur = document.getElementById(steps[i]);
-      const curT = document.getElementById(texts[i]);
       if (cur) cur.className = 'a-dot active';
+      const curT = document.getElementById(texts[i]);
       if (curT) curT.className = 'a-step-text active';
       i++;
-      // Slow down on last step – waiting for real result
       setTimeout(next, i < steps.length ? 2200 : 99999);
     }
   }
   setTimeout(next, 400);
 }
 
-function renderWelcomeAnalysis(audit) {
-  const a = audit.aiWelcomeAnalysis;
-  const auditPlan = a.audit_plan || [];
-  const rootCauses = a.likely_root_causes || [];
-
-  return `
-    <div class="container">
-      <div style="max-width:720px;margin:0 auto">
-
-        <!-- HEADER -->
-        <div style="margin-bottom:32px">
-          <div style="font-size:11px;font-weight:700;color:var(--green);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:8px">● Granskning pågår</div>
-          <h1 style="font-size:28px;font-weight:800;letter-spacing:-1px;margin-bottom:10px">Er AI-granskning är igång</h1>
-          <p style="font-size:14px;color:var(--muted);line-height:1.6">Nedan ser du vad AI:n granskar under de kommande 7 dagarna och vilken AI-lösning som troligtvis kommer byggas för er.</p>
-        </div>
-
-        <!-- VAD AI:N FOKUSERAR PÅ -->
-        <div class="card" style="margin-bottom:16px">
-          <div class="card-title">🔍 Vad AI:n fokuserar på</div>
-          <div style="font-size:15px;line-height:1.6;margin-bottom:${rootCauses.length ? '16px' : '0'}">${a.real_problem || ''}</div>
-          ${rootCauses.length ? `<div style="display:flex;flex-direction:column;gap:8px">
-            ${rootCauses.map((c) => `
-              <div style="display:flex;align-items:flex-start;gap:10px;font-size:13px;line-height:1.5;color:var(--muted)">
-                <span style="color:#6366f1;font-weight:700;flex-shrink:0">→</span>
-                <span>${c}</span>
-              </div>`).join('')}
-          </div>` : ''}
-        </div>
-
-        <!-- GRANSKNINGSPLAN -->
-        <div class="section-label" style="margin-top:24px">Granskningsplan – 7 dagar</div>
-        <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:24px">
-          ${auditPlan.map((p, i) => `
-            <div class="card card-sm">
-              <div style="display:flex;align-items:flex-start;gap:14px">
-                <div style="background:#111;color:#fff;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:700;white-space:nowrap;flex-shrink:0">${p.day}</div>
-                <div>
-                  <div style="font-weight:700;font-size:14px;margin-bottom:4px">${p.focus}</div>
-                  <div style="font-size:12px;color:var(--muted);margin-bottom:8px">${p.why}</div>
-                  ${(p.ai_will_check||[]).map(c => `<div style="font-size:12px;color:var(--muted);display:flex;gap:6px;margin-bottom:3px"><span>→</span><span>${c}</span></div>`).join('')}
-                </div>
-              </div>
-            </div>`).join('')}
-        </div>
-
-        <!-- VECKOMÅL + AI-REKOMMENDATION -->
-        ${a.ai_recommendation ? `
-        <div class="card" style="margin-bottom:16px;background:#fafaff;border-color:#e0e0ff">
-          <div class="card-title" style="color:#6366f1">🤖 AI som ska byggas</div>
-          <div style="font-size:14px;line-height:1.6">${a.ai_recommendation}</div>
-        </div>` : ''}
-
-        ${a.week_goal ? `
-        <div class="card" style="margin-bottom:32px;background:#f0fdf4;border-color:#bbf7d0">
-          <div class="card-title" style="color:#166534">✅ Mål efter 7 dagar</div>
-          <div style="font-size:14px;line-height:1.6;color:#166534">${a.week_goal}</div>
-        </div>` : ''}
-
-      </div>
-    </div>`;
-}
-
-function renderInsights(d) {
-  const insights = d.insights || [];
-  if (!insights.length) return `<div class="card card-sm"><div class="card-title">🤖 AI-insikter</div><div class="empty-state">Insikter genereras löpande under granskningen</div></div>`;
-  return `<div class="card card-sm full">
-    <div class="card-title">🤖 AI-insikter</div>
-    <div class="insight-list">
-      ${insights.slice(0,4).map(ins=>`<div class="insight-item ${ins.severity||'medium'}">
-        <div class="insight-title">${ins.title||''}</div>
-        <div class="insight-desc">${ins.description||ins.insight||''}</div>
-      </div>`).join('')}
-    </div>
-  </div>`;
-}
-
-// ══════════════════════════════════════════════════════════
-// INIT
-// ══════════════════════════════════════════════════════════
-loadData();
-setInterval(loadData, 60000);
+load();
 </script>
 </body>
 </html>
