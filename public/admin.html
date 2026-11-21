@@ -448,55 +448,16 @@ function renderCompanyMain() {
       </div>
     </div>
 
-    <!-- TABS -->
-    <div class="tabs">
-      <div class="tab ${!hasProfile ? 'active' : ''}" onclick="switchTab('setup')" id="tab-setup">
-        ${hasProfile ? '✓ ' : ''}Setup & AI-analys
-      </div>
-      <div class="tab ${hasProfile ? 'active' : ''}" onclick="switchTab('integrations')" id="tab-integrations">
-        Integrationer ${hasProfile ? `(${(a.ai_integrations||[]).length})` : ''}
-      </div>
-      <div class="tab" onclick="switchTab('notes')" id="tab-notes">
-        Observationer
-      </div>
-    </div>
-
-    <!-- TAB: SETUP -->
-    <div class="tab-panel ${!hasProfile ? 'active' : ''}" id="panel-setup">
-      ${hasProfile ? renderProfilePanel(a) : renderSetupForm(a)}
-    </div>
-
-    <!-- TAB: INTEGRATIONS -->
-    <div class="tab-panel ${hasProfile ? 'active' : ''}" id="panel-integrations">
-      ${hasProfile ? renderIntegrationsPanel(a) : '<div style="font-size:13px;color:var(--muted)">Slutför setup-steget först för att se rekommenderade integrationer.</div>'}
-    </div>
-
-    <!-- TAB: NOTES -->
-    <div class="tab-panel" id="panel-notes">
-      <div class="card">
-        <div class="card-title">Ny observation från kundsamtal</div>
-        <div class="note-hint">Skriv vad kunden berättade under mötet. AI analyserar och identifierar relaterade problem i branschen.</div>
-        <textarea class="note-area" id="note-input" placeholder="Ex: De bekräftar bokningar manuellt via telefon, lägger 2-3 timmar per vecka på det…"></textarea>
-        <div style="margin-top:10px">
-          <button class="btn" onclick="addNote()" id="note-btn">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-            Analysera med AI
-          </button>
-        </div>
-        <div class="notes-feed" id="notes-feed"><div style="font-size:13px;color:var(--muted);margin-top:8px">Laddar observationer…</div></div>
-      </div>
+    <!-- SETUP FORM ONLY -->
+    <div id="panel-setup">
+      ${renderSetupForm(a)}
     </div>
   `;
-
-  // Load notes async
-  loadNotes();
 }
 
 function switchTab(tab) {
-  ['setup','integrations','notes'].forEach(t => {
-    document.getElementById('tab-' + t)?.classList.toggle('active', t === tab);
-    document.getElementById('panel-' + t)?.classList.toggle('active', t === tab);
-  });
+  // tabs removed – kept for compatibility
+  void tab;
 }
 
 // ═══════════════════════════════════════════════════════════
