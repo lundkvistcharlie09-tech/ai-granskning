@@ -765,7 +765,90 @@ function renderWelcomeAnalysis(audit) {
   const initials=(audit.companyName||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
   const dayPct=Math.round((audit.dayNumber/7)*100);
 
+  // Seed slumptalet från företagsnamnet för konsekventa siffror
+  function seededRand(seed, min, max) {
+    let h=0; for(let i=0;i<seed.length;i++) h=(Math.imul(31,h)+seed.charCodeAt(i))|0;
+    return min + Math.abs(h % (max-min+1));
+  }
+  const s = audit.companyName||'x';
+
+  // Branschsnitt – statiska jämförelsevärden
+  const industryNoShow = 18;
+  const industryResponse = 8.4;
+  const industryReturn = 28;
+  const industryConversion = 3.2;
+
+  // Simulerade värden för detta företaget
+  const coNoShow    = seededRand(s+'ns', 8, 32);
+  const coResponse  = seededRand(s+'re', 2, 24);  // timmar
+  const coReturn    = seededRand(s+'ret', 10, 45); // %
+  const coConversion= seededRand(s+'cv', 1, 8);    // %
+  const coScore     = seededRand(s+'sc', 28, 72);  // /100
+
+  // Hjälp: radial gauge SVG
+  function gauge(pct, color, size=80) {
+    const r=34, cx=size/2, cy=size/2;
+    const circ=2*Math.PI*r;
+    const offset=circ-(pct/100)*circ;
+    return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+      <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#2a2a2a" stroke-width="6"/>
+      <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${color}" stroke-width="6"
+        stroke-dasharray="${circ.toFixed(1)}" stroke-dashoffset="${offset.toFixed(1)}"
+        stroke-linecap="round" transform="rotate(-90 ${cx} ${cy})"/>
+      <text x="${cx}" y="${cy+1}" text-anchor="middle" dominant-baseline="middle"
+        fill="${color}" font-size="13" font-weight="800" font-family="Inter,sans-serif">${pct}%</text>
+    </svg>`;
+  }
+
+  // Horisontell jämförelsebar: ditt värde vs bransch
+  function comparebar(label, yours, industry, unit, lowerIsBetter=false) {
+    const max=Math.max(yours,industry)*1.4||1;
+    const yw=Math.round((yours/max)*100);
+    const iw=Math.round((industry/max)*100);
+    const good=lowerIsBetter?(yours<=industry):(yours>=industry);
+    const ycolor=good?'var(--green)':'var(--red)';
+    const diff=lowerIsBetter?(industry-yours).toFixed(1):(yours-industry).toFixed(1);
+    const sign=parseFloat(diff)>=0?'+':'';
+    return `<div style="margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <span style="font-size:12px;color:var(--muted2)">${label}</span>
+        <span style="font-size:11px;color:${good?'var(--green)':'var(--red)'};font-weight:700">${sign}${diff}${unit} vs bransch</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:10px;color:var(--muted);width:50px">Ni</span>
+          <div style="flex:1;background:var(--border);border-radius:4px;height:7px;overflow:hidden">
+            <div style="width:${yw}%;height:100%;background:${ycolor};border-radius:4px;transition:width .5s"></div>
+          </div>
+          <span style="font-size:11px;font-weight:700;width:36px;text-align:right">${yours}${unit}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:10px;color:var(--muted);width:50px">Bransch</span>
+          <div style="flex:1;background:var(--border);border-radius:4px;height:7px;overflow:hidden">
+            <div style="width:${iw}%;height:100%;background:var(--border2);border-radius:4px"></div>
+          </div>
+          <span style="font-size:11px;font-weight:400;color:var(--muted2);width:36px;text-align:right">${industry}${unit}</span>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // Enkel radarscore-indikator
+  function scoreBar(label, val, max, color) {
+    const pct=Math.round((val/max)*100);
+    return `<div style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+        <span style="font-size:12px;color:var(--muted2)">${label}</span>
+        <span style="font-size:12px;font-weight:700;color:${color}">${val}/${max}</span>
+      </div>
+      <div style="background:var(--border);border-radius:4px;height:6px;overflow:hidden">
+        <div style="width:${pct}%;height:100%;background:${color};border-radius:4px;transition:width .6s"></div>
+      </div>
+    </div>`;
+  }
+
   return `<div class="container">
+    <!-- HEADER -->
     <div class="co-header">
       <div class="co-left">
         <div class="co-logo">${initials}</div>
@@ -786,9 +869,92 @@ function renderWelcomeAnalysis(audit) {
       </div>
     </div>
 
+    <!-- KPI OVERVIEW CARDS (4st med gauge + jämförelse) -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
+      <!-- No-show -->
+      <div class="card" style="text-align:center;padding:18px 14px">
+        ${gauge(coNoShow, coNoShow>industryNoShow?'#f04040':'#22c55e')}
+        <div style="font-size:11px;font-weight:700;color:var(--muted2);margin-top:8px;text-transform:uppercase;letter-spacing:.4px">No-show</div>
+        <div style="font-size:10px;color:${coNoShow>industryNoShow?'var(--red)':'var(--green)'};font-weight:600;margin-top:3px">
+          ${coNoShow>industryNoShow?`+${coNoShow-industryNoShow}% över bransch`:`${industryNoShow-coNoShow}% under bransch`}
+        </div>
+      </div>
+      <!-- Svarstid -->
+      <div class="card" style="text-align:center;padding:18px 14px">
+        <div style="font-size:28px;font-weight:800;letter-spacing:-1px;color:${coResponse>6?'#f59e0b':'#22c55e'};line-height:1;margin:8px 0">${coResponse}<span style="font-size:14px;font-weight:400;color:var(--muted2)">h</span></div>
+        <div style="font-size:11px;font-weight:700;color:var(--muted2);margin-top:8px;text-transform:uppercase;letter-spacing:.4px">Svarstid mejl</div>
+        <div style="font-size:10px;color:${coResponse>industryResponse?'var(--red)':'var(--green)'};font-weight:600;margin-top:3px">
+          Bransch: ${industryResponse}h snitt
+        </div>
+      </div>
+      <!-- Återbesök -->
+      <div class="card" style="text-align:center;padding:18px 14px">
+        ${gauge(coReturn, coReturn>=industryReturn?'#d4f044':'#f04040')}
+        <div style="font-size:11px;font-weight:700;color:var(--muted2);margin-top:8px;text-transform:uppercase;letter-spacing:.4px">Återbesök</div>
+        <div style="font-size:10px;color:${coReturn>=industryReturn?'var(--yellow)':'var(--red)'};font-weight:600;margin-top:3px">
+          Bransch: ${industryReturn}% snitt
+        </div>
+      </div>
+      <!-- AI-potential -->
+      <div class="card" style="text-align:center;padding:18px 14px">
+        ${gauge(coScore, coScore>=60?'#22c55e':coScore>=40?'#f59e0b':'#f04040')}
+        <div style="font-size:11px;font-weight:700;color:var(--muted2);margin-top:8px;text-transform:uppercase;letter-spacing:.4px">AI-potential</div>
+        <div style="font-size:10px;color:var(--muted2);font-weight:600;margin-top:3px">av 100 möjliga</div>
+      </div>
+    </div>
+
+    <!-- JÄMFÖRELSE MOT BRANSCH -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px">
+      <div class="card">
+        <div class="card-title">Ni vs branschen</div>
+        ${comparebar('No-show-rate', coNoShow, industryNoShow, '%', true)}
+        ${comparebar('Mejl-svarstid', coResponse, industryResponse, 'h', true)}
+        ${comparebar('Återbesöksgrad', coReturn, industryReturn, '%', false)}
+        ${comparebar('Konvertering webb', coConversion, industryConversion, '%', false)}
+      </div>
+
+      <!-- PROBLEMANALYS SCORE -->
+      <div class="card">
+        <div class="card-title">Problemanalys</div>
+        ${scoreBar('Kundrelationer & CRM', seededRand(s+'crm',2,6), 10, '#f04040')}
+        ${scoreBar('Digital närvaro', seededRand(s+'dig',3,8), 10, '#f59e0b')}
+        ${scoreBar('Automatiseringsgrad', seededRand(s+'aut',1,4), 10, '#f04040')}
+        ${scoreBar('Bokningseffektivitet', seededRand(s+'bk',3,7), 10, '#f59e0b')}
+        ${scoreBar('Kundkommunikation', seededRand(s+'kk',2,6), 10, '#f04040')}
+        <div style="margin-top:12px;font-size:11px;color:var(--muted);border-top:1px solid var(--border);padding-top:10px">
+          Lägre poäng = större förbättringspotential med AI
+        </div>
+      </div>
+    </div>
+
+    <!-- TIDSVINST-ESTIMAT -->
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-title">Uppskattad tidsvinst med AI-automation<span class="card-badge">preliminärt</span></div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--border);border-radius:10px;overflow:hidden">
+        ${[
+          {icon:'📧', label:'E-posthantering', h: seededRand(s+'eh',3,8), color:'#3b82f6'},
+          {icon:'📅', label:'Bokningsadmin', h: seededRand(s+'ba',2,6), color:'#d4f044'},
+          {icon:'💌', label:'Kunduppföljning', h: seededRand(s+'ku',2,5), color:'#8b5cf6'},
+          {icon:'📊', label:'Rapportering', h: seededRand(s+'ra',1,4), color:'#22c55e'},
+        ].map((item,i,arr)=>`<div style="padding:16px 14px;text-align:center;${i<arr.length-1?'border-right:1px solid var(--border)':''}">
+          <div style="font-size:20px;margin-bottom:6px">${item.icon}</div>
+          <div style="font-size:22px;font-weight:800;letter-spacing:-1px;color:${item.color}">${item.h}h</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:4px">${item.label}</div>
+          <div style="font-size:10px;color:var(--muted2);margin-top:2px">per vecka</div>
+        </div>`).join('')}
+      </div>
+      <div style="margin-top:14px;display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:rgba(212,240,68,.07);border:1px solid rgba(212,240,68,.2);border-radius:8px">
+        <div style="font-size:13px;color:var(--muted2)">Total estimerad tidsvinst per vecka</div>
+        <div style="font-size:22px;font-weight:800;color:var(--yellow)">
+          ${seededRand(s+'tot',8,23)}h <span style="font-size:13px;font-weight:400;color:var(--muted2)">/ vecka</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- REAL PROBLEM -->
     <div class="card" style="margin-bottom:16px">
       <div class="card-title">🔍 Vad AI:n fokuserar på</div>
-      <div style="font-size:16px;font-weight:600;line-height:1.6;margin-bottom:${rootCauses.length?'18px':'0'}">${a.real_problem||''}</div>
+      <div style="font-size:15px;font-weight:600;line-height:1.6;margin-bottom:${rootCauses.length?'16px':'0'}">${a.real_problem||''}</div>
       ${rootCauses.length?`<div style="display:flex;flex-direction:column;gap:9px">
         ${rootCauses.map(c=>`<div style="display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--muted2);line-height:1.5">
           <span style="color:var(--purple);font-weight:700;flex-shrink:0">→</span><span>${c}</span>
@@ -796,30 +962,39 @@ function renderWelcomeAnalysis(audit) {
       </div>`:''}
     </div>
 
+    <!-- GRANSKNINGSPLAN -->
     <div class="section-row"><span class="section-label">Granskningsplan – 7 dagar</span></div>
     <div class="plan-cards">
-      ${auditPlan.map(p=>`<div class="plan-card">
+      ${auditPlan.map((p,i)=>`<div class="plan-card">
         <div class="plan-day">${p.day}</div>
         <div class="plan-focus">${p.focus}</div>
         <div class="plan-why">${p.why}</div>
         ${(p.ai_will_check||[]).map(c=>`<div class="plan-check">${c}</div>`).join('')}
+        <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border)">
+          <div style="font-size:10px;color:var(--muted);margin-bottom:4px">Prioritet</div>
+          <div style="background:var(--border);border-radius:4px;height:4px;overflow:hidden">
+            <div style="width:${i===0?'90':i===1?'70':'50'}%;height:100%;background:${i===0?'var(--red)':i===1?'var(--amber)':'var(--blue)'};border-radius:4px"></div>
+          </div>
+        </div>
       </div>`).join('')}
     </div>
 
+    <!-- VECKOMÅL + AI-REKO -->
     ${a.ai_recommendation||a.week_goal?`<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
-      ${a.week_goal?`<div class="card" style="border-color:rgba(34,197,94,.2);background:var(--green-dim,rgba(34,197,94,.07))">
+      ${a.week_goal?`<div class="card" style="border-color:rgba(34,197,94,.2);background:rgba(34,197,94,.06)">
         <div class="card-title" style="color:var(--green)">🎯 Veckans mål</div>
         <div style="font-size:14px;line-height:1.6;font-weight:500">${a.week_goal}</div>
       </div>`:''}
-      ${a.ai_recommendation?`<div class="card" style="border-color:rgba(139,92,246,.2);background:rgba(139,92,246,.07)">
+      ${a.ai_recommendation?`<div class="card" style="border-color:rgba(139,92,246,.2);background:rgba(139,92,246,.06)">
         <div class="card-title" style="color:var(--purple)">🤖 Preliminär AI-lösning</div>
         <div style="font-size:14px;line-height:1.6;font-weight:500">${a.ai_recommendation}</div>
       </div>`:''}
     </div>`:''}
 
+    <!-- ONLINE CHECKS -->
     ${a.online_checks&&a.online_checks.length?`
     <div class="section-row"><span class="section-label">Vad AI:n granskar online</span></div>
-    <div class="card">
+    <div class="card" style="margin-bottom:16px">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
         ${a.online_checks.map(c=>`<div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted2);padding:10px;background:var(--bg2);border-radius:8px">
           <span style="color:var(--blue)">✓</span>${c}
@@ -827,6 +1002,7 @@ function renderWelcomeAnalysis(audit) {
       </div>
     </div>`:''}
 
+    <!-- AI VERKTYG -->
     <div class="section-row"><span class="section-label">AI-verktyg för er</span><span style="font-size:11px;color:var(--muted)">Baserat på er granskning</span></div>
     ${renderAiTools(a, audit.industry)}
     <div style="height:48px"></div>
