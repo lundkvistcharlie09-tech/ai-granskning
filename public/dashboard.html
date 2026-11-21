@@ -296,7 +296,7 @@ function render(data) {
 
   if (!audit.setupComplete || !modules.length) {
     if (audit.welcomeComplete && audit.aiWelcomeAnalysis) {
-      document.getElementById('root').innerHTML = renderWelcomeAnalysis(audit);
+      document.getElementById('root').innerHTML = renderWelcomeAnalysis(audit, kpis, bookingsPerDay, manualTime);
     } else if (audit.welcomeComplete) {
       document.getElementById('root').innerHTML = `<div class="setup-pending"><div class="setup-icon">🔍</div><div class="setup-title">AI:n analyserar er situation</div><div class="setup-sub">Era svar är mottagna. Sidan uppdateras automatiskt.</div></div>`;
       let n=0; const pi=setInterval(async()=>{
@@ -929,7 +929,7 @@ function renderHealthCard(hs, kpis) {
 // ══════════════════════════════════════
 // WELCOME ANALYSIS VIEW
 // ══════════════════════════════════════
-function renderWelcomeAnalysis(audit) {
+function renderWelcomeAnalysis(audit, kpis={}, bookingsPerDay=[], manualTime={}) {
   const a = audit.aiWelcomeAnalysis;
   const auditPlan = a.audit_plan || [];
   const rootCauses = a.likely_root_causes || [];
@@ -978,6 +978,12 @@ function renderWelcomeAnalysis(audit) {
         <div class="progress-sub">${audit.daysLeft > 0 ? `${audit.daysLeft} dagar kvar` : 'Avslutad'}</div>
       </div>
     </div>
+
+    <!-- LINJEDIAGRAM -->
+    ${renderMainChart(bookingsPerDay, audit)}
+
+    <!-- KPI STRIP -->
+    ${renderKpiStrip(kpis, [], bookingsPerDay, manualTime)}
 
     <!-- GRANSKNINGSSTATUS – tidslinje med dag-statusar -->
     <div class="card" style="margin-bottom:20px">
