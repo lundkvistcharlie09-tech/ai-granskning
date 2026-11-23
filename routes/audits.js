@@ -226,8 +226,29 @@ Svara med JSON:
     "Konkurrenters starka sidor"
   ],
   "week_goal": "Vad vi ska ha hittat och bevisat efter 7 dagar",
-  "ai_recommendation": "Vilken typ av AI-lösning som troligtvis kommer behövas (preliminärt)"
-}`;
+  "ai_recommendation": "Vilken typ av AI-lösning som troligtvis kommer behövas (preliminärt)",
+  "kpi_cards": [
+    {
+      "title": "Kortets titel (t.ex. Återköpsfrekvens)",
+      "goal": "Vilket mål detta kort kopplar till (t.ex. återkommande kunder)",
+      "color": "blue",
+      "metrics": [
+        { "label": "Återköpsfrekvens", "value": "23%", "note": "av kunder bokar igen", "trend": "+3%", "trendUp": true },
+        { "label": "Tid sedan senaste besök", "value": "47 dagar", "note": "genomsnitt", "trend": null },
+        { "label": "Förlorade kunder", "value": "12 st", "note": "ej bokat på 60+ dagar", "trend": "-2", "trendUp": false },
+        { "label": "Lojalitetsgrad", "value": "3/10", "note": "är stamkunder", "trend": null },
+        { "label": "Uppföljningar skickade", "value": "0", "note": "automatisering saknas", "trend": null }
+      ]
+    }
+  ]
+}
+
+REGLER FÖR kpi_cards:
+- Skapa ETT kort per unikt mål kunden har (max 5 kort)
+- Om kunden bara har ett mål → ett kort
+- Välj color baserat på ämne: "blue" för trafik/synlighet, "green" för lojalitet/återköp, "amber" för problem/fel, "yellow" för konvertering/intäkt, "purple" för tid/admin
+- Värdena ska vara REALISTISKA estimat baserade på bransch och kundens beskrivning – inte påhittade siffror. Om du inte kan estimera, sätt value till "–" och note till "samlas in under granskning"
+- Trend ska bara sättas om det finns en rimlig riktning att visa, annars null`;
 
     const response = await openai.chat.completions.create({
       model: 'gpt-4o',
