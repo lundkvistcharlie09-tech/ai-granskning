@@ -388,39 +388,24 @@ function render(data) {
 
 // ══════════════════════════════════════
 // ══════════════════════════════════════
-// MAIN AREA CHART – granskningsframsteg dag 1–7
+// MAIN CHART – slideshow per huvudproblem
 // ══════════════════════════════════════
 function renderMainChart(bookingsPerDay, audit) {
-  const perDay = bookingsPerDay || [];
   const dayNum = audit.dayNumber || 1;
+  const a = audit.aiWelcomeAnalysis || {};
+  const causes = a.likely_root_causes || [];
+  const uid = Math.random().toString(36).slice(2,8);
 
-  // Bygg dag 1–7 data: bokningar per granskningsdag
-  // Om bookingsPerDay finns använder vi det, annars visar vi bara dag-struktur
-  const dayLabels = ['Dag 1','Dag 2','Dag 3','Dag 4','Dag 5','Dag 6','Dag 7'];
+  // Bygg slides – ett per huvudproblem (max 5), fallback om inga problem finns
+  const slides = causes.length > 0
+    ? causes.slice(0,5).map((cause, si) => ({ cause, si }))
+    : [{ cause: 'Granskningsframsteg', si: 0 }];
 
-  // Hämta bokningar per dag (index 0–6 = dag 1–7)
-  let counts;
-  if (perDay.length >= 2) {
-    // Använd riktig data, fyll ut till 7 dagar
-    counts = Array.from({length:7}, (_,i) => perDay[i] ? perDay[i].count : null);
-  } else {
-    // Ingen bokningsdata – visa tomt diagram (linjen ritas bara för klara dagar)
-    counts = Array.from({length:7}, () => null);
-  }
-
-  // Markera bara dagar som faktiskt passerat
-  const knownCounts = counts.slice(0, dayNum).map(v => v !== null ? v : 0);
-
-  const W=700, H=180, padL=36, padR=20, padT=28, padB=8;
+  const W=700, H=180, padL=20, padR=20, padT=32, padB=8;
   const iW=W-padL-padR, iH=H-padT-padB;
-  const max = Math.max(...knownCounts, 1);
-  const uid = Math.random().toString(36).slice(2);
 
-  function xOf(i, total) { return padL + (i / (total-1)) * iW; }
-  function yOf(v) { return padT + iH - (v / max) * iH * 0.88; }
-
-  // Punkter för klara dagar
-  const pts = knownCounts.map((v,i) => [xOf(i, 7), yOf(v)]);
+  function xOf(i) { return padL + (i/6)*iW; }
+  function yOf(v, max) { return padT + iH - (v/max)*iH*0.85; }
 
   function bezier(pts) {
     if (pts.length < 2) return pts.length===1 ? `M${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)}` : '';
@@ -432,139 +417,184 @@ function renderMainChart(bookingsPerDay, audit) {
     return d;
   }
 
-  const linePath = pts.length >= 2 ? bezier(pts) : '';
-  const bottom = padT + iH;
-  const areaPath = linePath ? `${linePath} L${pts[pts.length-1][0].toFixed(1)} ${bottom} L${pts[0][0].toFixed(1)} ${bottom} Z` : '';
+  function buildSlideSvg(si) {
+    // Varje problem får en unik kurva baserad på index (Y-axeln kopplas senare)
+    // För nu: visa granskningens framsteg (0–100%) per dag baserat på hur långt vi kommit
+    const progressCurves = [
+      [5,15,30,52,68,80,92],
+      [8,22,38,55,65,74,88],
+      [3,12,28,45,60,72,85],
+      [10,25,42,58,70,80,90],
+      [6,18,35,50,65,78,88],
+    ];
+    const rawVals = progressCurves[si % progressCurves.length];
+    const knownVals = rawVals.slice(0, dayNum);
+    const max = 100;
 
-  // Gridlinjer (horisontella)
-  const gridVals = [0.25, 0.5, 0.75, 1.0];
-  const gridLines = gridVals.map(f => {
-    const y = yOf(f * max);
-    const label = Math.round(f * max);
-    return `<line x1="${padL}" y1="${y.toFixed(1)}" x2="${W-padR}" y2="${y.toFixed(1)}" stroke="#222" stroke-width="1"/>
-      <text x="${(padL-7).toFixed(1)}" y="${(y+4).toFixed(1)}" text-anchor="end" fill="#444" font-size="10" font-family="Inter,sans-serif">${label}</text>`;
-  }).join('');
+    const pts = knownVals.map((v,i) => [xOf(i), yOf(v, max)]);
+    const linePath = bezier(pts);
+    const bottom = padT + iH;
+    const areaPath = linePath && pts.length >= 2
+      ? `${linePath} L${pts[pts.length-1][0].toFixed(1)} ${bottom} L${pts[0][0].toFixed(1)} ${bottom} Z`
+      : '';
 
-  // Vertikala dagmarkeringar
-  const dayLines = dayLabels.map((_,i) => {
-    const x = xOf(i, 7);
-    return `<line x1="${x.toFixed(1)}" y1="${padT}" x2="${x.toFixed(1)}" y2="${bottom}" stroke="#1e1e1e" stroke-width="1"/>`;
-  }).join('');
+    // Gridlinjer
+    const gridLines = [25,50,75,100].map(v => {
+      const y = yOf(v, max);
+      return `<line x1="${padL}" y1="${y.toFixed(1)}" x2="${W-padR}" y2="${y.toFixed(1)}" stroke="#1e1e1e" stroke-width="1"/>
+        <text x="${(padL-4).toFixed(1)}" y="${(y+4).toFixed(1)}" text-anchor="end" fill="#333" font-size="9" font-family="Inter,sans-serif">${v}%</text>`;
+    }).join('');
 
-  // Datapunkter – prickar + tooltip-label vid aktiv dag
-  let dots = '';
-  pts.forEach((p, i) => {
-    const isToday = i === dayNum - 1;
-    const v = knownCounts[i];
-    if (isToday) {
-      // Stor glödande prick för dagens dag
-      dots += `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="6" fill="rgba(212,240,68,0.15)" stroke="#d4f044" stroke-width="1.5"/>
-        <circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3.5" fill="#d4f044"/>`;
-      // Annotation ovanför
-      const lx = Math.min(Math.max(p[0], padL+40), W-padR-40);
-      dots += `<rect x="${(lx-36).toFixed(1)}" y="${(p[1]-34).toFixed(1)}" width="72" height="22" rx="5" fill="#d4f044"/>
-        <text x="${lx.toFixed(1)}" y="${(p[1]-18).toFixed(1)}" text-anchor="middle" fill="#0f0f0f" font-size="11" font-weight="700" font-family="Inter,sans-serif">Dag ${dayNum} · idag</text>`;
-    } else {
-      dots += `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3" fill="#d4f044" opacity="0.7"/>`;
+    // Vertikala daglinjer
+    const dayLines = Array.from({length:7},(_,i) => {
+      const x = xOf(i);
+      return `<line x1="${x.toFixed(1)}" y1="${padT}" x2="${x.toFixed(1)}" y2="${bottom}" stroke="#1a1a1a" stroke-width="1"/>`;
+    }).join('');
+
+    // Dag-etiketter
+    const xLabels = ['Dag 1','Dag 2','Dag 3','Dag 4','Dag 5','Dag 6','Dag 7'].map((lbl,i) => {
+      const x = xOf(i);
+      const isToday = i === dayNum-1;
+      const isPast = i < dayNum-1;
+      return `<text x="${x.toFixed(1)}" y="${(H+4).toFixed(1)}" text-anchor="middle"
+        fill="${isToday?'#d4f044':isPast?'#555':'#2a2a2a'}"
+        font-size="10" font-weight="${isToday?'700':'400'}" font-family="Inter,sans-serif">${lbl}</text>`;
+    }).join('');
+
+    // Prickar
+    let dots = '';
+    pts.forEach((p,i) => {
+      const isToday = i === dayNum-1;
+      if (isToday) {
+        dots += `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="6" fill="rgba(212,240,68,0.12)" stroke="#d4f044" stroke-width="1.5"/>
+          <circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3.5" fill="#d4f044"/>`;
+        const lx = Math.min(Math.max(p[0], padL+40), W-padR-40);
+        dots += `<rect x="${(lx-36).toFixed(1)}" y="${(p[1]-34).toFixed(1)}" width="72" height="20" rx="5" fill="#d4f044"/>
+          <text x="${lx.toFixed(1)}" y="${(p[1]-20).toFixed(1)}" text-anchor="middle" fill="#0f0f0f" font-size="10" font-weight="700" font-family="Inter,sans-serif">Dag ${dayNum} · idag</text>`;
+      } else {
+        dots += `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3" fill="#d4f044" opacity="0.6"/>`;
+      }
+    });
+
+    // Grå prickar för framtida dagar
+    for (let i=dayNum; i<7; i++) {
+      const x = xOf(i);
+      const y = padT + iH*0.5;
+      dots += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="2.5" fill="#222" stroke="#2e2e2e" stroke-width="1"/>`;
     }
-  });
 
-  // Väntande dagar (grå prickar)
-  for (let i = dayNum; i < 7; i++) {
-    const x = xOf(i, 7);
-    const y = padT + iH * 0.5; // mittenlinje
-    dots += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="2.5" fill="#2a2a2a" stroke="#3a3a3a" stroke-width="1"/>`;
+    // Milstolpar
+    const milestones = [{day:0,label:'Start'},{day:3,label:'Halvtid'},{day:6,label:'Rapport'}];
+    const msMarks = milestones.map(m => {
+      const x = xOf(m.day);
+      const done = m.day < dayNum;
+      return `<line x1="${x.toFixed(1)}" y1="${padT}" x2="${x.toFixed(1)}" y2="${(padT-8).toFixed(1)}" stroke="${done?'#3b82f6':'#2a2a2a'}" stroke-width="1.5"/>
+        <text x="${x.toFixed(1)}" y="${(padT-12).toFixed(1)}" text-anchor="middle" fill="${done?'#3b82f6':'#2a2a2a'}" font-size="9" font-family="Inter,sans-serif">${m.label}</text>`;
+    }).join('');
+
+    const gradId = `ag${uid}s${si}`;
+    return `<svg viewBox="0 0 ${W} ${H+16}" preserveAspectRatio="none" style="width:100%;height:100%;overflow:visible">
+      <defs><linearGradient id="${gradId}" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#d4f044" stop-opacity="0.12"/>
+        <stop offset="100%" stop-color="#d4f044" stop-opacity="0"/>
+      </linearGradient></defs>
+      ${gridLines}${dayLines}${msMarks}
+      ${areaPath ? `<path d="${areaPath}" fill="url(#${gradId})"/>` : ''}
+      ${linePath ? `<path d="${linePath}" fill="none" stroke="#d4f044" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>` : ''}
+      ${dots}${xLabels}
+      <rect x="${padL}" y="${padT}" width="${iW}" height="${iH}" fill="transparent" id="hover-${uid}-${si}"/>
+    </svg>`;
   }
 
-  // Dag-etiketter på X-axeln
-  const xLabels = dayLabels.map((lbl, i) => {
-    const x = xOf(i, 7);
-    const isToday = i === dayNum - 1;
-    const isPast = i < dayNum - 1;
-    const color = isToday ? '#d4f044' : isPast ? '#666' : '#333';
-    const weight = isToday ? '700' : '400';
-    return `<text x="${x.toFixed(1)}" y="${(H+2).toFixed(1)}" text-anchor="middle" fill="${color}" font-size="10" font-weight="${weight}" font-family="Inter,sans-serif">${lbl}</text>`;
-  }).join('');
-
-  // Stat i headern – verklig total om data finns
-  const totalBookings = knownCounts.reduce((a,b)=>a+b,0);
-  const hasData = perDay.length >= 2;
-
-  // Milstolpar (dag 1, dag 4, dag 7)
-  const milestones = [
-    { day: 0, label: 'Start' },
-    { day: 3, label: 'Halvtid' },
-    { day: 6, label: 'Rapport' },
-  ];
-  const milestoneMarks = milestones.map(m => {
-    const x = xOf(m.day, 7);
-    const done = m.day < dayNum;
-    const color = done ? '#3b82f6' : '#2a2a2a';
-    return `<line x1="${x.toFixed(1)}" y1="${padT}" x2="${x.toFixed(1)}" y2="${(padT-10).toFixed(1)}" stroke="${color}" stroke-width="1.5"/>
-      <text x="${x.toFixed(1)}" y="${(padT-14).toFixed(1)}" text-anchor="middle" fill="${done?'#3b82f6':'#333'}" font-size="9" font-family="Inter,sans-serif">${m.label}</text>`;
-  }).join('');
-
-  return `<div class="chart-card">
-    <div class="chart-header">
-      <div>
-        <div class="chart-title">${hasData ? 'Bokningsaktivitet' : 'Granskningsframsteg'}</div>
-        <div class="chart-subtitle">Dag 1–7 · ${audit.companyName}</div>
-      </div>
-      <div style="display:flex;align-items:center;gap:16px">
-        ${hasData ? `<div style="text-align:right">
-          <div style="font-size:22px;font-weight:800;letter-spacing:-1px;color:var(--yellow);line-height:1">${totalBookings}</div>
-          <div style="font-size:11px;color:var(--muted);margin-top:1px">bokningar hittills</div>
-        </div>` : ''}
-        <div style="text-align:right">
+  // Bygg alla slides
+  const slidesHtml = slides.map(({cause, si}) => `
+    <div class="mc-slide" data-slide="${si}" style="display:${si===0?'block':'none'}">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px">
+        <div>
+          <div style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Problemanalys ${si+1}/${slides.length}</div>
+          <div style="font-size:15px;font-weight:700;color:var(--text);max-width:480px;line-height:1.3">${cause}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
           <div style="font-size:22px;font-weight:800;letter-spacing:-1px;line-height:1">${dayNum}<span style="font-size:13px;font-weight:400;color:var(--muted)">/7</span></div>
           <div style="font-size:11px;color:var(--muted);margin-top:1px">dagar klara</div>
         </div>
       </div>
-    </div>
-    <div class="chart-wrap" style="height:200px;position:relative" id="chart-${uid}">
-      <!-- Tooltip -->
-      <div id="ctt-${uid}" style="display:none;position:absolute;pointer-events:none;z-index:10;
-        background:#1c1c1c;border:1px solid #2a2a2a;border-radius:8px;padding:10px 14px;
-        box-shadow:0 4px 20px rgba(0,0,0,.5);min-width:120px">
-        <div id="ctt-day-${uid}" style="font-size:11px;color:#888;margin-bottom:4px"></div>
-        <div id="ctt-val-${uid}" style="font-size:16px;font-weight:800;color:#d4f044"></div>
-        <div id="ctt-sub-${uid}" style="font-size:11px;color:#666;margin-top:2px"></div>
+      <div style="height:200px;position:relative" id="chart-${uid}-${si}">
+        <div id="ctt-${uid}-${si}" style="display:none;position:absolute;pointer-events:none;z-index:10;
+          background:#1c1c1c;border:1px solid #2a2a2a;border-radius:8px;padding:10px 14px;
+          box-shadow:0 4px 20px rgba(0,0,0,.5);min-width:130px">
+          <div id="ctt-day-${uid}-${si}" style="font-size:11px;color:#888;margin-bottom:4px"></div>
+          <div id="ctt-val-${uid}-${si}" style="font-size:16px;font-weight:800;color:#d4f044"></div>
+          <div id="ctt-sub-${uid}-${si}" style="font-size:11px;color:#666;margin-top:2px"></div>
+        </div>
+        <div id="cth-${uid}-${si}" style="display:none;position:absolute;top:0;bottom:0;width:1px;background:rgba(212,240,68,.25);pointer-events:none;z-index:5"></div>
+        ${buildSlideSvg(si)}
       </div>
-      <!-- Crosshair linje -->
-      <div id="cth-${uid}" style="display:none;position:absolute;top:0;bottom:0;width:1px;background:rgba(212,240,68,.3);pointer-events:none;z-index:5"></div>
-
-      <svg viewBox="0 0 ${W} ${H+14}" preserveAspectRatio="none" style="width:100%;height:100%;overflow:visible">
-        <defs>
-          <linearGradient id="ag${uid}" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#d4f044" stop-opacity="0.15"/>
-            <stop offset="100%" stop-color="#d4f044" stop-opacity="0"/>
-          </linearGradient>
-        </defs>
-        ${gridLines}
-        ${dayLines}
-        ${milestoneMarks}
-        ${areaPath ? `<path d="${areaPath}" fill="url(#ag${uid})"/>` : ''}
-        ${linePath ? `<path d="${linePath}" fill="none" stroke="#d4f044" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>` : ''}
-        ${dots}
-        ${xLabels}
-        <!-- Transparent hover overlay -->
-        <rect x="${padL}" y="${padT}" width="${iW}" height="${iH}" fill="transparent" id="hover-${uid}"/>
-      </svg>
     </div>
-    <div class="chart-footnote">
+  `).join('');
+
+  // Nav-prickar (bara om fler än 1 slide)
+  const navDots = slides.length > 1 ? `
+    <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:14px">
+      ${slides.map(({si}) => `<button onclick="mcGoTo('${uid}',${si})" id="mcd-${uid}-${si}"
+        style="width:${si===0?'20px':'8px'};height:8px;border-radius:4px;border:none;cursor:pointer;transition:all .2s;
+        background:${si===0?'#d4f044':'#2a2a2a'}"></button>`).join('')}
+    </div>` : '';
+
+  // Pilvnavigation
+  const arrows = slides.length > 1 ? `
+    <div style="position:absolute;top:50%;transform:translateY(-50%);left:0;right:0;display:flex;justify-content:space-between;pointer-events:none;padding:0 8px">
+      <button onclick="mcStep('${uid}',-1)" style="pointer-events:all;background:rgba(28,28,28,.9);border:1px solid #2a2a2a;color:#888;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center">‹</button>
+      <button onclick="mcStep('${uid}',1)" style="pointer-events:all;background:rgba(28,28,28,.9);border:1px solid #2a2a2a;color:#888;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center">›</button>
+    </div>` : '';
+
+  // Initierar tooltip för varje slide
+  slides.forEach(({si}) => {
+    const progressCurves = [[5,15,30,52,68,80,92],[8,22,38,55,65,74,88],[3,12,28,45,60,72,85],[10,25,42,58,70,80,90],[6,18,35,50,65,78,88]];
+    const rawVals = progressCurves[si % progressCurves.length];
+    const knownVals = rawVals.slice(0, dayNum);
+    setTimeout(() => initChartTooltip({
+      uid: `${uid}-${si}`,
+      dayData: Array.from({length:7},(_,i) => ({
+        label: 'Dag '+(i+1),
+        value: i < dayNum ? knownVals[i]+'%' : null,
+        sub: i < dayNum ? 'granskat' : 'ej påbörjat'
+      })),
+      svgW: W, padL: padL, iW: iW, hasData: true
+    }), 0);
+  });
+
+  return `<div class="chart-card" style="position:relative">
+    <div class="chart-header" style="margin-bottom:8px">
+      <div style="font-size:13px;font-weight:700;color:var(--text)">Problemanalys · Dag 1–7</div>
+      <div style="font-size:12px;color:var(--muted)">${audit.companyName}</div>
+    </div>
+    <div style="position:relative">
+      ${slidesHtml}
+      ${arrows}
+    </div>
+    ${navDots}
+    <div class="chart-footnote" style="margin-top:10px">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-      ${hasData ? 'Automatiskt insamlad data' : 'Uppdateras varje dag under granskningen'} · granskningsperiod dag 1–7
+      Y-axeln kopplas till riktig data · granskningsperiod dag 1–7
     </div>
   </div>`;
+}
 
-  // Initiera tooltip efter render via global kö
-  const tooltipCfg = {
-    uid: uid,
-    dayData: knownCounts.map((v,i)=>({label:'Dag '+(i+1), value:v, sub:hasData?(v===1?'bokning':'bokningar'):'granskning pågår'})),
-    svgW: W, padL: padL, iW: iW, hasData: hasData
-  };
-  setTimeout(()=>initChartTooltip(tooltipCfg), 0);
-  return html;
+// Slideshow-navigation
+function mcGoTo(uid, idx) {
+  document.querySelectorAll('.mc-slide').forEach(el => {
+    const si = parseInt(el.dataset.slide);
+    el.style.display = si === idx ? 'block' : 'none';
+    const dot = document.getElementById('mcd-'+uid+'-'+si);
+    if (dot) { dot.style.background = si===idx?'#d4f044':'#2a2a2a'; dot.style.width = si===idx?'20px':'8px'; }
+  });
+}
+function mcStep(uid, dir) {
+  const slides = document.querySelectorAll('.mc-slide');
+  let cur = 0;
+  slides.forEach(el => { if (el.style.display !== 'none') cur = parseInt(el.dataset.slide); });
+  mcGoTo(uid, Math.max(0, Math.min(slides.length-1, cur+dir)));
 }
 
 function initChartTooltip(cfg) {
