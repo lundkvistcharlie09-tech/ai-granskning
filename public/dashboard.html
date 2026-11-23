@@ -18,16 +18,96 @@
     }
     body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
 
-    /* TOPBAR */
+    .live-dot { width:6px; height:6px; border-radius:50%; background:var(--green); display:inline-block; animation:blink 2.4s infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.25} }
+
+    /* SIDEBAR LAYOUT */
+    .app-layout { display:flex; min-height:100vh; }
+
+    /* SIDEBAR */
+    .sidebar {
+      width:220px; flex-shrink:0;
+      background:var(--bg2); border-right:1px solid var(--border);
+      position:fixed; top:0; left:0; height:100vh;
+      display:flex; flex-direction:column;
+      z-index:40; overflow:hidden;
+    }
+    .sidebar-top {
+      padding:20px 16px 16px;
+      border-bottom:1px solid var(--border);
+    }
+    .sidebar-logo {
+      font-size:12px; font-weight:700; color:var(--muted2);
+      letter-spacing:.5px; text-transform:uppercase; margin-bottom:12px;
+    }
+    .sidebar-company {
+      display:flex; align-items:center; gap:10px;
+    }
+    .sidebar-co-logo {
+      width:34px; height:34px; border-radius:8px;
+      background:var(--card); border:1px solid var(--border2);
+      display:flex; align-items:center; justify-content:center;
+      font-size:12px; font-weight:700; color:var(--muted3); flex-shrink:0;
+      overflow:hidden;
+    }
+    .sidebar-co-name { font-size:13px; font-weight:600; color:var(--text); line-height:1.3; }
+    .sidebar-co-sub { font-size:11px; color:var(--muted2); margin-top:1px; }
+
+    /* NAV */
+    .sidebar-nav { flex:1; padding:12px 8px; overflow-y:auto; }
+    .nav-item {
+      display:flex; align-items:center; gap:10px;
+      padding:9px 10px; border-radius:var(--radius-sm);
+      font-size:13px; font-weight:500; color:var(--muted2);
+      cursor:pointer; transition:background .12s, color .12s;
+      margin-bottom:2px; text-decoration:none; border:none; background:none;
+      width:100%; text-align:left;
+    }
+    .nav-item:hover { background:var(--border); color:var(--text); }
+    .nav-item.active { background:rgba(212,240,68,.08); color:var(--yellow); }
+    .nav-item svg { width:16px; height:16px; flex-shrink:0; opacity:.7; }
+    .nav-item.active svg { opacity:1; }
+    .nav-section-label {
+      font-size:10px; font-weight:600; color:var(--muted);
+      letter-spacing:.5px; padding:12px 10px 6px;
+    }
+
+    /* DAG-PROGRESS i sidebar */
+    .sidebar-progress {
+      padding:12px 16px; border-top:1px solid var(--border);
+    }
+    .sidebar-progress-label { font-size:11px; color:var(--muted2); margin-bottom:8px; display:flex; justify-content:space-between; }
+    .sidebar-progress-label span { font-weight:600; color:var(--text); }
+    .progress-bar-full { height:3px; background:var(--border); border-radius:3px; overflow:hidden; margin-bottom:10px; }
+    .progress-bar-fill { height:100%; border-radius:3px; background:var(--yellow); transition:width .6s; }
+    .day-dots { display:flex; gap:4px; }
+    .day-dot { flex:1; height:3px; border-radius:2px; background:var(--border); }
+    .day-dot.done { background:var(--green); }
+    .day-dot.active { background:var(--yellow); }
+
+    /* SIDEBAR BOTTOM – profil */
+    .sidebar-profile {
+      padding:14px 16px; border-top:1px solid var(--border);
+      display:flex; align-items:center; gap:10px;
+    }
+    .profile-avatar {
+      width:30px; height:30px; border-radius:50%;
+      background:linear-gradient(135deg,#3b82f6,#8b5cf6);
+      display:flex; align-items:center; justify-content:center;
+      font-size:11px; font-weight:700; color:#fff; flex-shrink:0;
+    }
+    .profile-name { font-size:12px; font-weight:600; color:var(--text); }
+    .profile-role { font-size:11px; color:var(--muted2); }
+
+    /* MAIN CONTENT */
+    .main-content { margin-left:220px; flex:1; min-width:0; }
     .topbar {
       background:var(--bg2); border-bottom:1px solid var(--border);
-      padding:0 24px; height:56px;
+      padding:0 28px; height:52px;
       display:flex; align-items:center; justify-content:space-between;
-      position:sticky; top:0; z-index:50;
+      position:sticky; top:0; z-index:30;
     }
-    .logo { font-size:13px; font-weight:800; color:var(--yellow); letter-spacing:-.3px; }
-    .topbar-center { display:flex; align-items:center; gap:10px; }
-    .company-tag { font-size:14px; font-weight:600; color:var(--text); }
+    .topbar-title { font-size:14px; font-weight:600; color:var(--text); }
     .tag-pill {
       font-size:11px; padding:4px 10px; border-radius:6px;
       border:1px solid var(--border2); color:var(--muted3); background:var(--bg);
@@ -35,65 +115,11 @@
     }
     .tag-pill.yellow { color:var(--yellow); background:var(--yellow-dim); border-color:rgba(212,240,68,.2); }
     .tag-pill.green { color:var(--green); background:var(--green-dim); border-color:rgba(62,207,142,.2); }
-    .live-dot { width:6px; height:6px; border-radius:50%; background:var(--green); display:inline-block; animation:blink 2.4s infinite; }
-    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.25} }
-
-    /* LAYOUT */
-    .container { max-width:1200px; margin:0 auto; padding:32px 28px; }
-
-    /* SPINE – vertikal granskningsstatus */
-    .dashboard-layout { display:grid; grid-template-columns:68px 1fr; gap:0; min-height:calc(100vh - 56px); }
-    .spine {
-      width:68px; flex-shrink:0;
-      background:var(--bg2); border-right:1px solid var(--border);
-      position:sticky; top:56px; height:calc(100vh - 56px);
-      display:flex; flex-direction:column; align-items:center;
-      padding:32px 0 24px; overflow:hidden;
+    .dashboard-content { padding:32px 32px; min-width:0; }
+    @media(max-width:800px) {
+      .sidebar { transform:translateX(-100%); }
+      .main-content { margin-left:0; }
     }
-    .spine-days {
-      display:flex; flex-direction:column; align-items:center;
-      gap:0; flex:1; position:relative; justify-content:center;
-    }
-    .spine-line {
-      position:absolute; left:50%; top:20px; bottom:20px;
-      width:1px; transform:translateX(-50%);
-      background:var(--border); z-index:0;
-    }
-    .spine-line-fill {
-      position:absolute; left:50%; top:20px;
-      width:2px; transform:translateX(-50%);
-      background:linear-gradient(to bottom, var(--green), var(--yellow));
-      z-index:1; transition:height .6s ease; border-radius:1px;
-    }
-    .spine-day { display:flex; flex-direction:column; align-items:center; gap:4px; position:relative; z-index:2; padding:6px 0; }
-    .spine-bubble {
-      width:28px; height:28px; border-radius:50%;
-      display:flex; align-items:center; justify-content:center;
-      font-size:10px; font-weight:700; position:relative; transition:all .25s;
-    }
-    .spine-bubble.done { background:var(--green); color:#0d1a12; box-shadow:0 0 8px rgba(62,207,142,.2); }
-    .spine-bubble.active {
-      background:rgba(212,240,68,.1); color:var(--yellow);
-      border:1.5px solid rgba(212,240,68,.5);
-      box-shadow:0 0 14px rgba(212,240,68,.15);
-    }
-    .spine-bubble.active::after {
-      content:''; position:absolute; inset:-5px; border-radius:50%;
-      border:1px solid rgba(212,240,68,.15);
-      animation:spine-pulse 2.6s ease-in-out infinite;
-    }
-    @keyframes spine-pulse { 0%,100%{opacity:.6;transform:scale(1)} 50%{opacity:0;transform:scale(1.7)} }
-    .spine-bubble.waiting { background:transparent; color:var(--muted); border:1px solid var(--border2); }
-    .spine-label { font-size:8px; letter-spacing:.3px; font-weight:600; color:var(--muted); line-height:1; }
-    .spine-label.active { color:var(--yellow); }
-    .spine-label.done { color:var(--green); opacity:.6; }
-    .spine-bottom { display:flex; flex-direction:column; align-items:center; gap:5px; margin-top:8px; }
-    .spine-pct { font-size:13px; font-weight:800; color:var(--yellow); letter-spacing:-.5px; }
-    .spine-pct-label { font-size:8px; color:var(--muted); }
-    .spine-track { width:26px; height:2px; background:var(--border); border-radius:2px; overflow:hidden; }
-    .spine-track-fill { height:100%; border-radius:2px; background:var(--yellow); }
-    .dashboard-content { padding:32px 28px; min-width:0; }
-    @media(max-width:700px) { .dashboard-layout { grid-template-columns:1fr; } .spine { display:none; } }
 
     /* COMPANY HEADER */
     .co-header {
@@ -282,6 +308,22 @@
     .plan-check { font-size:11px; color:var(--muted2); display:flex; gap:6px; margin-bottom:3px; }
     .plan-check::before { content:'→'; color:var(--purple); flex-shrink:0; }
 
+    /* FADE-IN SCROLL ANIMATIONER */
+    .fade-in {
+      opacity:0; transform:translateY(18px);
+      transition: opacity .55s cubic-bezier(.22,1,.36,1), transform .55s cubic-bezier(.22,1,.36,1);
+    }
+    .fade-in.visible { opacity:1; transform:translateY(0); }
+    .fade-in:nth-child(1) { transition-delay:.05s; }
+    .fade-in:nth-child(2) { transition-delay:.1s; }
+    .fade-in:nth-child(3) { transition-delay:.15s; }
+    .fade-in:nth-child(4) { transition-delay:.2s; }
+    .fade-in:nth-child(5) { transition-delay:.25s; }
+    .fade-in:nth-child(6) { transition-delay:.3s; }
+
+    /* SECTION DIVIDER */
+    .section-divider { height:1px; background:var(--border); margin:32px 0; }
+
     ::-webkit-scrollbar { width:5px; }
     ::-webkit-scrollbar-track { background:var(--bg); }
     ::-webkit-scrollbar-thumb { background:var(--border2); border-radius:5px; }
@@ -289,16 +331,70 @@
 </head>
 <body>
 
-<div class="topbar" id="topbar">
-  <span class="logo">AI-Granskning</span>
-  <div class="topbar-center" id="topbarCenter"></div>
-  <div style="display:flex;align-items:center;gap:8px">
-    <span class="live-dot"></span>
-    <span style="font-size:11px;color:var(--muted2);font-weight:500">Live</span>
-  </div>
-</div>
+<div class="app-layout">
 
-<div id="root" style="min-height:80vh"></div>
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-top">
+      <div class="sidebar-logo">AI-Granskning</div>
+      <div class="sidebar-company" id="sidebarCompany">
+        <div class="sidebar-co-logo" id="sidebarLogo">?</div>
+        <div>
+          <div class="sidebar-co-name" id="sidebarName">Laddar...</div>
+          <div class="sidebar-co-sub" id="sidebarIndustry"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-nav">
+      <div class="nav-section-label">Navigering</div>
+      <button class="nav-item active" onclick="navTo('oversikt',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Översikt
+      </button>
+      <button class="nav-item" onclick="navTo('plan',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+        Granskningsplan
+      </button>
+      <button class="nav-item" onclick="navTo('aiverktyg',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        AI-verktyg
+      </button>
+      <button class="nav-item" onclick="navTo('rapport',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        Rapport
+      </button>
+    </div>
+
+    <div class="sidebar-progress" id="sidebarProgress">
+      <div class="sidebar-progress-label">Granskningsstatus <span id="sidebarDayLabel">Dag 1/7</span></div>
+      <div class="day-dots" id="dayDots">
+        ${Array.from({length:7},(_,i)=>`<div class="day-dot" id="dd${i}"></div>`).join('')}
+      </div>
+    </div>
+
+    <div class="sidebar-profile">
+      <div class="profile-avatar" id="profileAvatar">?</div>
+      <div>
+        <div class="profile-name" id="profileName">Laddar...</div>
+        <div class="profile-role">Kund</div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="main-content">
+    <div class="topbar">
+      <span class="topbar-title" id="topbarTitle">Översikt</span>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="live-dot"></span>
+        <span style="font-size:11px;color:var(--muted2);font-weight:500">Live</span>
+      </div>
+    </div>
+    <div id="root" style="min-height:80vh"></div>
+  </div>
+
+</div>
 
 <script>
 const token = location.pathname.split('/')[2];
@@ -342,20 +438,54 @@ function companyLogo(audit, initials) {
   return `<div class="co-logo">${initials}</div>`;
 }
 
+// Navigering
+let _currentSection = 'oversikt';
+function navTo(section, el) {
+  _currentSection = section;
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  if(el) el.classList.add('active');
+  const titles = { oversikt:'Översikt', plan:'Granskningsplan', aiverktyg:'AI-verktyg', rapport:'Rapport' };
+  document.getElementById('topbarTitle').textContent = titles[section]||'Översikt';
+  if(_data) render(_data);
+}
+
+function updateSidebar(audit) {
+  const initials = (audit.companyName||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  // Logo
+  const logoEl = document.getElementById('sidebarLogo');
+  const site = audit.welcomeWebsite||'';
+  if(site) {
+    const domain = site.replace(/^https?:\/\//,'').split('/')[0];
+    logoEl.innerHTML = `<img src="https://www.google.com/s2/favicons?domain=${domain}&sz=64" width="34" height="34" style="object-fit:contain;border-radius:7px" onerror="this.parentElement.textContent='${initials}'"/>`;
+    logoEl.style.padding = '0';
+  } else {
+    logoEl.textContent = initials;
+  }
+  document.getElementById('sidebarName').textContent = audit.companyName||'Företag';
+  document.getElementById('sidebarIndustry').textContent = audit.industry||'';
+  document.getElementById('sidebarDayLabel').textContent = `Dag ${audit.dayNumber}/7`;
+  // Day dots
+  for(let i=0;i<7;i++){
+    const d=document.getElementById('dd'+i);
+    if(!d)continue;
+    d.className='day-dot'+(i<audit.dayNumber-1?' done':i===audit.dayNumber-1?' active':'');
+  }
+  // Profile
+  document.getElementById('profileAvatar').textContent = initials;
+  document.getElementById('profileName').textContent = audit.companyName||'Kund';
+}
+
 function render(data) {
   const { audit, kpis, funnel, dropoffStep, bookingsPerDay, emailCategories, manualTime, healthScore, insights } = data;
   const modules = audit.aiModules || [];
 
   const initials = (audit.companyName||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
-  const logoHtml = companyLogo(audit, initials);
-  document.getElementById('topbarCenter').innerHTML = `
-    <span class="company-tag">${audit.companyName}</span>
-    <span class="tag-pill">${audit.industry||'Företag'}</span>
-    <span class="tag-pill yellow">Dag ${audit.dayNumber} / 7</span>`;
+  updateSidebar(audit);
 
   if (!audit.setupComplete || !modules.length) {
     if (audit.welcomeComplete && audit.aiWelcomeAnalysis) {
       document.getElementById('root').innerHTML = renderWelcomeAnalysis(audit, kpis, bookingsPerDay, manualTime);
+      initFadeIn();
     } else if (audit.welcomeComplete) {
       document.getElementById('root').innerHTML = `<div class="setup-pending"><div class="setup-icon">🔍</div><div class="setup-title">AI:n analyserar er situation</div><div class="setup-sub">Era svar är mottagna. Sidan uppdateras automatiskt.</div></div>`;
       let n=0; const pi=setInterval(async()=>{
@@ -938,27 +1068,10 @@ function renderWelcomeAnalysis(audit, kpis={}, bookingsPerDay=[], manualTime={})
     </div>`;
   }).join('');
 
-  return `<div class="dashboard-layout">
-
-    <!-- SPINE – vertikal granskningsstatus -->
-    <aside class="spine">
-      <div class="spine-days">
-        <div class="spine-line"></div>
-        <div class="spine-line-fill" style="height:calc(${spineFillPct}% - 40px)"></div>
-        ${spineNodes}
-      </div>
-      <div class="spine-bottom">
-        <div class="spine-track"><div class="spine-track-fill" style="width:${dayPct}%"></div></div>
-        <div class="spine-pct">${dayPct}%</div>
-        <div class="spine-pct-label">klart</div>
-      </div>
-    </aside>
-
-    <!-- INNEHÅLL -->
-    <div class="dashboard-content">
+  return `<div class="dashboard-content">
 
       <!-- HEADER -->
-      <div class="co-header">
+      <div class="co-header fade-in">
         <div class="co-left">
           ${logoHtml}
           <div>
@@ -982,14 +1095,14 @@ function renderWelcomeAnalysis(audit, kpis={}, bookingsPerDay=[], manualTime={})
       </div>
 
       <!-- KPI STRIP -->
-      ${renderKpiStrip(kpis, [], bookingsPerDay, manualTime, a.kpi_cards || [])}
+      <div class="fade-in">${renderKpiStrip(kpis, [], bookingsPerDay, manualTime, a.kpi_cards || [])}</div>
 
       <!-- LINJEDIAGRAM -->
-      ${renderMainChart(bookingsPerDay, audit)}
+      <div class="fade-in">${renderMainChart(bookingsPerDay, audit)}</div>
 
       <!-- FOKUSOMRÅDEN (rotorsaker som klickbara kort) -->
       ${rootCauses.length ? `
-      <div style="margin-bottom:24px">
+      <div style="margin-bottom:24px" class="fade-in">
         <div class="card">
           <div class="card-title">Identifierade problemområden</div>
           <div style="font-size:13px;color:var(--muted2);line-height:1.65;margin-bottom:16px;font-weight:400">${a.real_problem||''}</div>
@@ -1000,8 +1113,8 @@ function renderWelcomeAnalysis(audit, kpis={}, bookingsPerDay=[], manualTime={})
       </div>` : ''}
 
       <!-- GRANSKNINGSPLAN som tidslinje -->
-      <div class="section-row" style="margin-bottom:16px"><span class="section-label">Granskningsplan</span></div>
-      <div style="display:flex;flex-direction:column;gap:0;margin-bottom:24px;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;background:var(--card)">
+      <div class="section-row fade-in" style="margin-bottom:16px"><span class="section-label">Granskningsplan</span></div>
+      <div class="fade-in" style="display:flex;flex-direction:column;gap:0;margin-bottom:24px;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;background:var(--card)">
         ${auditPlan.map((p,i)=>{
           const st = i===0 ? {color:'var(--yellow)',bg:'rgba(212,240,68,.04)',border:'rgba(212,240,68,.18)',label:'Pågår'}
                    : i===1 ? {color:'var(--blue)',bg:'rgba(59,130,246,.04)',border:'rgba(59,130,246,.12)',label:'Nästa'}
@@ -1024,7 +1137,7 @@ function renderWelcomeAnalysis(audit, kpis={}, bookingsPerDay=[], manualTime={})
 
       <!-- VECKOMÅL + AI-REKO sida vid sida -->
       ${(a.week_goal||a.ai_recommendation)?`
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px">
+      <div class="fade-in" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px">
         ${a.week_goal?`<div class="card" style="border-color:rgba(62,207,142,.2);background:rgba(62,207,142,.04)">
           <div style="font-size:11px;font-weight:600;color:var(--green);margin-bottom:10px">Mål efter 7 dagar</div>
           <div style="font-size:13px;line-height:1.65;color:var(--muted3);font-weight:400">${a.week_goal}</div>
@@ -1037,7 +1150,7 @@ function renderWelcomeAnalysis(audit, kpis={}, bookingsPerDay=[], manualTime={})
 
       <!-- ONLINE-GRANSKNING som checklistekort -->
       ${a.online_checks&&a.online_checks.length?`
-      <div class="card" style="margin-bottom:24px">
+      <div class="card fade-in" style="margin-bottom:24px">
         <div class="card-title">Vad AI:n granskar online <span class="card-badge">Pågår</span></div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
           ${a.online_checks.map((c,i)=>`
@@ -1053,8 +1166,8 @@ function renderWelcomeAnalysis(audit, kpis={}, bookingsPerDay=[], manualTime={})
       </div>`:''}
 
       <!-- AI VERKTYG -->
-      <div class="section-row" style="margin-bottom:16px"><span class="section-label">AI-verktyg för er</span><span style="font-size:11px;color:var(--muted2)">Baserat på er granskning</span></div>
-      ${renderAiTools(a, audit.industry)}
+      <div class="section-row fade-in" style="margin-bottom:16px"><span class="section-label">AI-verktyg för er</span><span style="font-size:11px;color:var(--muted2)">Baserat på er granskning</span></div>
+      <div class="fade-in">${renderAiTools(a, audit.industry)}</div>
       <div style="height:48px"></div>
 
     </div><!-- /dashboard-content -->
@@ -1079,6 +1192,28 @@ function startAnalyzingAnimation() {
     if (i<4){const c=document.getElementById(`as${i}`);const ct=document.getElementById(`at${i}`);if(c)c.className='a-dot active';if(ct)ct.className='a-step-text active';i++;setTimeout(next,i<4?2200:99999);}
   }
   setTimeout(next,400);
+}
+
+// ══════════════════════════════════════
+// SCROLL FADE-IN ANIMATIONER
+// ══════════════════════════════════════
+function initFadeIn() {
+  setTimeout(() => {
+    const els = document.querySelectorAll('.fade-in');
+    if ('IntersectionObserver' in window) {
+      const obs = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            e.target.classList.add('visible');
+            obs.unobserve(e.target);
+          }
+        });
+      }, { threshold: 0.08 });
+      els.forEach(el => obs.observe(el));
+    } else {
+      els.forEach(el => el.classList.add('visible'));
+    }
+  }, 50);
 }
 
 load();
