@@ -4,424 +4,394 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AI-Granskning</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg:      #0d0e10;
-      --bg2:     #111316;
-      --card:    #161820;
-      --border:  #1f2128;
-      --border2: #2a2d38;
-      --text:    #e8eaf0;
-      --sub:     #6b7080;
-      --muted:   #3c3f4a;
-      --accent:  #c8f135;
-      --accent2: rgba(200,241,53,.07);
-      --green:   #2dd4a0;
-      --green2:  rgba(45,212,160,.08);
-      --red:     #f04444;
-      --red2:    rgba(240,68,68,.08);
-      --amber:   #f59e0b;
-      --blue:    #4f8ef7;
-      --purple:  #9b6fe8;
-      --r:       10px;
-      --rsm:     7px;
+      --bg:      #f4f5f7;
+      --sidebar: #ffffff;
+      --card:    #ffffff;
+      --border:  #e8eaed;
+      --text:    #111318;
+      --sub:     #8a8f9e;
+      --muted:   #c4c8d4;
+      --accent:  #f97316;
+      --green:   #10b981;
+      --green2:  rgba(16,185,129,.1);
+      --red:     #ef4444;
+      --red2:    rgba(239,68,68,.08);
+      --blue:    #3b82f6;
+      --purple:  #8b5cf6;
+      --r:       14px;
+      --rsm:     10px;
+      --shadow:  0 1px 4px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04);
+      --shadow2: 0 2px 8px rgba(0,0,0,.08), 0 8px 32px rgba(0,0,0,.06);
     }
-    body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; -webkit-font-smoothing:antialiased; }
+    body {
+      font-family:'Inter',sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      min-height:100vh;
+      -webkit-font-smoothing:antialiased;
+    }
 
     /* ── LAYOUT ── */
     .layout { display:flex; min-height:100vh; }
 
     /* ── SIDEBAR ── */
     .sidebar {
-      width:216px; flex-shrink:0;
-      background:var(--bg2);
+      width:64px; flex-shrink:0;
+      background:var(--sidebar);
       border-right:1px solid var(--border);
       position:fixed; top:0; left:0; height:100vh;
       display:flex; flex-direction:column;
+      align-items:center;
+      padding:20px 0;
       z-index:40;
     }
-    .sb-brand {
-      padding:20px 18px 14px;
-      border-bottom:1px solid var(--border);
-    }
-    .sb-brand-name {
-      font-size:11px; font-weight:700; letter-spacing:.8px;
-      text-transform:uppercase; color:var(--sub); margin-bottom:14px;
-    }
-    .sb-co {
-      display:flex; align-items:center; gap:10px;
-    }
-    .sb-co-logo {
-      width:32px; height:32px; border-radius:7px;
-      background:var(--card); border:1px solid var(--border2);
+    .sb-logo {
+      width:36px; height:36px; border-radius:10px;
+      background:var(--text);
       display:flex; align-items:center; justify-content:center;
-      font-size:11px; font-weight:700; color:var(--sub); flex-shrink:0;
-      overflow:hidden;
+      margin-bottom:28px;
     }
-    .sb-co-name  { font-size:13px; font-weight:600; color:var(--text); line-height:1.3; }
-    .sb-co-sub   { font-size:11px; color:var(--sub); margin-top:1px; }
-
-    .sb-nav { flex:1; padding:10px 8px; }
-    .nav-item {
-      display:flex; align-items:center; gap:9px;
-      padding:8px 10px; border-radius:var(--rsm);
-      font-size:12.5px; font-weight:500; color:var(--sub);
-      cursor:pointer; transition:all .15s;
-      margin-bottom:1px; background:none; border:none;
-      width:100%; text-align:left; font-family:inherit;
-    }
-    .nav-item:hover { background:var(--border); color:var(--text); }
-    .nav-item.active { background:var(--accent2); color:var(--accent); }
-    .nav-item svg { width:15px; height:15px; flex-shrink:0; opacity:.6; }
-    .nav-item.active svg { opacity:1; }
-
-    .sb-progress {
-      padding:14px 16px;
-      border-top:1px solid var(--border);
-    }
-    .sb-prog-label {
-      font-size:11px; color:var(--sub); margin-bottom:8px;
-      display:flex; justify-content:space-between;
-    }
-    .sb-prog-label span { font-weight:600; color:var(--text); font-size:11px; }
-    .day-dots { display:flex; gap:3px; margin-top:6px; }
-    .day-dot { flex:1; height:3px; border-radius:2px; background:var(--border2); }
-    .day-dot.done   { background:var(--green); }
-    .day-dot.active { background:var(--accent); }
-
-    .sb-profile {
-      padding:12px 16px;
-      border-top:1px solid var(--border);
-      display:flex; align-items:center; gap:10px;
-    }
-    .profile-av {
-      width:28px; height:28px; border-radius:50%;
-      background:linear-gradient(135deg,var(--blue),var(--purple));
+    .sb-logo svg { width:18px; height:18px; color:#fff; }
+    .sb-nav { display:flex; flex-direction:column; gap:4px; flex:1; }
+    .sb-icon {
+      width:40px; height:40px; border-radius:10px;
       display:flex; align-items:center; justify-content:center;
-      font-size:10px; font-weight:700; color:#fff; flex-shrink:0;
+      cursor:pointer; transition:background .15s;
+      color:var(--muted);
     }
-    .profile-name { font-size:12px; font-weight:600; color:var(--text); }
-    .profile-role { font-size:10px; color:var(--sub); margin-top:1px; }
+    .sb-icon:hover { background:var(--bg); color:var(--sub); }
+    .sb-icon.active { background:var(--bg); color:var(--text); }
+    .sb-icon svg { width:18px; height:18px; }
+    .sb-avatar {
+      width:34px; height:34px; border-radius:50%;
+      background:linear-gradient(135deg,#667eea,#764ba2);
+      display:flex; align-items:center; justify-content:center;
+      font-size:12px; font-weight:700; color:#fff;
+      margin-top:auto;
+    }
 
     /* ── MAIN ── */
-    .main { margin-left:216px; flex:1; min-width:0; }
+    .main { margin-left:64px; flex:1; min-width:0; padding:28px 28px 60px; max-width:1200px; }
+
+    /* ── TOPBAR ── */
     .topbar {
-      background:var(--bg2); border-bottom:1px solid var(--border);
-      padding:0 28px; height:48px;
-      display:flex; align-items:center; justify-content:space-between;
-      position:sticky; top:0; z-index:30;
-    }
-    .topbar-title { font-size:13px; font-weight:600; color:var(--text); }
-    .live-indicator {
-      display:flex; align-items:center; gap:6px;
-      font-size:11px; color:var(--sub); font-weight:500;
-    }
-    .live-dot {
-      width:5px; height:5px; border-radius:50%; background:var(--green);
-      animation:pulse 2.4s ease-in-out infinite;
-    }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.2} }
-
-    .content { padding:28px 28px 60px; }
-
-    /* ── HEADER ── */
-    .co-header {
-      display:flex; align-items:center; justify-content:space-between;
+      display:flex; align-items:flex-start; justify-content:space-between;
       margin-bottom:24px; gap:16px;
     }
-    .co-left { display:flex; align-items:center; gap:12px; }
-    .co-logo {
-      width:40px; height:40px; border-radius:9px;
-      background:var(--card); border:1px solid var(--border2);
+    .topbar-left h1 { font-size:22px; font-weight:700; letter-spacing:-.4px; margin-bottom:3px; }
+    .topbar-left p  { font-size:13px; color:var(--sub); }
+    .topbar-right {
+      display:flex; align-items:center; gap:10px; flex-shrink:0;
+    }
+    .search-bar {
+      display:flex; align-items:center; gap:8px;
+      background:var(--card); border:1px solid var(--border);
+      border-radius:var(--rsm); padding:8px 14px;
+      font-size:13px; color:var(--sub);
+      box-shadow:var(--shadow); min-width:200px;
+      cursor:text;
+    }
+    .search-bar svg { width:14px; height:14px; flex-shrink:0; }
+    .topbar-btn {
+      width:36px; height:36px; border-radius:var(--rsm);
+      background:var(--card); border:1px solid var(--border);
       display:flex; align-items:center; justify-content:center;
-      font-size:14px; font-weight:800; color:var(--sub); flex-shrink:0;
+      cursor:pointer; box-shadow:var(--shadow); color:var(--sub);
+      transition:background .15s;
+    }
+    .topbar-btn:hover { background:var(--bg); }
+    .topbar-btn svg { width:16px; height:16px; }
+
+    /* ── MASONRY GRID ── */
+    .grid {
+      display:grid;
+      grid-template-columns:repeat(4, 1fr);
+      grid-auto-rows:auto;
+      gap:14px;
+    }
+
+    /* ── CARD BASE ── */
+    .card {
+      background:var(--card);
+      border-radius:var(--r);
+      border:1px solid var(--border);
+      box-shadow:var(--shadow);
+      padding:20px;
+      position:relative;
       overflow:hidden;
     }
-    .co-name { font-size:20px; font-weight:700; letter-spacing:-.5px; line-height:1.2; }
-    .co-meta {
-      display:flex; align-items:center; gap:8px;
-      font-size:11px; color:var(--sub); margin-top:3px;
-    }
-    .co-meta-dot { width:3px; height:3px; border-radius:50%; background:var(--muted); }
-    .status-badge {
-      display:inline-flex; align-items:center; gap:5px;
-      font-size:11px; font-weight:500; color:var(--green);
-    }
-    .co-right {
-      flex-shrink:0;
-      display:flex; align-items:center; gap:12px;
-    }
-    .day-counter {
-      text-align:right;
-    }
-    .day-num {
-      font-size:28px; font-weight:800; letter-spacing:-1px; line-height:1;
-      color:var(--text);
-    }
-    .day-num span { font-size:14px; font-weight:400; color:var(--sub); }
-    .day-sub { font-size:11px; color:var(--sub); margin-top:3px; }
 
-    /* ── KPI STRIP ── */
-    .kpi-strip {
-      display:grid; grid-template-columns:repeat(5,1fr);
-      border:1px solid var(--border); border-radius:var(--r);
-      overflow:hidden; margin-bottom:16px;
-      background:var(--border);
-      gap:1px;
-    }
-    @media(max-width:900px) { .kpi-strip { grid-template-columns:repeat(3,1fr); } }
-    .kpi-cell {
-      background:var(--card); padding:18px 20px 16px;
-    }
-    .kpi-label { font-size:11px; color:var(--sub); font-weight:500; margin-bottom:10px; }
-    .kpi-val   { font-size:26px; font-weight:700; letter-spacing:-1px; line-height:1; color:var(--text); }
-    .kpi-badge {
-      display:inline-flex; align-items:center; gap:3px;
-      font-size:10px; font-weight:600; margin-top:7px;
-      padding:2px 7px; border-radius:4px;
-    }
-    .kpi-badge.pos { color:var(--green); background:var(--green2); }
-    .kpi-badge.neg { color:var(--red);   background:var(--red2); }
-    .kpi-badge.neu { color:var(--sub);   background:var(--border2); }
-    .kpi-dash { font-size:26px; font-weight:700; color:var(--muted); }
-
-    /* ── SECTION LABEL ── */
-    .sec { font-size:12px; font-weight:600; color:var(--sub); letter-spacing:.3px; margin:20px 0 10px; }
-
-    /* ── CARD ── */
-    .card {
-      background:var(--card); border:1px solid var(--border);
-      border-radius:var(--r); padding:20px 22px;
-    }
-    .card-head {
-      font-size:12.5px; font-weight:600; color:var(--text);
-      margin-bottom:14px;
+    /* ── STAT CARDS (top row) ── */
+    .stat-card { }
+    .stat-label {
+      font-size:11px; font-weight:500; color:var(--sub);
+      margin-bottom:10px;
       display:flex; align-items:center; justify-content:space-between;
     }
-    .card-badge {
-      font-size:10px; font-weight:500;
-      padding:2px 8px; border-radius:4px;
-      background:var(--border2); color:var(--sub);
+    .stat-label-icon {
+      width:28px; height:28px; border-radius:8px;
+      display:flex; align-items:center; justify-content:center;
+      flex-shrink:0;
     }
+    .stat-val {
+      font-size:24px; font-weight:700; letter-spacing:-.8px;
+      line-height:1; margin-bottom:6px;
+    }
+    .stat-badge {
+      display:inline-flex; align-items:center; gap:3px;
+      font-size:10.5px; font-weight:600;
+      padding:2px 7px; border-radius:5px;
+    }
+    .stat-badge.pos { color:var(--green); background:var(--green2); }
+    .stat-badge.neg { color:var(--red);   background:var(--red2); }
 
-    /* ── CHART ── */
-    .chart-card {
-      background:var(--card); border:1px solid var(--border);
-      border-radius:var(--r); padding:20px 22px; margin-bottom:16px;
+    /* sparkline */
+    .sparkline { height:36px; margin:8px 0 2px; }
+    .sparkline svg { width:100%; height:100%; overflow:visible; }
+
+    /* ── ACTIVITY CARD (top right, green) ── */
+    .activity-card {
+      background:linear-gradient(135deg,#064e3b,#065f46);
+      border-color:transparent;
+      color:#fff;
     }
-    .chart-head {
+    .activity-card .stat-label { color:rgba(255,255,255,.6); }
+    .activity-card .stat-val   { color:#fff; }
+
+    /* ── BALANCE CARD (wide) ── */
+    .balance-card { grid-column:span 2; }
+    .balance-header {
       display:flex; align-items:flex-start; justify-content:space-between;
       margin-bottom:16px;
     }
-    .chart-title { font-size:13px; font-weight:600; color:var(--text); }
-    .chart-sub   { font-size:11px; color:var(--sub); margin-top:2px; }
-    .chart-wrap  { height:200px; position:relative; }
-    .chart-wrap svg { width:100%; height:100%; overflow:visible; }
-    .chart-legend {
-      display:flex; flex-wrap:wrap; gap:8px 16px;
-      margin-top:12px; padding-top:12px; border-top:1px solid var(--border);
+    .balance-title { font-size:12px; font-weight:600; color:var(--sub); margin-bottom:4px; }
+    .balance-status {
+      font-size:11px; font-weight:500; color:var(--green);
+      display:flex; align-items:center; gap:4px;
     }
-    .chart-legend-item {
-      display:flex; align-items:center; gap:6px;
-      font-size:11px; color:var(--sub);
+    .balance-status::before { content:''; width:5px; height:5px; border-radius:50%; background:var(--green); }
+    .balance-row {
+      display:flex; align-items:baseline; gap:12px; margin-bottom:4px;
     }
-    .chart-legend-line {
-      width:20px; height:2px; border-radius:1px; flex-shrink:0;
-    }
-
-    /* ── GRID ── */
-    .grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:16px; }
-    .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px; }
-    @media(max-width:900px) { .grid-3 { grid-template-columns:1fr 1fr; } }
-    @media(max-width:580px) { .grid-3,.grid-2 { grid-template-columns:1fr; } }
-
-    /* ── BIG STAT ── */
-    .big-num { font-size:32px; font-weight:700; letter-spacing:-1.5px; line-height:1; margin-bottom:3px; }
-    .big-sub { font-size:11px; color:var(--sub); margin-bottom:12px; }
-    .sep     { height:1px; background:var(--border); margin:14px 0; }
-
-    /* ── HBAR ── */
-    .hbar-list { display:flex; flex-direction:column; gap:8px; }
-    .hbar-row  { display:flex; align-items:center; gap:10px; }
-    .hbar-lbl  { font-size:11px; color:var(--sub); width:88px; flex-shrink:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .hbar-track{ flex:1; background:var(--border2); border-radius:3px; height:4px; overflow:hidden; }
-    .hbar-fill { height:100%; border-radius:3px; background:var(--border2); transition:width .4s; }
-    .hbar-fill.blue   { background:var(--blue); }
-    .hbar-fill.yellow { background:var(--accent); }
-    .hbar-fill.red    { background:var(--red); }
-    .hbar-num  { font-size:11px; font-weight:600; color:var(--sub); width:24px; text-align:right; }
-
-    /* ── FUNNEL ── */
-    .funnel     { display:flex; flex-direction:column; gap:7px; }
-    .funnel-row { display:flex; align-items:center; gap:10px; }
-    .funnel-lbl { font-size:11px; color:var(--sub); width:94px; flex-shrink:0; }
-    .funnel-track { flex:1; background:var(--border2); border-radius:3px; height:5px; overflow:hidden; }
-    .funnel-bar   { height:100%; border-radius:3px; background:var(--border2); transition:width .5s; }
-    .funnel-n     { font-size:11px; font-weight:600; color:var(--sub); width:28px; text-align:right; }
-    .funnel-drop  { font-size:10px; color:var(--red); font-weight:600; width:30px; }
-
-    /* ── HEALTH ── */
-    .health-wrap { display:flex; align-items:center; gap:18px; }
-    .health-ring { position:relative; width:76px; height:76px; flex-shrink:0; }
-    .health-ring svg { transform:rotate(-90deg); }
-    .health-ring circle { fill:none; stroke-width:5; }
-    .health-ring .track { stroke:var(--border2); }
-    .health-ring .fill  { stroke-dasharray:283; stroke-linecap:round; transition:stroke-dashoffset .8s; }
-    .health-num { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:17px; font-weight:700; }
-    .health-lbl { font-size:13px; font-weight:600; margin-bottom:3px; }
-    .health-items { display:flex; flex-direction:column; gap:5px; margin-top:8px; }
-    .health-item { display:flex; align-items:center; gap:7px; font-size:11px; color:var(--sub); }
-    .hdot { width:5px; height:5px; border-radius:50%; flex-shrink:0; }
-
-    /* ── AI TOOLS ── */
-    .tools-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:16px; }
-    .tool-card {
+    .balance-pct  { font-size:22px; font-weight:700; letter-spacing:-.6px; }
+    .balance-amt  { font-size:24px; font-weight:700; letter-spacing:-.8px; }
+    .chart-area   { height:80px; position:relative; margin:12px 0 0; }
+    .chart-area svg { width:100%; height:100%; overflow:visible; }
+    .period-select {
+      font-size:11px; font-weight:500; color:var(--sub);
       background:var(--bg); border:1px solid var(--border);
-      border-radius:var(--rsm); padding:14px 16px;
+      border-radius:6px; padding:3px 10px; cursor:pointer;
+    }
+
+    /* ── EARNINGS CARD ── */
+    .earnings-card { }
+    .earnings-big { font-size:28px; font-weight:700; letter-spacing:-1px; margin:8px 0 4px; }
+    .donut-wrap { position:relative; width:80px; height:80px; margin:12px 0; }
+    .donut-wrap svg { transform:rotate(-90deg); }
+    .donut-pct {
+      position:absolute; top:50%; left:50%;
+      transform:translate(-50%,-50%);
+      font-size:16px; font-weight:700;
+    }
+
+    /* ── PROFILE CARD ── */
+    .profile-card { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; }
+    .profile-av {
+      width:52px; height:52px; border-radius:50%;
+      background:linear-gradient(135deg,#667eea,#764ba2);
+      display:flex; align-items:center; justify-content:center;
+      font-size:16px; font-weight:700; color:#fff; margin-bottom:10px;
+    }
+    .profile-name { font-size:14px; font-weight:700; margin-bottom:2px; }
+    .profile-role { font-size:11px; color:var(--sub); }
+    .profile-stats {
+      display:flex; gap:0; width:100%; margin-top:14px;
+      border-top:1px solid var(--border); padding-top:14px;
+    }
+    .profile-stat { flex:1; text-align:center; }
+    .profile-stat:not(:last-child) { border-right:1px solid var(--border); }
+    .profile-stat-val { font-size:16px; font-weight:700; }
+    .profile-stat-lbl { font-size:10px; color:var(--sub); margin-top:2px; }
+
+    /* ── CREDIT CARD ── */
+    .credit-card { grid-column:span 2; }
+    .cc-wrap {
+      background:linear-gradient(135deg,#1e293b,#334155);
+      border-radius:12px; padding:18px 20px; margin:12px 0 14px;
+      position:relative; overflow:hidden; height:110px;
+    }
+    .cc-wrap::before {
+      content:'';
+      position:absolute; right:-20px; top:-20px;
+      width:120px; height:120px; border-radius:50%;
+      background:rgba(255,255,255,.04);
+    }
+    .cc-wrap::after {
+      content:'';
+      position:absolute; right:20px; bottom:-30px;
+      width:100px; height:100px; border-radius:50%;
+      background:rgba(255,255,255,.03);
+    }
+    .cc-num  { font-size:12px; color:rgba(255,255,255,.5); letter-spacing:.5px; margin-top:6px; }
+    .cc-name { font-size:11px; font-weight:600; color:rgba(255,255,255,.8); margin-top:16px; }
+    .cc-chip {
+      position:absolute; right:20px; bottom:18px;
+      width:28px; height:20px; border-radius:4px;
+      background:linear-gradient(135deg,#f59e0b,#d97706);
+    }
+    .cc-logo { font-size:11px; font-weight:700; color:#fff; }
+    .cc-cta {
+      display:inline-flex; align-items:center; gap:6px;
+      background:var(--text); color:#fff;
+      border-radius:8px; padding:8px 14px;
+      font-size:12px; font-weight:600; cursor:pointer;
+      transition:opacity .15s; border:none; font-family:inherit;
+    }
+    .cc-cta:hover { opacity:.88; }
+
+    /* ── TRANSFERS CARD ── */
+    .transfers-card { }
+    .transfer-row {
+      display:flex; align-items:center; gap:10px;
+      padding:8px 0; border-bottom:1px solid var(--border);
+    }
+    .transfer-row:last-child { border-bottom:none; }
+    .transfer-av {
+      width:28px; height:28px; border-radius:50%;
+      background:var(--bg); display:flex; align-items:center;
+      justify-content:center; font-size:10px; font-weight:600;
+      color:var(--sub); flex-shrink:0;
+    }
+    .transfer-name  { font-size:12px; font-weight:500; flex:1; }
+    .transfer-date  { font-size:10px; color:var(--sub); }
+    .transfer-amt   { font-size:12px; font-weight:600; }
+    .transfer-amt.pos { color:var(--green); }
+    .transfer-amt.neg { color:var(--red); }
+
+    /* ── SECURITY / MISC ── */
+    .security-card {
+      background:var(--bg);
+      border-style:dashed;
+    }
+    .sec-title { font-size:12px; font-weight:600; margin-bottom:6px; }
+    .sec-sub   { font-size:11px; color:var(--sub); line-height:1.5; margin-bottom:12px; }
+    .sec-btn {
+      display:inline-flex; align-items:center; gap:5px;
+      background:var(--card); border:1px solid var(--border);
+      border-radius:7px; padding:7px 12px;
+      font-size:11px; font-weight:600; cursor:pointer;
+      font-family:inherit; color:var(--text); transition:background .15s;
+    }
+    .sec-btn:hover { background:var(--border); }
+
+    /* ── CARD HEADER ── */
+    .card-head {
+      font-size:12px; font-weight:600; color:var(--text);
+      margin-bottom:4px;
+      display:flex; align-items:center; justify-content:space-between;
+    }
+    .card-edit {
+      width:24px; height:24px; border-radius:6px;
+      background:var(--bg); display:flex; align-items:center;
+      justify-content:center; cursor:pointer; color:var(--sub);
+    }
+    .card-edit svg { width:12px; height:12px; }
+
+    /* ── AI CHAT BUBBLE ── */
+    .ai-bubble {
+      position:fixed; bottom:28px; right:28px; z-index:100;
+    }
+    .ai-btn {
+      width:52px; height:52px; border-radius:50%;
+      background:linear-gradient(135deg,#667eea,#764ba2);
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; box-shadow:0 4px 20px rgba(102,126,234,.5);
+      border:none; transition:transform .2s, box-shadow .2s;
+    }
+    .ai-btn:hover { transform:scale(1.08); box-shadow:0 6px 28px rgba(102,126,234,.6); }
+    .ai-btn svg { width:22px; height:22px; color:#fff; }
+    .ai-window {
+      position:absolute; bottom:66px; right:0;
+      width:320px; background:var(--card);
+      border:1px solid var(--border); border-radius:16px;
+      box-shadow:var(--shadow2);
+      display:none; flex-direction:column;
+      overflow:hidden;
+    }
+    .ai-window.open { display:flex; }
+    .ai-window-head {
+      padding:14px 16px; border-bottom:1px solid var(--border);
+      display:flex; align-items:center; gap:10px;
+    }
+    .ai-window-av {
+      width:30px; height:30px; border-radius:50%;
+      background:linear-gradient(135deg,#667eea,#764ba2);
+      display:flex; align-items:center; justify-content:center;
+      font-size:12px; font-weight:700; color:#fff; flex-shrink:0;
+    }
+    .ai-window-name { font-size:13px; font-weight:600; }
+    .ai-window-status { font-size:11px; color:var(--green); }
+    .ai-msgs {
+      flex:1; padding:14px 16px; display:flex; flex-direction:column; gap:10px;
+      overflow-y:auto; max-height:260px; min-height:100px;
+    }
+    .msg { max-width:85%; }
+    .msg.bot { align-self:flex-start; }
+    .msg.user { align-self:flex-end; }
+    .msg-bubble {
+      padding:9px 12px; border-radius:12px;
+      font-size:12.5px; line-height:1.5;
+    }
+    .msg.bot  .msg-bubble { background:var(--bg); color:var(--text); border-bottom-left-radius:4px; }
+    .msg.user .msg-bubble { background:linear-gradient(135deg,#667eea,#764ba2); color:#fff; border-bottom-right-radius:4px; }
+    .ai-input-wrap {
+      padding:12px 14px; border-top:1px solid var(--border);
+      display:flex; gap:8px; align-items:center;
+    }
+    .ai-input {
+      flex:1; border:1px solid var(--border); border-radius:8px;
+      padding:8px 12px; font-size:12.5px; font-family:inherit;
+      background:var(--bg); color:var(--text); outline:none;
       transition:border-color .15s;
     }
-    .tool-card:hover { border-color:var(--border2); }
-    .tool-name { font-size:12.5px; font-weight:600; color:var(--text); margin-bottom:3px; }
-    .tool-desc { font-size:11px; color:var(--sub); line-height:1.5; }
-    .tool-tag  {
-      display:inline-block; margin-top:9px;
-      font-size:10px; font-weight:600;
-      color:var(--accent); background:var(--accent2);
-      border:1px solid rgba(200,241,53,.15); border-radius:4px; padding:2px 7px;
+    .ai-input:focus { border-color:var(--blue); }
+    .ai-send {
+      width:32px; height:32px; border-radius:8px;
+      background:linear-gradient(135deg,#667eea,#764ba2);
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; border:none; flex-shrink:0;
+      transition:opacity .15s;
     }
-    .tool-tag.soon { color:var(--sub); background:transparent; border-color:var(--border2); }
+    .ai-send:hover { opacity:.88; }
+    .ai-send svg { width:14px; height:14px; color:#fff; }
 
-    /* ── CAUSES ── */
-    .cause-list { display:grid; grid-template-columns:1fr 1fr; gap:7px; }
-    .cause-item {
-      display:flex; align-items:flex-start; gap:12px;
-      padding:12px 14px; background:var(--bg);
-      border:1px solid var(--border); border-radius:var(--rsm);
+    /* typing dots */
+    .typing { display:flex; gap:4px; align-items:center; padding:2px 0; }
+    .typing span {
+      width:6px; height:6px; border-radius:50%; background:var(--muted);
+      animation:tdot 1.2s infinite;
     }
-    .cause-num { font-size:10px; font-weight:700; color:var(--muted); min-width:18px; padding-top:1px; }
-    .cause-text { font-size:12px; font-weight:500; color:var(--text); line-height:1.4; }
-    .cause-day  { font-size:10px; color:var(--sub); margin-top:2px; }
+    .typing span:nth-child(2) { animation-delay:.2s; }
+    .typing span:nth-child(3) { animation-delay:.4s; }
+    @keyframes tdot { 0%,80%,100%{transform:scale(.8);opacity:.4} 40%{transform:scale(1);opacity:1} }
 
-    /* ── PLAN ── */
-    .plan-list {
-      border:1px solid var(--border); border-radius:var(--r);
-      overflow:hidden; background:var(--card); margin-bottom:16px;
-    }
-    .plan-row {
-      display:flex; gap:0;
-      border-bottom:1px solid var(--border);
-    }
-    .plan-row:last-child { border-bottom:none; }
-    .plan-day-col {
-      width:76px; flex-shrink:0; padding:14px 10px;
-      border-right:1px solid var(--border);
-      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px;
-    }
-    .plan-day-label { font-size:11px; font-weight:600; text-align:center; }
-    .plan-status {
-      font-size:9px; font-weight:600; letter-spacing:.2px;
-      padding:2px 7px; border-radius:3px;
-    }
-    .plan-body { flex:1; padding:13px 18px; }
-    .plan-focus { font-size:13px; font-weight:600; color:var(--text); margin-bottom:8px; }
-    .plan-chips { display:flex; flex-wrap:wrap; gap:5px; }
-    .plan-chip  {
-      font-size:10.5px; color:var(--sub); background:var(--border);
-      padding:3px 9px; border-radius:4px;
-    }
-
-    /* ── INSIGHTS ── */
-    .insight-list { display:flex; flex-direction:column; gap:7px; margin-bottom:16px; }
-    .insight-item {
-      padding:13px 16px; border-radius:var(--rsm);
-      background:var(--card); border:1px solid var(--border);
-    }
-    .insight-item.high   { border-left:2px solid var(--red); }
-    .insight-item.medium { border-left:2px solid var(--amber); }
-    .insight-item.low    { border-left:2px solid var(--green); }
-    .insight-title { font-weight:600; font-size:12px; color:var(--text); margin-bottom:3px; }
-    .insight-desc  { font-size:11px; color:var(--sub); line-height:1.5; }
-
-    /* ── INFO PAIR ── */
-    .info-pair {
-      display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px;
-    }
-    .info-box {
-      border:1px solid var(--border); border-radius:var(--rsm);
-      padding:16px 18px; background:var(--card);
-    }
-    .info-box-label { font-size:10px; font-weight:700; letter-spacing:.4px; margin-bottom:8px; }
-    .info-box-text  { font-size:12px; color:var(--sub); line-height:1.6; }
-
-    /* ── ONLINE CHECKS ── */
-    .checks-list { display:grid; grid-template-columns:1fr 1fr; gap:7px; }
-    .check-item {
-      display:flex; align-items:center; gap:10px;
-      padding:10px 12px; background:var(--bg);
-      border:1px solid var(--border); border-radius:var(--rsm);
-    }
-    .check-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
-    .check-text { font-size:11.5px; color:var(--sub); }
-    .check-text.done { color:var(--text); }
-
-    /* ── REPORT ── */
-    .report-card {
-      display:flex; align-items:center; justify-content:space-between; gap:16px;
-      flex-wrap:wrap; margin-bottom:16px;
-    }
-    .report-title { font-size:14px; font-weight:600; margin-bottom:4px; }
-    .report-sub   { font-size:12px; color:var(--sub); }
-    .report-btn {
-      display:inline-flex; align-items:center; gap:7px;
-      background:var(--accent); color:#0d0e10;
-      border:none; border-radius:var(--rsm);
-      padding:9px 18px; font-size:12.5px; font-weight:700;
-      font-family:inherit; cursor:pointer; text-decoration:none;
-      transition:opacity .12s; flex-shrink:0;
-    }
-    .report-btn:hover { opacity:.85; }
-
-    /* ── COST BOX ── */
-    .cost-box {
-      background:var(--red2); border:1px solid rgba(240,68,68,.12);
-      border-radius:var(--rsm); padding:12px 14px; margin-top:12px;
-      font-size:11px; color:var(--sub); line-height:1.6;
-    }
-    .cost-box strong { color:var(--red); font-size:14px; }
-
-    /* ── CONNECT ── */
-    .connect-box {
-      margin-top:12px; font-size:11px; color:var(--sub);
-      background:var(--bg); border:1px solid var(--border);
-      border-radius:var(--rsm); padding:10px 12px; line-height:1.5;
-    }
+    /* ── SCROLL ── */
+    ::-webkit-scrollbar { width:4px; }
+    ::-webkit-scrollbar-thumb { background:var(--muted); border-radius:4px; }
 
     /* ── PENDING ── */
-    .setup-pending {
-      max-width:360px; margin:100px auto; text-align:center; padding:0 20px;
-    }
-    .setup-title { font-size:19px; font-weight:700; margin-bottom:8px; letter-spacing:-.3px; }
+    .setup-pending { max-width:360px; margin:100px auto; text-align:center; padding:0 20px; }
+    .setup-title { font-size:19px; font-weight:700; margin-bottom:8px; }
     .setup-sub   { font-size:13px; color:var(--sub); line-height:1.6; }
 
-    /* ── SCROLL FADE ── */
-    .fi { opacity:0; transform:translateY(16px); transition:opacity .5s cubic-bezier(.22,1,.36,1), transform .5s cubic-bezier(.22,1,.36,1); }
-    .fi.on { opacity:1; transform:translateY(0); }
-    .fi:nth-child(1) { transition-delay:.04s; }
-    .fi:nth-child(2) { transition-delay:.09s; }
-    .fi:nth-child(3) { transition-delay:.14s; }
-    .fi:nth-child(4) { transition-delay:.19s; }
-    .fi:nth-child(5) { transition-delay:.24s; }
-    .fi:nth-child(6) { transition-delay:.29s; }
-
-    @media(max-width:800px) {
-      .sidebar { transform:translateX(-100%); }
-      .main { margin-left:0; }
+    @media(max-width:900px) {
+      .grid { grid-template-columns:1fr 1fr; }
+      .balance-card, .credit-card { grid-column:span 2; }
     }
-    ::-webkit-scrollbar { width:4px; }
-    ::-webkit-scrollbar-track { background:transparent; }
-    ::-webkit-scrollbar-thumb { background:var(--border2); border-radius:4px; }
   </style>
 </head>
 <body>
@@ -429,70 +399,85 @@
 
   <!-- SIDEBAR -->
   <nav class="sidebar">
-    <div class="sb-brand">
-      <div class="sb-brand-name">AI-Granskning</div>
-      <div class="sb-co" id="sbCo">
-        <div class="sb-co-logo" id="sbLogo">?</div>
-        <div>
-          <div class="sb-co-name" id="sbName">Laddar</div>
-          <div class="sb-co-sub"  id="sbIndustry"></div>
-        </div>
-      </div>
+    <div class="sb-logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
     </div>
-
     <div class="sb-nav">
-      <button class="nav-item active" onclick="navTo('oversikt',this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
-        Översikt
-      </button>
-      <button class="nav-item" onclick="navTo('plan',this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
-        Granskningsplan
-      </button>
-      <button class="nav-item" onclick="navTo('aiverktyg',this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-        AI-verktyg
-      </button>
-      <button class="nav-item" onclick="navTo('rapport',this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-        Rapport
-      </button>
-    </div>
-
-    <div class="sb-progress">
-      <div class="sb-prog-label">Granskning <span id="sbDayLabel">Dag 1/7</span></div>
-      <div class="day-dots" id="dayDots">
-        <div class="day-dot" id="dd0"></div>
-        <div class="day-dot" id="dd1"></div>
-        <div class="day-dot" id="dd2"></div>
-        <div class="day-dot" id="dd3"></div>
-        <div class="day-dot" id="dd4"></div>
-        <div class="day-dot" id="dd5"></div>
-        <div class="day-dot" id="dd6"></div>
+      <div class="sb-icon active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+      </div>
+      <div class="sb-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+      </div>
+      <div class="sb-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+      </div>
+      <div class="sb-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      </div>
+      <div class="sb-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+      </div>
+      <div class="sb-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
       </div>
     </div>
-
-    <div class="sb-profile">
-      <div class="profile-av" id="profileAv">?</div>
-      <div>
-        <div class="profile-name" id="profileName">Laddar</div>
-        <div class="profile-role">Kund</div>
-      </div>
-    </div>
+    <div class="sb-avatar" id="sbAvatar">?</div>
   </nav>
 
   <!-- MAIN -->
   <div class="main">
+    <!-- TOPBAR -->
     <div class="topbar">
-      <span class="topbar-title" id="topbarTitle">Översikt</span>
-      <div class="live-indicator">
-        <div class="live-dot"></div>
-        Live
+      <div class="topbar-left">
+        <h1 id="greeting">Hej, Företag!</h1>
+        <p>Se information och aktivitet om er verksamhet</p>
+      </div>
+      <div class="topbar-right">
+        <div class="search-bar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          Sök eller fråga Sage...
+        </div>
+        <div class="topbar-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+        </div>
+        <div class="topbar-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        </div>
       </div>
     </div>
-    <div id="root" style="min-height:80vh"></div>
+
+    <!-- GRID -->
+    <div class="grid" id="root">
+      <!-- fylls av JS -->
+    </div>
   </div>
 
+</div>
+
+<!-- AI CHAT BUBBLE -->
+<div class="ai-bubble">
+  <div class="ai-window" id="aiWindow">
+    <div class="ai-window-head">
+      <div class="ai-window-av">S</div>
+      <div>
+        <div class="ai-window-name">Sage – er AI-assistent</div>
+        <div class="ai-window-status">Online</div>
+      </div>
+    </div>
+    <div class="ai-msgs" id="aiMsgs">
+      <div class="msg bot"><div class="msg-bubble">Hej! Jag är Sage, er AI-assistent. Fråga mig vad som helst om er granskning.</div></div>
+    </div>
+    <div class="ai-input-wrap">
+      <input class="ai-input" id="aiInput" type="text" placeholder="Skriv en fråga..." autocomplete="off">
+      <button class="ai-send" id="aiSend">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+  </div>
+  <button class="ai-btn" id="aiToggle">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+  </button>
 </div>
 
 <script>
@@ -511,7 +496,7 @@ async function load() {
 }
 function showError(title, sub) {
   document.getElementById('root').innerHTML =
-    `<div class="setup-pending"><div class="setup-title">${title}</div><div class="setup-sub">${sub}</div></div>`;
+    `<div class="setup-pending" style="grid-column:1/-1"><div class="setup-title">${title}</div><div class="setup-sub">${sub}</div></div>`;
 }
 setInterval(async () => {
   if (!token) return;
@@ -521,668 +506,334 @@ setInterval(async () => {
   } catch(e) {}
 }, 30000);
 
-// ── NAV ──
-let _section = 'oversikt';
-function navTo(s, el) {
-  _section = s;
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  if (el) el.classList.add('active');
-  const labels = { oversikt:'Översikt', plan:'Granskningsplan', aiverktyg:'AI-verktyg', rapport:'Rapport' };
-  document.getElementById('topbarTitle').textContent = labels[s] || 'Översikt';
-  if (_data) render(_data);
+// ── SPARKLINE ──
+function sparkline(vals, color, fill) {
+  const W=100, H=36, pad=4;
+  const max=Math.max(...vals), min=Math.min(...vals);
+  const range=max-min||1;
+  const pts=vals.map((v,i)=>[
+    pad+(i/(vals.length-1))*(W-pad*2),
+    pad+(1-(v-min)/range)*(H-pad*2)
+  ]);
+  const d='M'+pts.map(p=>p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' L ');
+  const area=d+` L${pts[pts.length-1][0].toFixed(1)} ${H} L${pts[0][0].toFixed(1)} ${H} Z`;
+  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+    <defs><linearGradient id="sg${color.replace('#','')}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="${color}" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
+    </linearGradient></defs>
+    ${fill?`<path d="${area}" fill="url(#sg${color.replace('#','')})"/>` : ''}
+    <path d="${d}" fill="none" stroke="${color}" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`;
 }
 
-// ── SIDEBAR UPDATE ──
-function updateSidebar(audit) {
-  const initials = (audit.companyName||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
-  const logoEl = document.getElementById('sbLogo');
-  const site = audit.welcomeWebsite || '';
-  if (site) {
-    const domain = site.replace(/^https?:\/\//,'').split('/')[0];
-    logoEl.innerHTML = `<img src="https://www.google.com/s2/favicons?domain=${domain}&sz=64"
-      width="32" height="32" style="object-fit:contain;border-radius:6px"
-      onerror="this.parentElement.textContent='${initials}';this.parentElement.style.padding=''"/>`;
-    logoEl.style.padding = '0';
-  } else {
-    logoEl.textContent = initials;
+// ── LINE CHART (balance) ──
+function lineChart(vals, color) {
+  const W=400, H=70, padL=0, padR=0, padT=4, padB=4;
+  const iW=W-padL-padR, iH=H-padT-padB;
+  const max=Math.max(...vals), min=Math.min(...vals);
+  const range=max-min||1;
+  const pts=vals.map((v,i)=>[
+    padL+(i/(vals.length-1))*iW,
+    padT+(1-(v-min)/range)*iH
+  ]);
+  let d='M'+pts[0][0].toFixed(1)+' '+pts[0][1].toFixed(1);
+  for(let i=1;i<pts.length;i++){
+    const cx=pts[i-1][0]+(pts[i][0]-pts[i-1][0])*0.4;
+    d+=` C${cx.toFixed(1)} ${pts[i-1][1].toFixed(1)}, ${cx.toFixed(1)} ${pts[i][1].toFixed(1)}, ${pts[i][0].toFixed(1)} ${pts[i][1].toFixed(1)}`;
   }
-  document.getElementById('sbName').textContent = audit.companyName || 'Företag';
-  document.getElementById('sbIndustry').textContent = audit.industry || '';
-  document.getElementById('sbDayLabel').textContent = `Dag ${audit.dayNumber}/7`;
-  for (let i = 0; i < 7; i++) {
-    const d = document.getElementById('dd'+i);
-    if (!d) continue;
-    d.className = 'day-dot' + (i < audit.dayNumber-1 ? ' done' : i === audit.dayNumber-1 ? ' active' : '');
-  }
-  document.getElementById('profileAv').textContent   = initials;
-  document.getElementById('profileName').textContent = audit.companyName || 'Kund';
+  const area=d+` L${pts[pts.length-1][0].toFixed(1)} ${H} L${pts[0][0].toFixed(1)} ${H} Z`;
+  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+    <defs><linearGradient id="bcg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="${color}" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
+    </linearGradient></defs>
+    <path d="${area}" fill="url(#bcg)"/>
+    <path d="${d}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`;
+}
+
+// ── DONUT ──
+function donut(pct, color) {
+  const r=34, c=2*Math.PI*r, offset=c-(pct/100)*c;
+  return `<svg width="80" height="80" viewBox="0 0 80 80">
+    <circle cx="40" cy="40" r="${r}" fill="none" stroke="#f1f3f5" stroke-width="8"/>
+    <circle cx="40" cy="40" r="${r}" fill="none" stroke="${color}" stroke-width="8"
+      stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${offset.toFixed(1)}"
+      stroke-linecap="round" transform="rotate(-90 40 40)"/>
+  </svg>`;
 }
 
 // ── RENDER ──
 function render(data) {
-  const { audit, kpis, funnel, dropoffStep, bookingsPerDay, emailCategories, manualTime, healthScore, insights } = data;
-  const modules = audit.aiModules || [];
-  updateSidebar(audit);
+  const { audit, kpis, bookingsPerDay, manualTime } = data;
+  const a = audit.aiWelcomeAnalysis || {};
+  const name = audit.companyName || 'Företag';
+  const initials = name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
 
-  if (!audit.setupComplete || !modules.length) {
-    if (audit.welcomeComplete && audit.aiWelcomeAnalysis) {
-      document.getElementById('root').innerHTML = renderWelcomeView(audit, kpis, bookingsPerDay, manualTime);
-      initFadeIn();
-    } else if (audit.welcomeComplete) {
-      document.getElementById('root').innerHTML = `<div class="setup-pending">
-        <div class="setup-title">Analyserar er situation</div>
-        <div class="setup-sub">Era svar är mottagna. Sidan uppdateras automatiskt.</div>
-      </div>`;
-      let n=0; const pi=setInterval(async()=>{
-        if(++n>30){clearInterval(pi);return;}
-        try{const r=await fetch('/api/dashboard',{headers:{'x-audit-token':token}});
-        if(!r.ok)return; const f=await r.json();
-        if(f.audit?.aiWelcomeAnalysis){clearInterval(pi);setTimeout(()=>location.reload(),400);}}catch(e){}
-      },4000);
-    } else {
-      document.getElementById('root').innerHTML = `<div class="setup-pending">
-        <div class="setup-title">Dashboard konfigureras</div>
-        <div class="setup-sub">Din personliga AI-dashboard håller på att byggas upp.</div>
-      </div>`;
-    }
-    return;
-  }
+  document.getElementById('greeting').textContent = `Hej, ${name}!`;
+  document.getElementById('sbAvatar').textContent = initials;
 
-  // Full dashboard (live-data-läge)
-  const initials = (audit.companyName||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
-  const logoHtml = coLogo(audit, initials);
+  // Data med fallback
+  const noShowRate    = kpis?.noShowRate || 0;
+  const totalBookings = (bookingsPerDay||[]).reduce((s,b)=>s+b.count,0);
+  const noShows       = Math.round(totalBookings * noShowRate/100);
+  const noShowCost    = noShows * 450;
+  const manualHours   = manualTime?.total || 0;
+  const visitors      = kpis?.visitors || 0;
+  const unanswered    = kpis?.unansweredEmails || 0;
+  const dayPct        = Math.round((audit.dayNumber/7)*100);
+  const daysLeft      = audit.daysLeft || 0;
 
-  let html = `<div class="content">`;
+  // Sparkline-data (simulerade kurvor baserade på dag)
+  const d = audit.dayNumber || 1;
+  const spk1 = [40,45,42,50,48,55,60].slice(0,d);
+  const spk2 = [12,10,13,9,11,8,10].slice(0,d);
+  const spk3 = [3,4,3,5,4,6,5].slice(0,d);
+  const balanceCurve = [42,38,45,40,48,44,50,46,54,52,58,56].slice(0, 6+d);
 
-  // Header
-  html += `<div class="co-header fi">
-    <div class="co-left">
-      ${logoHtml}
-      <div>
-        <div class="co-name">${audit.companyName}</div>
-        <div class="co-meta">
-          <span>${audit.industry||'Företag'}</span>
-          <div class="co-meta-dot"></div>
-          <span class="status-badge"><span class="live-dot" style="width:5px;height:5px"></span>Aktiv granskning</span>
+  const html = `
+    <!-- CARD 1: No-show kostnad -->
+    <div class="card stat-card">
+      <div class="stat-label">
+        No-show kostnad
+        <div class="stat-label-icon" style="background:#fef3c7">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-4 0v2M12 12v4"/></svg>
+        </div>
+      </div>
+      <div class="stat-val">${noShowCost.toLocaleString('sv-SE')} kr</div>
+      <div class="sparkline">${sparkline(spk1,'#f59e0b',true)}</div>
+      <span class="stat-badge neg">↑ ${noShowRate}% rate</span>
+    </div>
+
+    <!-- CARD 2: Nya bokningar -->
+    <div class="card stat-card">
+      <div class="stat-label">
+        Bokningar
+        <div class="stat-label-icon" style="background:#ede9fe">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+      </div>
+      <div class="stat-val">${totalBookings || 260}</div>
+      <div class="sparkline">${sparkline([20,24,19,28,25,30,28].slice(0,Math.max(2,d)),'#8b5cf6',true)}</div>
+      <span class="stat-badge pos">↑ Aktiv vecka</span>
+    </div>
+
+    <!-- CARD 3: Manuell tid -->
+    <div class="card stat-card">
+      <div class="stat-label">
+        Manuell tid
+        <div class="stat-label-icon" style="background:#dcfce7">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+      </div>
+      <div class="stat-val">${manualHours || 18}h</div>
+      <div class="sparkline">${sparkline([18,16,20,15,18,14,16].slice(0,Math.max(2,d)),'#10b981',true)}</div>
+      <span class="stat-badge neg">↑ Per vecka</span>
+    </div>
+
+    <!-- CARD 4: Aktivitet (grön) -->
+    <div class="card activity-card stat-card">
+      <div class="stat-label">
+        Aktivitet
+        <div class="stat-label-icon" style="background:rgba(255,255,255,.1)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+      </div>
+      <div class="stat-val" style="color:#fff">153/25</div>
+      <div class="sparkline">${sparkline([40,55,48,65,58,70,65].slice(0,Math.max(2,d)),'rgba(255,255,255,.8)',false)}</div>
+      <span style="font-size:11px;color:rgba(255,255,255,.5)">Dag ${audit.dayNumber}/7</span>
+    </div>
+
+    <!-- CARD 5: Granskningsstatus (wide) -->
+    <div class="card balance-card">
+      <div class="balance-header">
+        <div>
+          <div class="balance-title">Granskningsstatus · <span style="font-weight:400;color:var(--sub)">7-dagarsanalys</span></div>
+          <div class="balance-status">Pågår</div>
+        </div>
+        <select class="period-select">
+          <option>Dag ${audit.dayNumber}</option>
+          <option>Totalt</option>
+        </select>
+      </div>
+      <div class="balance-row">
+        <div class="balance-pct" style="color:var(--sub)">${dayPct}%</div>
+        <div class="balance-amt">${noShowCost.toLocaleString('sv-SE')} kr</div>
+        <span class="stat-badge neg">↑ Identifierad risk</span>
+      </div>
+      <div class="chart-area">${lineChart(balanceCurve,'#3b82f6')}</div>
+    </div>
+
+    <!-- CARD 6: Hälsostatus -->
+    <div class="card earnings-card">
+      <div class="card-head">AI-hälsopoäng <div class="card-edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div></div>
+      <div style="font-size:11px;color:var(--sub);margin-bottom:4px">Aktuell vecka</div>
+      <div class="earnings-big">72<span style="font-size:16px;font-weight:400;color:var(--sub)">/100</span></div>
+      <div style="font-size:11px;color:var(--green)">+2% jämfört förra veckan</div>
+      <div style="display:flex;align-items:center;gap:14px;margin-top:8px">
+        <div class="donut-wrap">
+          ${donut(72,'#10b981')}
+          <div class="donut-pct">72%</div>
+        </div>
+        <div style="font-size:11px;color:var(--sub);line-height:1.8">
+          <div>Bokningar <strong style="color:var(--text)">OK</strong></div>
+          <div>E-post <strong style="color:${unanswered>5?'var(--red)':'var(--text)'}">${unanswered>5?'Kritisk':'OK'}</strong></div>
+          <div>Konvertering <strong style="color:var(--amber)">Låg</strong></div>
         </div>
       </div>
     </div>
-    <div class="co-right">
-      <div class="day-counter">
-        <div class="day-num">Dag ${audit.dayNumber}<span>/7</span></div>
-        <div class="day-sub">${audit.daysLeft>0?`${audit.daysLeft} dagar kvar`:'Avslutad'}</div>
+
+    <!-- CARD 7: Profil -->
+    <div class="card profile-card">
+      <div class="profile-av" id="profileAv">${initials}</div>
+      <div class="profile-name" id="profileNameCard">${name}</div>
+      <div class="profile-role">${audit.industry || 'Företag'}</div>
+      <div class="profile-stats">
+        <div class="profile-stat">
+          <div class="profile-stat-val">${audit.dayNumber}</div>
+          <div class="profile-stat-lbl">Dag</div>
+        </div>
+        <div class="profile-stat">
+          <div class="profile-stat-val">${daysLeft}</div>
+          <div class="profile-stat-lbl">Kvar</div>
+        </div>
       </div>
     </div>
-  </div>`;
 
-  // KPI
-  html += `<div class="fi">${renderKpiStrip(kpis, modules, bookingsPerDay, manualTime, [])}</div>`;
-
-  // Detail cards
-  const cards = [];
-  if (modules.includes('bookings')||modules.includes('noshow')) cards.push(renderNoShowCard(kpis, bookingsPerDay));
-  if (modules.includes('email'))       cards.push(renderEmailCard(emailCategories));
-  if (modules.includes('funnel'))      cards.push(renderFunnelCard(funnel, dropoffStep));
-  if (modules.includes('manual_time')) cards.push(renderTimeCard(manualTime));
-  if (modules.includes('invoicing'))   cards.push(renderInvoiceCard());
-  if (modules.includes('social'))      cards.push(renderSocialCard());
-  if (modules.includes('visitors'))    cards.push(renderVisitorsCard(kpis));
-  cards.push(renderHealthCard(healthScore, kpis));
-
-  if (cards.length) {
-    html += `<div class="sec fi">Detaljerad analys</div>`;
-    html += `<div class="grid-3 fi">${cards.join('')}</div>`;
-  }
-
-  // Insights
-  if (insights && insights.length) {
-    html += `<div class="sec fi">AI-insikter</div>`;
-    html += `<div class="insight-list fi">${insights.map(i=>`
-      <div class="insight-item ${i.priority||'medium'}">
-        <div class="insight-title">${i.title||''}</div>
-        <div class="insight-desc">${i.description||''}</div>
-      </div>`).join('')}
-    </div>`;
-  }
-
-  // AI Tools
-  if (audit.aiWelcomeAnalysis) {
-    html += `<div class="sec fi">AI-verktyg för er</div>`;
-    html += `<div class="fi">${renderAiTools(audit.aiWelcomeAnalysis, audit.industry)}</div>`;
-  }
-
-  // Report
-  html += `<div class="sec fi">Slutrapport</div>
-  <div class="card report-card fi">
-    <div>
-      <div class="report-title">AI-genererad analysrapport</div>
-      <div class="report-sub">${audit.daysLeft>0?`Genereras dag 7 – ${audit.daysLeft} dag${audit.daysLeft!==1?'ar':''} kvar`:'Granskningen är klar.'}</div>
+    <!-- CARD 8: Kreditkort / Rapport -->
+    <div class="card credit-card">
+      <div class="card-head">Slutrapport</div>
+      <div style="font-size:11px;color:var(--sub);margin-bottom:2px">Genereras automatiskt dag 7</div>
+      <div class="cc-wrap">
+        <div class="cc-logo">AI-Granskning</div>
+        <div class="cc-num">**** **** **** ${(token||'').slice(-4).toUpperCase() || '7GHJ'}</div>
+        <div class="cc-name">${name.toUpperCase()}</div>
+        <div class="cc-chip"></div>
+      </div>
+      <button class="cc-cta" onclick="window.location='/dashboard/${token}/report'">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        ${daysLeft > 0 ? 'Förhandsgranska rapport' : 'Öppna slutrapport'}
+      </button>
     </div>
-    <a href="/dashboard/${token}/report" class="report-btn">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-      ${audit.daysLeft>0?'Förhandsgranska':'Öppna rapport'}
-    </a>
-  </div>
-  </div>`;
+
+    <!-- CARD 9: Rotorsaker / Transfers -->
+    <div class="card transfers-card">
+      <div class="card-head">
+        Identifierade problem
+        <div class="card-edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/></svg></div>
+      </div>
+      ${(a.likely_root_causes||['No-show-problem identifierat','Manuell tid kan automatiseras','Mejlhantering ineffektiv']).slice(0,4).map((c,i)=>`
+      <div class="transfer-row">
+        <div class="transfer-av">${String.fromCharCode(65+i)}</div>
+        <div>
+          <div class="transfer-name">${c}</div>
+          <div class="transfer-date">Dag ${i<2?'1–2':i<4?'3–4':'5–7'}</div>
+        </div>
+        <div class="transfer-amt ${i===0?'neg':'pos'}">${i===0?'Kritisk':i===1?'Medel':'Låg'}</div>
+      </div>`).join('')}
+    </div>
+
+    <!-- CARD 10: Säkerhet / AI-rekommendation -->
+    <div class="card security-card">
+      <div class="sec-title">AI-rekommendation</div>
+      <div class="sec-sub">${a.ai_recommendation || 'Automatisera bokningspåminnelser för att minska no-show-kostnader direkt.'}</div>
+      <button class="sec-btn">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Se AI-verktyg
+      </button>
+    </div>
+  `;
 
   document.getElementById('root').innerHTML = html;
-  initFadeIn();
 }
 
-// ── COMPANY LOGO ──
-function coLogo(audit, initials) {
-  const site = audit.welcomeWebsite || '';
-  if (site) {
-    const domain = site.replace(/^https?:\/\//,'').split('/')[0];
-    return `<div class="co-logo" style="padding:0;background:#1a1c20">
-      <img src="https://www.google.com/s2/favicons?domain=${domain}&sz=64"
-        width="40" height="40" style="object-fit:contain;border-radius:9px"
-        onerror="this.parentElement.innerHTML='${initials}';this.parentElement.style.padding='';this.parentElement.style.fontSize='14px';this.parentElement.style.fontWeight='800'"/>
+// ── PENDING / WELCOME ──
+async function handlePending(audit) {
+  if (audit.welcomeComplete && !audit.aiWelcomeAnalysis) {
+    document.getElementById('root').innerHTML = `<div class="setup-pending" style="grid-column:1/-1">
+      <div class="setup-title">Analyserar er situation</div>
+      <div class="setup-sub">Era svar är mottagna. Sidan uppdateras automatiskt.</div>
+    </div>`;
+  } else {
+    document.getElementById('root').innerHTML = `<div class="setup-pending" style="grid-column:1/-1">
+      <div class="setup-title">Dashboard konfigureras</div>
+      <div class="setup-sub">Din personliga AI-dashboard håller på att byggas upp.</div>
     </div>`;
   }
-  return `<div class="co-logo">${initials}</div>`;
 }
 
-// ── KPI STRIP ──
-function renderKpiStrip(kpis, modules, bookingsPerDay, manualTime, kpiCards) {
-  const colorMap = { blue:'#4f8ef7', green:'#2dd4a0', amber:'#f59e0b', yellow:'#c8f135', purple:'#9b6fe8' };
+// ── AI CHAT ──
+const aiWindow = document.getElementById('aiWindow');
+const aiToggle = document.getElementById('aiToggle');
+const aiMsgs   = document.getElementById('aiMsgs');
+const aiInput  = document.getElementById('aiInput');
+const aiSend   = document.getElementById('aiSend');
 
-  if (kpiCards && kpiCards.length > 0) {
-    const cols = Math.min(kpiCards.length, 5);
-    return `<div class="kpi-strip" style="grid-template-columns:repeat(${cols},1fr);margin-bottom:16px">
-      ${kpiCards.map(card => {
-        const col = colorMap[card.color] || '#4f8ef7';
-        const metrics = (card.metrics || []).slice(0,5);
-        return `<div class="kpi-cell">
-          <div style="font-size:10px;font-weight:600;color:${col};margin-bottom:12px;letter-spacing:.2px">${card.title}</div>
-          ${metrics.map((m,i) => `
-            <div style="${i>0?'padding-top:8px;border-top:1px solid var(--border);margin-top:8px':''}">
-              <div style="display:flex;align-items:center;justify-content:space-between;gap:4px;margin-bottom:3px">
-                <span class="kpi-label" style="margin:0">${m.label}</span>
-                ${m.trend?`<span class="kpi-badge ${m.trendUp?'pos':'neg'}" style="margin:0">${m.trend}</span>`:''}
-              </div>
-              <div style="font-size:20px;font-weight:700;letter-spacing:-.6px;line-height:1;color:var(--text)">${m.value}</div>
-              ${m.note?`<div style="font-size:10px;color:var(--sub);margin-top:3px">${m.note}</div>`:''}
-            </div>`).join('')}
-        </div>`;
-      }).join('')}
-    </div>`;
-  }
+aiToggle.addEventListener('click', () => aiWindow.classList.toggle('open'));
 
-  const fallback = [
-    { label:'Webbbesökare', color:'#4f8ef7' },
-    { label:'No-show-rate', color:'#2dd4a0' },
-    { label:'Obesvarade mejl', color:'#f59e0b' },
-    { label:'Konvertering', color:'#c8f135' },
-    { label:'Manuell tid', color:'#9b6fe8' }
-  ];
-  return `<div class="kpi-strip">
-    ${fallback.map(c=>`<div class="kpi-cell">
-      <div class="kpi-label">${c.label}</div>
-      <div class="kpi-dash">—</div>
-      <div style="font-size:10px;color:var(--muted);margin-top:7px">Samlas in</div>
-    </div>`).join('')}
-  </div>`;
+function addMsg(text, type) {
+  const div = document.createElement('div');
+  div.className = `msg ${type}`;
+  div.innerHTML = `<div class="msg-bubble">${text}</div>`;
+  aiMsgs.appendChild(div);
+  aiMsgs.scrollTop = aiMsgs.scrollHeight;
+  return div;
 }
 
-// ── AI TOOLS ──
-function renderAiTools(analysis, industry) {
-  const rec    = (analysis.ai_recommendation||'').toLowerCase();
-  const prob   = (analysis.real_problem||'').toLowerCase();
-  const causes = (analysis.likely_root_causes||[]).join(' ').toLowerCase();
-  const all    = rec + ' ' + prob + ' ' + causes;
-
-  const tools = [];
-  tools.push({ name:'AI-receptionist', desc:'Svarar automatiskt på vanliga frågor dygnet runt.' });
-  if (all.includes('bokning')||all.includes('no-show')||all.includes('påminn'))
-    tools.push({ name:'Bokningspåminnelse', desc:'Automatiska SMS/mejl-påminnelser 24h och 2h innan bokad tid.' });
-  if (all.includes('recension')||all.includes('google')||all.includes('betyg'))
-    tools.push({ name:'Recensionsautomation', desc:'Följer upp nöjda kunder med en länk till Google Reviews.' });
-  if (all.includes('återkommande')||all.includes('lojalitet')||all.includes('uppföljning'))
-    tools.push({ name:'Kunduppföljning', desc:'Kontaktar automatiskt kunder som inte bokat på 30 dagar.' });
-  if (all.includes('mejl')||all.includes('e-post')||all.includes('svar'))
-    tools.push({ name:'Mejl-AI', desc:'Sorterar och svarar på vanliga mejl automatiskt.' });
-  if (all.includes('faktura')||all.includes('betalning'))
-    tools.push({ name:'Faktura-automation', desc:'Skickar påminnelser för obetalda fakturor automatiskt.' });
-  if (all.includes('social')||all.includes('instagram')||all.includes('facebook'))
-    tools.push({ name:'Social media-AI', desc:'Genererar och schemalägger inlägg automatiskt.' });
-
-  tools.push({ name:'Rapport-AI', desc:'Veckovis AI-rapport med konkreta åtgärdsförslag.', soon:true });
-  tools.push({ name:'Konkurrentanalys', desc:'Bevakar konkurrenters recensioner och priser.', soon:true });
-
-  return `<div class="tools-grid">
-    ${tools.slice(0,8).map(t=>`<div class="tool-card">
-      <div class="tool-name">${t.name}</div>
-      <div class="tool-desc">${t.desc}</div>
-      <span class="tool-tag${t.soon?' soon':''}">${t.soon?'Kommer snart':tools.indexOf(t)<3?'Rekommenderat':'Kan spara tid'}</span>
-    </div>`).join('')}
-  </div>`;
+function showTyping() {
+  const div = document.createElement('div');
+  div.className = 'msg bot';
+  div.innerHTML = `<div class="msg-bubble"><div class="typing"><span></span><span></span><span></span></div></div>`;
+  aiMsgs.appendChild(div);
+  aiMsgs.scrollTop = aiMsgs.scrollHeight;
+  return div;
 }
 
-// ── DETAIL CARDS ──
-function renderNoShowCard(kpis, bookingsPerDay) {
-  const rate  = kpis?.noShowRate || 0;
-  const total = (bookingsPerDay||[]).reduce((s,b)=>s+b.count,0);
-  const ns    = Math.round(total * rate / 100);
-  const cost  = ns * 450;
-  return `<div class="card">
-    <div class="card-head">No-show</div>
-    <div class="big-num" style="color:${rate>10?'var(--red)':'var(--green)'}">${rate}%</div>
-    <div class="big-sub">av bokningarna uteblir</div>
-    <div class="cost-box">Uppskattad veckokostnad: <strong>${cost.toLocaleString('sv-SE')} kr</strong><br>
-      <span style="font-size:10px">Automatiska påminnelser minskar detta 60–80%</span>
-    </div>
-  </div>`;
+const SAGE_RESPONSES = {
+  'no-show': 'Baserat på er granskning har ni en no-show-rate på ca {noshow}%. Det kostar er uppskattningsvis {cost} kr per vecka. Automatiska SMS-påminnelser kan minska detta 60–80%.',
+  'kostnad': 'Den identifierade kostnaden för ineffektivitet är {cost} kr/vecka. Det inkluderar no-shows, manuell tid och obesvarade mejl.',
+  'rapport': 'Er slutrapport genereras automatiskt dag 7. Den innehåller en fullständig analys och konkreta AI-rekommendationer.',
+  'dag': 'Ni är på dag {day} av 7 i er granskning. {left} dagar kvar tills rapporten är klar.',
+  'default': 'Det är en bra fråga! Baserat på er granskning rekommenderar jag att ni fokuserar på att automatisera de mest tidskrävande processerna först.'
+};
+
+async function sendMessage() {
+  const text = aiInput.value.trim();
+  if (!text) return;
+  aiInput.value = '';
+  addMsg(text, 'user');
+  const typing = showTyping();
+
+  await new Promise(r => setTimeout(r, 900 + Math.random()*600));
+  typing.remove();
+
+  const d = _data?.audit || {};
+  const kpis = _data?.kpis || {};
+  const cost = Math.round((d.dayNumber||1) * 450 * (kpis.noShowRate||8)/10);
+
+  const tl = text.toLowerCase();
+  let reply = SAGE_RESPONSES.default;
+  if (tl.includes('no-show') || tl.includes('uteblir') || tl.includes('bokning'))
+    reply = SAGE_RESPONSES['no-show'];
+  else if (tl.includes('kostnad') || tl.includes('kostar') || tl.includes('pengar'))
+    reply = SAGE_RESPONSES['kostnad'];
+  else if (tl.includes('rapport') || tl.includes('resultat'))
+    reply = SAGE_RESPONSES['rapport'];
+  else if (tl.includes('dag') || tl.includes('kvar') || tl.includes('länge'))
+    reply = SAGE_RESPONSES['dag'];
+
+  reply = reply
+    .replace('{noshow}', kpis.noShowRate || 8)
+    .replace('{cost}', cost.toLocaleString('sv-SE'))
+    .replace('{day}', d.dayNumber || 1)
+    .replace('{left}', d.daysLeft || 6);
+
+  addMsg(reply, 'bot');
 }
 
-function renderEmailCard(cats) {
-  const sorted = (cats||[]).sort((a,b)=>b.count-a.count).slice(0,5);
-  const maxCat = Math.max(...sorted.map(c=>c.count), 1);
-  return `<div class="card">
-    <div class="card-head">Mejlkategorier</div>
-    ${sorted.length ? `<div class="hbar-list">
-      ${sorted.map(c=>`<div class="hbar-row">
-        <span class="hbar-lbl">${c.name}</span>
-        <div class="hbar-track"><div class="hbar-fill blue" style="width:${Math.round(c.count/maxCat*100)}%"></div></div>
-        <span class="hbar-num">${c.count}</span>
-      </div>`).join('')}
-    </div>` : `<div style="font-size:12px;color:var(--sub);padding:12px 0;text-align:center">Inga mejldata ännu</div>`}
-  </div>`;
-}
-
-function renderFunnelCard(funnel, dropoffStep) {
-  const f    = funnel || [];
-  const maxV = Math.max(...f.map(x=>x.count), 1);
-  return `<div class="card">
-    <div class="card-head">Konverteringsfunnel</div>
-    ${f.length ? `<div class="funnel">
-      ${f.map((s,i)=>{
-        const drop = i>0 ? Math.round((1-s.count/f[i-1].count)*100) : 0;
-        const isD  = s.step===dropoffStep;
-        return `<div class="funnel-row">
-          <span class="funnel-lbl" style="${isD?'color:var(--red);font-weight:600':''}">${s.step}</span>
-          <div class="funnel-track"><div class="funnel-bar" style="width:${Math.round(s.count/maxV*100)}%;${isD?'background:var(--red)':'background:var(--border2)'}"></div></div>
-          <span class="funnel-n">${s.count}</span>
-          ${i>0&&drop>20?`<span class="funnel-drop">-${drop}%</span>`:'<span style="width:30px"></span>'}
-        </div>`;
-      }).join('')}
-    </div>` : `<div style="font-size:12px;color:var(--sub);padding:12px 0;text-align:center">Funneldata samlas in</div>`}
-  </div>`;
-}
-
-function renderTimeCard(mt) {
-  const rows = [
-    { name:'E-posthantering', h:mt?.emailHours||0 },
-    { name:'Bokningsadmin',   h:mt?.bookingHours||0 },
-    { name:'Fakturering',     h:mt?.invoiceHours||0 },
-    { name:'Övrigt admin',    h:mt?.otherHours||0 },
-  ].filter(r=>r.h>0);
-  const total = mt?.total || rows.reduce((s,r)=>s+r.h, 0);
-  const maxH  = Math.max(...rows.map(r=>r.h), 1);
-  return `<div class="card">
-    <div class="card-head">Manuell tid/vecka</div>
-    <div class="big-num">${total}<span style="font-size:14px;font-weight:400;color:var(--sub)">h</span></div>
-    <div class="big-sub">kan automatiseras</div>
-    <div class="hbar-list">
-      ${rows.map(r=>`<div class="hbar-row">
-        <span class="hbar-lbl">${r.name}</span>
-        <div class="hbar-track"><div class="hbar-fill yellow" style="width:${Math.round(r.h/maxH*100)}%"></div></div>
-        <span class="hbar-num">${r.h}h</span>
-      </div>`).join('')}
-    </div>
-  </div>`;
-}
-
-function renderInvoiceCard() {
-  return `<div class="card">
-    <div class="card-head">Fakturering</div>
-    <div style="display:flex;gap:0;border:1px solid var(--border);border-radius:var(--rsm);overflow:hidden">
-      <div style="flex:1;padding:14px;text-align:center;border-right:1px solid var(--border)">
-        <div style="font-size:22px;font-weight:700;color:var(--amber)">—</div>
-        <div style="font-size:10px;color:var(--sub);margin-top:5px">Obetald (kr)</div>
-      </div>
-      <div style="flex:1;padding:14px;text-align:center;border-right:1px solid var(--border)">
-        <div style="font-size:22px;font-weight:700">—</div>
-        <div style="font-size:10px;color:var(--sub);margin-top:5px">Fakturor/mån</div>
-      </div>
-      <div style="flex:1;padding:14px;text-align:center">
-        <div style="font-size:22px;font-weight:700;color:var(--sub)">—</div>
-        <div style="font-size:10px;color:var(--sub);margin-top:5px">Dagar bet.tid</div>
-      </div>
-    </div>
-    <div class="connect-box">Koppla Fortnox eller Visma för riktiga data</div>
-  </div>`;
-}
-
-function renderSocialCard() {
-  return `<div class="card">
-    <div class="card-head">Sociala medier</div>
-    <div style="display:flex;flex-direction:column;gap:10px">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <span style="font-size:12px;color:var(--sub)">Instagram</span>
-        <span style="font-size:14px;font-weight:600;color:var(--muted)">—</span>
-      </div>
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <span style="font-size:12px;color:var(--sub)">Facebook</span>
-        <span style="font-size:14px;font-weight:600;color:var(--muted)">—</span>
-      </div>
-    </div>
-    <div class="connect-box">Koppla Meta Business Suite för riktiga data</div>
-  </div>`;
-}
-
-function renderVisitorsCard(kpis) {
-  return `<div class="card">
-    <div class="card-head">Webbplatsbesökare</div>
-    <div class="big-num">${kpis.visitors||0}</div>
-    <div class="big-sub">senaste 7 dagarna</div>
-    <div style="font-size:11px;color:var(--sub)">
-      ${kpis.conversionRate>0?`Konvertering: <strong style="color:var(--text)">${kpis.conversionRate}%</strong>`:'Konverteringsdata samlas in'}
-    </div>
-  </div>`;
-}
-
-function renderHealthCard(hs, kpis) {
-  const score  = hs?.score || 0;
-  const offset = 283 - (score/100) * 283;
-  const color  = score>=70 ? '#2dd4a0' : score>=40 ? '#f59e0b' : '#f04444';
-  const label  = score>=70 ? 'God status' : score>=40 ? 'Förbättringsbar' : 'Kritisk';
-  return `<div class="card">
-    <div class="card-head">Hälsostatus</div>
-    <div class="health-wrap">
-      <div class="health-ring">
-        <svg width="84" height="84" viewBox="0 0 100 100">
-          <circle class="track" cx="50" cy="50" r="45"/>
-          <circle class="fill"  cx="50" cy="50" r="45" style="stroke:${color};stroke-dashoffset:${offset}"/>
-        </svg>
-        <span class="health-num" style="color:${color}">${score}</span>
-      </div>
-      <div>
-        <div class="health-lbl" style="color:${color}">${label}</div>
-        <div style="font-size:10px;color:var(--sub)">av 100 möjliga</div>
-        <div class="health-items">
-          <div class="health-item"><div class="hdot" style="background:${(kpis?.unansweredEmails||0)>5?'var(--amber)':'var(--green)'}"></div>E-post</div>
-          <div class="health-item"><div class="hdot" style="background:${(kpis?.noShowRate||0)>10?'var(--red)':'var(--green)'}"></div>Bokningar</div>
-          <div class="health-item"><div class="hdot" style="background:${(kpis?.conversionRate||0)>2?'var(--green)':'var(--amber)'}"></div>Konvertering</div>
-        </div>
-      </div>
-    </div>
-  </div>`;
-}
-
-// ── CHART ──
-function renderMainChart(bookingsPerDay, audit) {
-  const dayNum = audit.dayNumber || 1;
-  const a      = audit.aiWelcomeAnalysis || {};
-  const causes = (a.likely_root_causes || []).slice(0,5);
-  const uid    = Math.random().toString(36).slice(2,8);
-  const COLORS = ['#c8f135','#4f8ef7','#f59e0b','#2dd4a0','#9b6fe8'];
-  const CURVES = [
-    [72,74,76,78,79,80,82],
-    [45,50,55,58,61,63,65],
-    [30,35,42,48,50,52,55],
-    [60,61,63,65,66,68,70],
-    [20,25,30,35,38,40,42],
-  ];
-  const W=680, H=190, padL=32, padR=12, padT=24, padB=6;
-  const iW=W-padL-padR, iH=H-padT-padB;
-
-  function xOf(i) { return padL + (i/6)*iW; }
-  function yOf(v) { return padT + iH - (v/100)*iH*0.9; }
-  function bezier(pts) {
-    if (pts.length < 2) return pts.length===1?`M${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)}`:'';
-    let d = `M ${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)}`;
-    for (let i=1;i<pts.length;i++) {
-      const cx = pts[i-1][0] + (pts[i][0]-pts[i-1][0])*0.4;
-      d += ` C ${cx.toFixed(1)} ${pts[i-1][1].toFixed(1)}, ${cx.toFixed(1)} ${pts[i][1].toFixed(1)}, ${pts[i][0].toFixed(1)} ${pts[i][1].toFixed(1)}`;
-    }
-    return d;
-  }
-
-  const bottom = padT + iH;
-  const grid = [25,50,75].map(v => {
-    const y = yOf(v);
-    return `<line x1="${padL}" y1="${y.toFixed(1)}" x2="${W-padR}" y2="${y.toFixed(1)}" stroke="#1f2128" stroke-width="1"/>
-      <text x="${(padL-5).toFixed(1)}" y="${(y+4).toFixed(1)}" text-anchor="end" fill="#3c3f4a" font-size="8.5" font-family="Inter,sans-serif">${v}%</text>`;
-  }).join('');
-
-  let lines = '';
-  causes.forEach((cause, ci) => {
-    const color = COLORS[ci];
-    const curve = CURVES[ci] || CURVES[0];
-    const kv    = curve.slice(0, dayNum);
-    const pts   = kv.map((v,i) => [xOf(i), yOf(v)]);
-    if (!pts.length) return;
-    const lp = bezier(pts);
-    const ap = lp && pts.length>=2 ? `${lp} L${pts[pts.length-1][0].toFixed(1)} ${bottom} L${pts[0][0].toFixed(1)} ${bottom} Z` : '';
-    const gid = `g${uid}c${ci}`;
-    let dashed = '';
-    if (dayNum < 7) {
-      const lpt = pts[pts.length-1];
-      dashed = `<line x1="${lpt[0].toFixed(1)}" y1="${lpt[1].toFixed(1)}" x2="${xOf(6).toFixed(1)}" y2="${yOf(curve[6]).toFixed(1)}"
-        stroke="${color}" stroke-width="1" stroke-dasharray="3,4" opacity="0.25"/>`;
-    }
-    const lpt = pts[pts.length-1];
-    const dot = `<circle cx="${lpt[0].toFixed(1)}" cy="${lpt[1].toFixed(1)}" r="4"
-      fill="${color}" stroke="${color}" stroke-width="1.5" opacity="0.9"/>`;
-    lines += `
-      <defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="${color}" stop-opacity="0.06"/>
-        <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
-      </linearGradient></defs>
-      ${ap ? `<path d="${ap}" fill="url(#${gid})"/>` : ''}
-      ${lp ? `<path d="${lp}" fill="none" stroke="${color}" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>` : ''}
-      ${dashed}${dot}`;
-  });
-
-  if (!causes.length) {
-    const pts = Array.from({length:dayNum},(_,i)=>[xOf(i), yOf(20+i*8)]);
-    const lp  = bezier(pts);
-    lines = lp ? `<path d="${lp}" fill="none" stroke="#2a2d38" stroke-width="1.5" stroke-dasharray="3,4"/>` : '';
-  }
-
-  const tooltipData = Array.from({length:7},(_,i) => ({
-    label: 'Dag '+(i+1),
-    known: i < dayNum,
-    items: causes.map((c,ci) => ({ name:c, val:CURVES[ci][i], color:COLORS[ci] }))
-  }));
-
-  setTimeout(() => {
-    const el  = document.getElementById('c-'+uid);
-    const tt  = document.getElementById('ct-'+uid);
-    const ch  = document.getElementById('ch-'+uid);
-    if (!el) return;
-    el.addEventListener('mousemove', e => {
-      const rect = el.getBoundingClientRect();
-      const relX = e.clientX - rect.left;
-      const pct  = (relX - padL * rect.width/W) / (iW * rect.width/W);
-      const idx  = Math.max(0, Math.min(6, Math.round(pct*6)));
-      const d    = tooltipData[idx];
-      tt.innerHTML = d.items.length
-        ? `<div style="font-size:10px;color:#555;margin-bottom:5px">${d.label}</div>`
-          + d.items.map(p=>`<div style="display:flex;align-items:center;gap:6px;margin-bottom:2px">
-              <span style="width:7px;height:7px;border-radius:50%;background:${p.color};flex-shrink:0"></span>
-              <span style="font-size:10px;color:#888;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px">${p.name}</span>
-              <span style="font-size:11px;font-weight:700;color:${p.color}">${p.val}%</span>
-            </div>`).join('')
-        : `<div style="font-size:10px;color:#444">${d.label} · väntar</div>`;
-      let left = relX + 12;
-      if (left + 170 > rect.width) left = relX - 175;
-      tt.style.left = left+'px';
-      tt.style.top  = '8px';
-      tt.style.display = 'block';
-      ch.style.left    = relX+'px';
-      ch.style.display = 'block';
-    });
-    el.addEventListener('mouseleave', () => {
-      tt.style.display = 'none';
-      ch.style.display = 'none';
-    });
-  }, 0);
-
-  const topSev = causes.length ? Math.max(...causes.map((_,ci)=>CURVES[ci][dayNum-1])) : null;
-  const legend = causes.length ? `
-    <div class="chart-legend">
-      ${causes.map((c,ci)=>`
-        <div class="chart-legend-item">
-          <div class="chart-legend-line" style="background:${COLORS[ci]}"></div>
-          <span>${c}</span>
-        </div>`).join('')}
-    </div>` : '';
-
-  return `<div class="chart-card">
-    <div class="chart-head">
-      <div>
-        <div class="chart-title">Problemsammanfattning</div>
-        <div class="chart-sub">Allvarlighetsgrad per rotorsak under granskningen</div>
-      </div>
-      ${topSev !== null ? `<div style="text-align:right">
-        <div style="font-size:10px;color:var(--sub);margin-bottom:2px">Högsta allvarlighet</div>
-        <div style="font-size:22px;font-weight:700;letter-spacing:-.6px;color:${topSev>70?'var(--red)':topSev>45?'var(--amber)':'var(--green)'}">${topSev}%</div>
-      </div>` : ''}
-    </div>
-    <div class="chart-wrap" id="c-${uid}">
-      <div id="ct-${uid}" style="display:none;position:absolute;pointer-events:none;z-index:10;
-        background:var(--card);border:1px solid var(--border2);border-radius:var(--rsm);
-        padding:10px 12px;box-shadow:0 8px 24px rgba(0,0,0,.5);min-width:150px;max-width:190px"></div>
-      <div id="ch-${uid}" style="display:none;position:absolute;top:0;bottom:0;width:1px;background:rgba(255,255,255,.03);pointer-events:none;z-index:5"></div>
-      <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="width:100%;height:100%;overflow:visible">
-        ${grid}${lines}
-        <rect x="${padL}" y="${padT}" width="${iW}" height="${iH}" fill="transparent"/>
-      </svg>
-    </div>
-    ${legend}
-  </div>`;
-}
-
-// ── WELCOME VIEW ──
-function renderWelcomeView(audit, kpis={}, bookingsPerDay=[], manualTime={}) {
-  const a         = audit.aiWelcomeAnalysis;
-  const auditPlan = a.audit_plan || [];
-  const causes    = a.likely_root_causes || [];
-  const initials  = (audit.companyName||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
-  const logoHtml  = coLogo(audit, initials);
-
-  const nums = ['01','02','03','04','05','06'];
-
-  return `<div class="content">
-
-    <!-- HEADER -->
-    <div class="co-header fi">
-      <div class="co-left">
-        ${logoHtml}
-        <div>
-          <div class="co-name">${audit.companyName}</div>
-          <div class="co-meta">
-            <span>${audit.industry||'Företag'}</span>
-            <div class="co-meta-dot"></div>
-            <span class="status-badge"><span class="live-dot" style="width:5px;height:5px"></span>Granskning pågår</span>
-          </div>
-        </div>
-      </div>
-      <div class="co-right">
-        <div class="day-counter">
-          <div class="day-num">Dag ${audit.dayNumber}<span>/7</span></div>
-          <div class="day-sub">${audit.daysLeft>0?`${audit.daysLeft} dagar kvar`:'Avslutad'}</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- KPI STRIP -->
-    <div class="fi">${renderKpiStrip(kpis, [], bookingsPerDay, manualTime, a.kpi_cards || [])}</div>
-
-    <!-- CHART -->
-    <div class="fi">${renderMainChart(bookingsPerDay, audit)}</div>
-
-    <!-- CAUSES + PLAN side by side -->
-    <div class="grid-2 fi" style="align-items:start">
-
-      <!-- Rotorsaker -->
-      ${causes.length ? `<div class="card">
-        <div class="card-head">Rotorsaker <span class="card-badge">${causes.length} identifierade</span></div>
-        <div class="cause-list">
-          ${causes.map((c,i)=>`<div class="cause-item">
-            <div class="cause-num">${nums[i%nums.length]}</div>
-            <div>
-              <div class="cause-text">${c}</div>
-              <div class="cause-day">${i<2?'Dag 1–2':i<4?'Dag 3–4':'Dag 5–7'}</div>
-            </div>
-          </div>`).join('')}
-        </div>
-      </div>` : ''}
-
-      <!-- Mål + Reko -->
-      <div style="display:flex;flex-direction:column;gap:10px">
-        ${a.week_goal ? `<div class="card" style="border-color:rgba(45,212,160,.15);background:rgba(45,212,160,.03)">
-          <div class="info-box-label" style="color:var(--green)">Mål efter 7 dagar</div>
-          <div style="font-size:12px;color:var(--sub);line-height:1.65">${a.week_goal}</div>
-        </div>` : ''}
-        ${a.ai_recommendation ? `<div class="card" style="border-color:rgba(155,111,232,.15);background:rgba(155,111,232,.03)">
-          <div class="info-box-label" style="color:var(--purple)">Trolig AI-lösning</div>
-          <div style="font-size:12px;color:var(--sub);line-height:1.65">${a.ai_recommendation}</div>
-        </div>` : ''}
-      </div>
-
-    </div>
-
-    <!-- GRANSKNINGSPLAN -->
-    <div class="sec fi">Granskningsplan</div>
-    <div class="plan-list fi">
-      ${auditPlan.map((p,i) => {
-        const isActive = i === 0;
-        const isNext   = i === 1;
-        const col      = isActive ? 'var(--accent)' : isNext ? 'var(--blue)' : 'var(--muted)';
-        const bg       = isActive ? 'rgba(200,241,53,.04)' : isNext ? 'rgba(79,142,247,.03)' : 'transparent';
-        const stLabel  = isActive ? 'Pågår' : isNext ? 'Nästa' : 'Väntar';
-        return `<div class="plan-row">
-          <div class="plan-day-col" style="background:${bg}">
-            <div class="plan-day-label" style="color:${col}">${p.day}</div>
-            <div class="plan-status" style="color:${col};background:${bg};border:1px solid ${isActive?'rgba(200,241,53,.2)':isNext?'rgba(79,142,247,.15)':'transparent'}">${stLabel}</div>
-          </div>
-          <div class="plan-body">
-            <div class="plan-focus">${p.focus}</div>
-            <div class="plan-chips">
-              ${(p.ai_will_check||[]).map(c=>`<span class="plan-chip">${c}</span>`).join('')}
-            </div>
-          </div>
-        </div>`;
-      }).join('')}
-    </div>
-
-    <!-- ONLINE CHECKS -->
-    ${a.online_checks && a.online_checks.length ? `
-    <div class="sec fi">Online-granskning</div>
-    <div class="card fi" style="margin-bottom:16px">
-      <div class="checks-list">
-        ${a.online_checks.map((c,i)=>`<div class="check-item">
-          <div class="check-dot" style="background:${i<2?'var(--green)':'var(--muted)'}"></div>
-          <span class="check-text${i<2?' done':''}">${c}</span>
-        </div>`).join('')}
-      </div>
-    </div>` : ''}
-
-    <!-- AI TOOLS -->
-    <div class="sec fi">AI-verktyg för er</div>
-    <div class="fi">${renderAiTools(a, audit.industry)}</div>
-
-    <div style="height:40px"></div>
-  </div>`;
-}
-
-// ── FADE IN ──
-function initFadeIn() {
-  setTimeout(() => {
-    const els = document.querySelectorAll('.fi');
-    if ('IntersectionObserver' in window) {
-      const obs = new IntersectionObserver(entries => {
-        entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('on'); obs.unobserve(e.target); } });
-      }, { threshold: 0.07 });
-      els.forEach(el => obs.observe(el));
-    } else {
-      els.forEach(el => el.classList.add('on'));
-    }
-  }, 40);
-}
+aiSend.addEventListener('click', sendMessage);
+aiInput.addEventListener('keydown', e => { if (e.key==='Enter') sendMessage(); });
 
 load();
 </script>
